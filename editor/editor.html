@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Math Editor</title>
+    <link rel="stylesheet" href="mathquill/mathquill.css">
+    <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+    <div id="editor-window"> 
+        <div id="editor-title-bar">
+            <span id="editor-title">Visual Math Input</span>
+        </div>
+        <div id="editor-content-area"> 
+            <div id="tab-navigation">
+                <button class="tab-button active" data-tab="common">Common</button>
+                <button class="tab-button" data-tab="calculus">Calculus</button>
+                <button class="tab-button" data-tab="greeks">Greek</button>
+                <button class="tab-button" data-tab="operators">Operators & Relations</button>
+                <button class="tab-button" data-tab="functions">Functions</button>
+                <button class="tab-button" data-tab="accents">Accents & Arrows</button>
+                <button class="tab-button" data-tab="matrix">Matrices</button>
+                <button class="tab-button" data-tab="shortcuts">Shortcuts</button> <!-- NEW TAB -->
+            </div>
+
+            <div id="toolbar-tabs">
+                <!-- ... (Existing tabs: common, calculus, greeks, etc. remain the same) ... -->
+                <div id="tab-common" class="toolbar-tab active">
+                    <button data-mq-write="+" title="Plus">+</button><button data-mq-write="-" title="Minus">−</button><button data-mq-write="\pm" title="Plus/Minus">±</button><button data-mq-write="\times" title="Multiply">×</button><button data-mq-write="\div" title="Divide">÷</button><button data-mq-write="=" title="Equals">=</button><button data-mq-cmd="\frac" title="Fraction (a/b)">a/b</button><button data-mq-cmd="^" title="Exponent (x^y)">x<sup>y</sup></button><button data-mq-cmd="_" title="Subscript (x_y)">x<sub>y</sub></button><button data-mq-cmd="\sqrt" title="Square Root (√x)">√x</button><button data-mq-write="\sqrt[]_ {}" data-mq-keystrokes="Left Left Left Left Left" title="Nth Root (ⁿ√x)"><sup>n</sup>√x</button><button data-mq-write="() \Left" title="Parentheses ( )">( )</button><button data-mq-write="[] \Left" title="Brackets [ ]">[ ]</button><button data-mq-write="{} \Left" title="Braces { }">{ }</button><button data-mq-write="|" title="Absolute Value / Pipe">|</button><button data-mq-write="x" title="Variable x">x</button><button data-mq-write="y" title="Variable y">y</button><button data-mq-write="z" title="Variable z">z</button><button data-mq-write="t" title="Variable t">t</button><button data-mq-write="n" title="Variable n">n</button><button data-mq-write="k" title="Variable k">k</button><button data-mq-write="i" title="Imaginary unit / index i">i</button><button data-mq-write="j" title="Imaginary unit / index j">j</button><button data-mq-write="e" title="Euler's number e">e</button>
+                </div>
+                <div id="tab-calculus" class="toolbar-tab">
+                    <button data-mq-write="\int_{}^{} \mathrm{d}x" data-mq-keystrokes="Left Left Left Left Left Left Left Left" title="Integral ∫f(x)dx">∫</button><button data-mq-write="\int \int_{D}^{} \mathrm{d}A" data-mq-keystrokes="Left Left Left Left Left Left Left Left Left Left Left Left" title="Double Integral ∬ (type limits)">∬</button><button data-mq-write="\int \int \int_{V}^{} \mathrm{d}V" data-mq-keystrokes="Left Left Left Left Left Left Left Left Left Left Left Left Left Left Left" title="Triple Integral ∭ (type limits)">∭</button><button data-mq-write="\oint_{C} \mathrm{d}s" data-mq-keystrokes="Left Left Left Left Left Left Left Left" title="Contour Integral ∮">∮</button><button data-mq-write="\frac{d}{dx}\left(\right)" data-mq-keystrokes="Left" title="Derivative d/dx ()">d/dx</button><button data-mq-write="\frac{\partial}{\partial x}\left(\right)" data-mq-keystrokes="Left" title="Partial Derivative ∂/∂x ()">∂/∂x</button><button data-mq-write="f'()" data-mq-keystrokes="Left" title="Prime f'()">f'</button><button data-mq-write="\lim_{x \to }" data-mq-keystrokes="Left" title="Limit lim (x→)">lim</button><button data-mq-write="\sum_{n=}^{} " data-mq-keystrokes="Left Left Left Left Left" title="Summation Σ">∑</button><button data-mq-write="\prod_{n=}^{} " data-mq-keystrokes="Left Left Left Left Left" title="Product Π">∏</button><button data-mq-write="\nabla" title="Nabla / Del ∇">∇</button><button data-mq-write="\infty" title="Infinity ∞">∞</button><button data-mq-write="\Delta" title="Delta Δ (change)">Δ</button><button data-mq-write="\approx" title="Approximately equal ≈">≈</button>
+                </div>
+                <div id="tab-greeks" class="toolbar-tab">
+                    <button data-mq-write="\alpha" title="alpha α">α</button> <button data-mq-write="\beta" title="beta β">β</button> <button data-mq-write="\gamma" title="gamma γ">γ</button> <button data-mq-write="\delta" title="delta δ">δ</button> <button data-mq-write="\epsilon" title="epsilon ε">ε</button> <button data-mq-write="\zeta" title="zeta ζ">ζ</button> <button data-mq-write="\eta" title="eta η">η</button> <button data-mq-write="\theta" title="theta θ">θ</button> <button data-mq-write="\iota" title="iota ι">ι</button> <button data-mq-write="\kappa" title="kappa κ">κ</button> <button data-mq-write="\lambda" title="lambda λ">λ</button> <button data-mq-write="\mu" title="mu μ">μ</button> <button data-mq-write="\nu" title="nu ν">ν</button> <button data-mq-write="\xi" title="xi ξ">ξ</button> <button data-mq-write="\pi" title="pi π">π</button> <button data-mq-write="\rho" title="rho ρ">ρ</button> <button data-mq-write="\sigma" title="sigma σ">σ</button> <button data-mq-write="\tau" title="tau τ">τ</button> <button data-mq-write="\phi" title="phi φ">φ</button> <button data-mq-write="\chi" title="chi χ">χ</button> <button data-mq-write="\psi" title="psi ψ">ψ</button> <button data-mq-write="\omega" title="omega ω">ω</button>
+                    <button data-mq-write="\Gamma" title="Gamma Γ">Γ</button> <button data-mq-write="\Delta" title="Delta Δ">Δ</button> <button data-mq-write="\Theta" title="Theta Θ">Θ</button> <button data-mq-write="\Lambda" title="Lambda Λ">Λ</button> <button data-mq-write="\Xi" title="Xi Ξ">Ξ</button> <button data-mq-write="\Pi" title="Pi Π">Π</button> <button data-mq-write="\Sigma" title="Sigma Σ">Σ</button> <button data-mq-write="\Phi" title="Phi Φ">Φ</button> <button data-mq-write="\Psi" title="Psi Ψ">Ψ</button> <button data-mq-write="\Omega" title="Omega Ω">Ω</button>
+                </div>
+                <div id="tab-operators" class="toolbar-tab">
+                    <button data-mq-write="\neq" title="Not Equal ≠">≠</button> <button data-mq-write="<" title="Less Than <"><</button> <button data-mq-write=">" title="Greater Than >">></button> <button data-mq-write="\leq" title="Less Than or Equal ≤">≤</button> <button data-mq-write="\geq" title="Greater Than or Equal ≥">≥</button> <button data-mq-write="\equiv" title="Equivalent ≡">≡</button> <button data-mq-write="\sim" title="Similar ~">~</button> <button data-mq-write="\propto" title="Proportional to ∝">∝</button> <button data-mq-write="\forall" title="For All ∀">∀</button> <button data-mq-write="\exists" title="Exists ∃">∃</button> <button data-mq-write="\in" title="Element Of ∈">∈</button> <button data-mq-write="\notin" title="Not Element Of ∉">∉</button> <button data-mq-write="\subset" title="Subset Of ⊂">⊂</button> <button data-mq-write="\supset" title="Superset Of ⊃">⊃</button> <button data-mq-write="\subseteq" title="Subset or Equal ⊆">⊆</button> <button data-mq-write="\supseteq" title="Superset or Equal ⊇">⊇</button> <button data-mq-write="\cup" title="Union ∪">∪</button> <button data-mq-write="\cap" title="Intersection ∩">∩</button> <button data-mq-write="\setminus" title="Set Minus \">\</button> <button data-mq-write="\emptyset" title="Empty Set ∅">∅</button> <button data-mq-write="\wedge" title="Logical AND ∧">∧</button> <button data-mq-write="\vee" title="Logical OR ∨">∨</button> <button data-mq-write="\neg" title="Logical NOT ¬">¬</button> <button data-mq-write="\Rightarrow" title="Implies ⇒">⇒</button> <button data-mq-write="\Leftrightarrow" title="If and Only If ⇔">⇔</button> <button data-mq-write="\cdot" title="Dot Product ⋅">⋅</button> <button data-mq-write="\oplus" title="Direct Sum ⊕">⊕</button> <button data-mq-write="\otimes" title="Tensor Product ⊗">⊗</button> <button data-mq-write="\degree" title="Degree °">°</button>
+                </div>
+                <div id="tab-functions" class="toolbar-tab">
+                    <button data-mq-write="\sin()" data-mq-keystrokes="Left" title="sin()">sin</button> <button data-mq-write="\cos()" data-mq-keystrokes="Left" title="cos()">cos</button> <button data-mq-write="\tan()" data-mq-keystrokes="Left" title="tan()">tan</button> <button data-mq-write="\csc()" data-mq-keystrokes="Left" title="csc()">csc</button> <button data-mq-write="\sec()" data-mq-keystrokes="Left" title="sec()">sec</button> <button data-mq-write="\cot()" data-mq-keystrokes="Left" title="cot()">cot</button> <button data-mq-write="\arcsin()" data-mq-keystrokes="Left" title="arcsin()">arcsin</button> <button data-mq-write="\arccos()" data-mq-keystrokes="Left" title="arccos()">arccos</button> <button data-mq-write="\arctan()" data-mq-keystrokes="Left" title="arctan()">arctan</button> <button data-mq-write="\log_{}()" data-mq-keystrokes="Left Left Left" title="log base n ()">log<sub>n</sub></button> <button data-mq-write="\ln()" data-mq-keystrokes="Left" title="ln()">ln</button> <button data-mq-write="\exp()" data-mq-keystrokes="Left" title="exp()">exp</button> <button data-mq-write="\max" title="max">max</button> <button data-mq-write="\min" title="min">min</button> <button data-mq-write="\det" title="determinant">det</button> <button data-mq-write="\lim" title="limit (no subscript)">lim</button>
+                </div>
+                <div id="tab-accents" class="toolbar-tab">
+                    <button data-mq-write="\hat{}" data-mq-keystrokes="Left" title="Hat â">â</button> <button data-mq-write="\bar{}" data-mq-keystrokes="Left" title="Bar ā">ā</button> <button data-mq-write="\vec{}" data-mq-keystrokes="Left" title="Vector ⃗a">⃗a</button> <button data-mq-write="\dot{}" data-mq-keystrokes="Left" title="Dotȧ">ȧ</button> <button data-mq-write="\ddot{}" data-mq-keystrokes="Left" title="Double Dot ä">ä</button> <button data-mq-write="\tilde{}" data-mq-keystrokes="Left" title="Tilde ã">ã</button> <button data-mq-write="\overrightarrow{}" data-mq-keystrokes="Left" title="Right Arrow Vector">AB<sup>→</sup></button> <button data-mq-write="\underbrace{}_{}" data-mq-keystrokes="Left Left Left" title="Underbrace"><u>ab</u><sub>c</sub></button> <button data-mq-write="\overbrace{}^{}" data-mq-keystrokes="Left Left Left" title="Overbrace"><sup>c</sup><u>ab</u></button>
+                    <button data-mq-write="\rightarrow" title="Right Arrow →">→</button> <button data-mq-write="\leftarrow" title="Left Arrow ←">←</button> <button data-mq-write="\uparrow" title="Up Arrow ↑">↑</button> <button data-mq-write="\downarrow" title="Down Arrow ↓">↓</button> <button data-mq-write="\leftrightarrow" title="Left-Right Arrow ↔">↔</button> <button data-mq-write="\hbar" title="h-bar ħ">ħ</button> <button data-mq-write="\dots" title="Horizontal Ellipsis …">…</button> <button data-mq-write="\cdots" title="Midline Ellipsis ⋯">⋯</button> <button data-mq-write="\vdots" title="Vertical Ellipsis ⋮">⋮</button> <button data-mq-write="\ddots" title="Diagonal Ellipsis ⋱">⋱</button>
+                </div>
+                <div id="tab-matrix" class="toolbar-tab">
+                     <button data-mq-write="\begin{pmatrix}  &  \\  &  \end{pmatrix}" data-mq-keystrokes="Left Left Left Left Left Left Left" title="2x2 Matrix (Parentheses)">2x2 ()</button><button data-mq-write="\begin{bmatrix}  &  \\  &  \end{bmatrix}" data-mq-keystrokes="Left Left Left Left Left Left Left" title="2x2 Matrix (Brackets)">2x2 []</button><button data-mq-write="\begin{vmatrix}  &  \\  &  \end{vmatrix}" data-mq-keystrokes="Left Left Left Left Left Left Left" title="2x2 Determinant">2x2 ||</button><button data-mq-write="\begin{pmatrix}  &  &  \\  &  &  \\  &  &  \end{pmatrix}" data-mq-keystrokes="Left Left Left Left Left Left Left Left Left Left Left Left Left" title="3x3 Matrix (Parentheses)">3x3 ()</button><button data-mq-write="^{T}" title="Transpose">A<sup>T</sup></button>
+                </div>
+
+                <!-- NEW SHORTCUTS TAB CONTENT -->
+                <div id="tab-shortcuts" class="toolbar-tab shortcuts-content">
+                    <p>Type these LaTeX commands followed by a <strong>space</strong> to insert symbols:</p>
+                    <dl>
+                        <dt>\alpha, \beta, \gamma...</dt><dd>→ α, β, γ (Lowercase Greek)</dd>
+                        <dt>\Gamma, \Delta, \Omega...</dt><dd>→ Γ, Δ, Ω (Uppercase Greek)</dd>
+                        <dt>\pm</dt><dd>→ ± (Plus/Minus)</dd>
+                        <dt>\times</dt><dd>→ × (Multiply)</dd>
+                        <dt>\div</dt><dd>→ ÷ (Divide)</dd>
+                        <dt>\leq, \geq, \neq</dt><dd>→ ≤, ≥, ≠ (Inequalities)</dd>
+                        <dt>\approx, \equiv, \sim</dt><dd>→ ≈, ≡, ~ (Relations)</dd>
+                        <dt>\infty</dt><dd>→ ∞ (Infinity)</dd>
+                        <dt>\forall, \exists</dt><dd>→ ∀, ∃ (Quantifiers)</dd>
+                        <dt>\in, \notin, \subset</dt><dd>→ ∈, notin;, ⊂ (Set Theory)</dd>
+                        <dt>\cup, \cap</dt><dd>→ ∪, ∩ (Union, Intersection)</dd>
+                        <dt>\rightarrow, \leftarrow</dt><dd>→ →, ← (Arrows)</dd>
+                        <dt>\ldots, \cdots</dt><dd>→ ..., ⋯ (Ellipses)</dd>
+                        <dt>\sin, \cos, \tan</dt><dd>→ sin, cos, tan (Trig Functions - type with `()` for arguments)</dd>
+                        <dt>\log, \ln</dt><dd>→ log, ln (Logarithms)</dd>
+                        <dt>\text{your text}</dt><dd>→ Inserts 'your text' as normal text.</dd>
+                    </dl>
+                    <p>For structures:</p>
+                    <dl>
+                        <dt>/ or \frac</dt><dd>→ Fraction template</dd>
+                        <dt>^</dt><dd>→ Superscript</dd>
+                        <dt>_</dt><dd>→ Subscript</dd>
+                        <dt>\sqrt</dt><dd>→ Square root template</dd>
+                        <dt>\sum, \int, \lim</dt><dd>→ Summation, Integral, Limit templates</dd>
+                    </dl>
+                    <p><em>Tip: Arrow keys help navigate within structures.</em></p>
+                </div>
+
+            </div> 
+
+            <span id="math-field"></span>
+            <div id="editor-controls">
+                <button id="insert-button">Insert</button><button id="cancel-button">Cancel</button> 
+            </div>
+        </div>
+    </div>
+    <script src="mathquill/jquery.min.js"></script><script src="mathquill/mathquill.js"></script><script src="editor.js"></script>
+</body>
+</html>
