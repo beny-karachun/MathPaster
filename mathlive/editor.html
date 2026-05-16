@@ -36,42 +36,42 @@
     /* ── Header ── */
     #header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 20px 10px;
+      padding: 16px 24px 12px;
       border-bottom: 1px solid rgba(255,255,255,0.06);
       flex-shrink: 0;
     }
     #title {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 15px; font-weight: 600; color: #e2e8f0; letter-spacing: -0.01em;
+      display: flex; align-items: center; gap: 12px;
+      font-size: 17px; font-weight: 600; color: #e2e8f0; letter-spacing: -0.01em;
     }
     .icon {
       display: flex; align-items: center; justify-content: center;
-      width: 30px; height: 30px; border-radius: 9px;
+      width: 32px; height: 32px; border-radius: 9px;
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
       box-shadow: 0 2px 8px rgba(99,102,241,0.35);
     }
-    .icon svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .icon svg { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
     #close-btn {
       display: flex; align-items: center; justify-content: center;
-      width: 28px; height: 28px; border-radius: 8px; border: none;
+      width: 32px; height: 32px; border-radius: 8px; border: none;
       background: rgba(255,255,255,0.06); color: #94a3b8; cursor: pointer;
-      transition: all 0.15s ease; font-size: 14px; line-height: 1;
+      transition: all 0.15s ease; font-size: 16px; line-height: 1;
     }
     #close-btn:hover { background: rgba(239,68,68,0.15); color: #f87171; }
 
     /* ── Mode selector ── */
     #mode-bar {
-      display: flex; gap: 4px; padding: 8px 20px 0;
+      display: flex; gap: 6px; padding: 10px 24px 0;
       flex-shrink: 0;
     }
     #mode-selector {
-      display: flex; align-items: center; gap: 4px; padding: 3px;
+      display: flex; align-items: center; gap: 4px; padding: 4px;
       border-radius: 10px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);
     }
     .mode-btn {
-      padding: 5px 14px; border-radius: 7px; border: none; background: transparent;
-      color: #64748b; font-family: inherit; font-size: 12px; font-weight: 500;
+      padding: 6px 16px; border-radius: 7px; border: none; background: transparent;
+      color: #64748b; font-family: inherit; font-size: 14px; font-weight: 500;
       cursor: pointer; transition: all 0.15s ease;
     }
     .mode-btn.active {
@@ -82,7 +82,7 @@
 
     /* ── Body ── */
     #body {
-      padding: 14px 20px;
+      padding: 16px 24px;
       flex: 1 1 0;
       display: flex; flex-direction: column; gap: 12px;
       overflow: hidden; /* Changed from overflow-y: auto */
@@ -107,9 +107,9 @@
     math-field, #mf {
       display: block;
       width: 100%;
-      min-height: 80px;
-      font-size: 1.35rem;
-      padding: 14px 16px;
+      min-height: 90px;
+      font-size: 1.6rem;
+      padding: 16px 18px;
       border: none;
       border-radius: 12px;
       background: transparent;
@@ -136,10 +136,10 @@
     #category-tabs::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
     .cat-tab {
-      padding: 6px 14px; border-radius: 8px; border: none;
+      padding: 8px 16px; border-radius: 8px; border: none;
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.05);
-      color: #94a3b8; font-family: inherit; font-size: 12px; font-weight: 500;
+      color: #94a3b8; font-family: inherit; font-size: 14px; font-weight: 500;
       cursor: pointer; transition: all 0.15s ease;
       white-space: nowrap; user-select: none;
     }
@@ -165,17 +165,17 @@
     #palette-container::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
     #palette {
-      display: flex; flex-wrap: wrap; gap: 6px;
+      display: flex; flex-wrap: wrap; gap: 8px;
       align-content: flex-start;
     }
     .pal-btn {
       display: flex; align-items: center; justify-content: center;
-      min-width: 42px; height: 36px; padding: 0 8px; border-radius: 8px;
+      min-width: 48px; min-height: 44px; height: auto; padding: 6px 10px; border-radius: 8px;
       border: 1px solid rgba(255,255,255,0.07);
       background: rgba(255,255,255,0.04);
       color: #cbd5e1;
       font-family: 'KaTeX_Math', 'Times New Roman', serif;
-      font-size: 15px; font-style: italic;
+      font-size: 18px; font-style: italic;
       cursor: pointer;
       transition: all 0.15s ease;
       user-select: none;
@@ -200,14 +200,14 @@
       flex-shrink: 0;
     }
     #latex-preview .label {
-      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      font-size: 11.5px; font-weight: 700; text-transform: uppercase;
       letter-spacing: 0.08em; color: #6366f1; white-space: nowrap;
       padding-top: 2px;
     }
     #latex-code {
       flex: 1;
       font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', 'Menlo', monospace;
-      font-size: 12.5px; color: #94a3b8;
+      font-size: 14.5px; color: #94a3b8;
       word-break: break-all; line-height: 1.5;
       user-select: all; -webkit-user-select: all;
     }
@@ -215,25 +215,25 @@
     /* ── Footer ── */
     #footer {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 20px 14px;
+      padding: 14px 24px 18px;
       border-top: 1px solid rgba(255,255,255,0.06);
       flex-shrink: 0;
-      gap: 12px;
+      gap: 14px;
     }
-    .hint { font-size: 11px; color: #475569; line-height: 1.4; }
+    .hint { font-size: 12.5px; color: #475569; line-height: 1.4; }
     .hint kbd {
       display: inline-flex; align-items: center; justify-content: center;
-      padding: 1px 5px; border-radius: 4px;
+      padding: 1px 6px; border-radius: 4px;
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.08);
-      font-family: inherit; font-size: 10px;
+      font-family: inherit; font-size: 11.5px;
       color: #64748b; margin: 0 1px;
     }
-    .action-group { display: flex; gap: 8px; flex-shrink: 0; }
+    .action-group { display: flex; gap: 10px; flex-shrink: 0; }
 
     .btn {
-      padding: 8px 16px; border-radius: 10px; border: none;
-      font-family: inherit; font-size: 13px; font-weight: 600;
+      padding: 10px 20px; border-radius: 10px; border: none;
+      font-family: inherit; font-size: 15px; font-weight: 600;
       cursor: pointer; transition: all 0.18s ease;
       white-space: nowrap;
     }
@@ -246,6 +246,8 @@
       background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
       color: #fff;
       box-shadow: 0 2px 12px rgba(99,102,241,0.35);
+      display: flex; align-items: center; gap: 8px;
+      font-size: 16px; padding: 10px 22px;
     }
     .btn.primary:hover {
       background: linear-gradient(135deg, #818cf8 0%, #8b5cf6 100%);

@@ -153,7 +153,7 @@
     iframe.id = "mathpaster-iframe";
     iframe.src = chrome.runtime.getURL("editor.html");
     iframe.style.cssText = [
-      "width:min(700px,92vw)", "height:520px", "max-height:82vh",
+      "width:min(800px,95vw)", "height:600px", "max-height:88vh",
       "margin-bottom:2.5vh", "border:none", "border-radius:20px",
       "transform:translateY(30px) scale(0.97)",
       "transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .22s ease",
