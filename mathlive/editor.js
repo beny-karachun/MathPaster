@@ -455,3 +455,127 @@ document.addEventListener("click", e => {
 });
 
 buildMatrixSelectorUI();
+
+/* ── Settings Logic ── */
+const defaultSettings = {
+  popupWidth: 1000,
+  popupHeight: 700,
+  gapSize: 16,
+  symbolGridWidth: 70,
+  symbolHeight: 56,
+  symbolFontSize: 22,
+  borderRadiusBtn: 12,
+  tabPaddingH: 32,
+  tabPaddingV: 14,
+  tabFontSize: 15,
+  borderRadiusTab: 30,
+  primaryHue: 250 // purple-ish
+};
+
+let currentSettings = { ...defaultSettings };
+
+function applySettings(settings) {
+  let styleEl = document.getElementById('dynamic-theme');
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'dynamic-theme';
+    document.head.appendChild(styleEl);
+  }
+  
+  styleEl.innerHTML = `
+    #body { gap: ${settings.gapSize}px !important; }
+    #category-tabs { gap: ${settings.gapSize}px !important; padding-bottom: ${settings.gapSize}px !important; }
+    #palette { grid-template-columns: repeat(auto-fill, minmax(${settings.symbolGridWidth}px, 1fr)) !important; gap: ${settings.gapSize}px !important; }
+    #footer { gap: ${settings.gapSize}px !important; }
+    .action-group { gap: ${settings.gapSize}px !important; }
+    
+    .pal-btn { height: ${settings.symbolHeight}px !important; font-size: ${settings.symbolFontSize}px !important; border-radius: ${settings.borderRadiusBtn}px !important; }
+    
+    .cat-tab { padding: ${settings.tabPaddingV}px ${settings.tabPaddingH}px !important; font-size: ${settings.tabFontSize}px !important; border-radius: ${settings.borderRadiusTab}px !important; }
+    
+    .btn, .icon, .header-btn, #close-btn, #settings-btn, .matrix-cell { border-radius: ${settings.borderRadiusBtn}px !important; }
+    
+    .cat-tab.active {
+      background: linear-gradient(135deg, hsla(${settings.primaryHue}, 80%, 65%, 0.8) 0%, hsla(${settings.primaryHue}, 80%, 55%, 0.8) 100%) !important;
+      border-color: hsl(${settings.primaryHue}, 90%, 75%) !important;
+      box-shadow: 0 0 24px hsla(${settings.primaryHue}, 80%, 60%, 0.5), inset 0 2px 4px rgba(255,255,255,0.3) !important;
+    }
+    
+    .btn.primary {
+      background: linear-gradient(135deg, hsl(${settings.primaryHue}, 80%, 55%) 0%, hsl(${settings.primaryHue}, 75%, 45%) 100%) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px hsla(${settings.primaryHue}, 80%, 55%, 0.5) !important;
+    }
+    .btn.primary:hover {
+      background: linear-gradient(135deg, hsl(${settings.primaryHue}, 85%, 60%) 0%, hsl(${settings.primaryHue}, 80%, 50%) 100%) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 16px hsla(${settings.primaryHue}, 85%, 60%, 0.5) !important;
+    }
+    
+    .icon {
+      background: linear-gradient(135deg, hsla(${settings.primaryHue}, 80%, 65%, 0.15) 0%, hsla(${settings.primaryHue}, 80%, 55%, 0.15) 100%) !important;
+      border-color: hsla(${settings.primaryHue}, 80%, 65%, 0.3) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px hsla(${settings.primaryHue}, 80%, 65%, 0.2) !important;
+    }
+    .icon svg { stroke: hsl(${settings.primaryHue}, 90%, 75%) !important; }
+  `;
+  
+  window.parent.postMessage({ 
+    mathpaster: "resize", 
+    width: settings.popupWidth, 
+    height: settings.popupHeight 
+  }, "*");
+  
+  localStorage.setItem('mathpaster_settings', JSON.stringify(settings));
+}
+
+function loadSettings() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('mathpaster_settings'));
+    if (saved) currentSettings = { ...defaultSettings, ...saved };
+  } catch (e) {}
+  applySettings(currentSettings);
+}
+
+const settingsKeys = Object.keys(defaultSettings);
+
+document.getElementById('settings-btn').addEventListener('click', () => {
+  settingsKeys.forEach(k => {
+    const input = document.getElementById('set-' + k);
+    const valDisp = document.getElementById('val-' + k);
+    if (input) {
+      input.value = currentSettings[k];
+      if (valDisp) valDisp.textContent = currentSettings[k];
+    }
+  });
+  document.getElementById('settings-overlay').classList.add('visible');
+});
+
+settingsKeys.forEach(k => {
+  const input = document.getElementById('set-' + k);
+  const valDisp = document.getElementById('val-' + k);
+  if (input) {
+    input.addEventListener('input', e => {
+      currentSettings[k] = parseInt(e.target.value, 10);
+      if (valDisp) valDisp.textContent = currentSettings[k];
+      applySettings(currentSettings);
+    });
+  }
+});
+
+document.getElementById('close-settings-btn').addEventListener('click', () => {
+  document.getElementById('settings-overlay').classList.remove('visible');
+});
+
+document.getElementById('reset-settings-btn').addEventListener('click', () => {
+  currentSettings = { ...defaultSettings };
+  settingsKeys.forEach(k => {
+    const input = document.getElementById('set-' + k);
+    const valDisp = document.getElementById('val-' + k);
+    if (input) {
+      input.value = currentSettings[k];
+      if (valDisp) valDisp.textContent = currentSettings[k];
+    }
+  });
+  applySettings(currentSettings);
+});
+
+loadSettings();

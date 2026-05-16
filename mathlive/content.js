@@ -165,7 +165,7 @@
     iframe.id = "mathpaster-iframe";
     iframe.src = chrome.runtime.getURL("editor.html");
     iframe.style.cssText = [
-      "width:min(800px,95vw)", "height:600px", "max-height:88vh",
+      "width:min(1000px,95vw)", "height:700px", "max-height:88vh",
       "margin-bottom:2.5vh", "border:none", "border-radius:20px",
       "transform:translateY(30px) scale(0.97)",
       "transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .22s ease",
@@ -262,6 +262,13 @@
 
       case "toast":
         showToast(e.data.text || "");
+        break;
+
+      case "resize":
+        if (iframe && e.data.width && e.data.height) {
+          iframe.style.width = `min(${e.data.width}px, 95vw)`;
+          iframe.style.height = `${e.data.height}px`;
+        }
         break;
     }
   });
