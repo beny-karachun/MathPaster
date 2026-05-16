@@ -1,0 +1,44 @@
+{
+  "manifest_version": 3,
+  "name": "MathPaster",
+  "version": "1.0.0",
+  "description": "Insert LaTeX math into any text input with a beautiful WYSIWYG editor. Press Ctrl+M to open.",
+  "permissions": ["activeTab"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Ctrl+M",
+        "mac": "Command+M"
+      },
+      "description": "Open MathPaster editor"
+    }
+  },
+  "action": {
+    "default_title": "MathPaster – Insert LaTeX Math (Ctrl+M)"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "editor.html",
+        "editor.js",
+        "lib/*"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>MathPaster Editor</title>
+
+  <!-- @import MUST come before any other CSS rules -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="lib/mathlive-static.css" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: #111227;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #e2e8f0;
+      overflow: hidden;
+      height: 100%;
+      color-scheme: dark;
+    }
+
+    /* ── Panel ── */
+    #panel {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: linear-gradient(145deg, #1a1b2e 0%, #16172b 50%, #111227 100%);
+    }
+
+    /* ── Header ── */
+    #header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+    }
+    #title {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 15px; font-weight: 600; color: #e2e8f0; letter-spacing: -0.01em;
+    }
+    .icon {
+      display: flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; border-radius: 9px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      box-shadow: 0 2px 8px rgba(99,102,241,0.35);
+    }
+    .icon svg { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    #close-btn {
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 8px; border: none;
+      background: rgba(255,255,255,0.06); color: #94a3b8; cursor: pointer;
+      transition: all 0.15s ease; font-size: 14px; line-height: 1;
+    }
+    #close-btn:hover { background: rgba(239,68,68,0.15); color: #f87171; }
+
+    /* ── Mode selector ── */
+    #mode-bar {
+      display: flex; gap: 4px; padding: 8px 20px 0;
+      flex-shrink: 0;
+    }
+    #mode-selector {
+      display: flex; align-items: center; gap: 4px; padding: 3px;
+      border-radius: 10px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);
+    }
+    .mode-btn {
+      padding: 5px 14px; border-radius: 7px; border: none; background: transparent;
+      color: #64748b; font-family: inherit; font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .mode-btn.active {
+      background: rgba(99,102,241,0.15); color: #a5b4fc;
+      box-shadow: 0 1px 4px rgba(99,102,241,0.1);
+    }
+    .mode-btn:hover:not(.active) { color: #94a3b8; }
+
+    /* ── Body ── */
+    #body {
+      padding: 14px 20px;
+      flex: 1 1 0;
+      display: flex; flex-direction: column; gap: 12px;
+      overflow-y: auto;
+      min-height: 0;  /* crucial for flex overflow */
+    }
+
+    /* ── MathField wrapper ── */
+    #mf-wrap {
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.25);
+      padding: 2px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      flex-shrink: 0;
+    }
+    #mf-wrap:focus-within {
+      border-color: rgba(99,102,241,0.5);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.12), 0 4px 16px rgba(99,102,241,0.08);
+    }
+
+    /* MathField element */
+    math-field, #mf {
+      display: block;
+      width: 100%;
+      min-height: 80px;
+      font-size: 1.35rem;
+      padding: 14px 16px;
+      border: none;
+      border-radius: 12px;
+      background: transparent;
+      color: #e2e8f0;
+      outline: none;
+      --caret-color: #a5b4fc;
+      --selection-background-color: rgba(99,102,241,0.3);
+      --_keyboard-zindex: 2147483645;
+    }
+
+    /* ── Palette ── */
+    #palette {
+      display: flex; flex-wrap: wrap; gap: 5px;
+      flex-shrink: 0;
+    }
+    .pal-btn {
+      display: flex; align-items: center; justify-content: center;
+      min-width: 40px; height: 34px; padding: 0 8px; border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.07);
+      background: rgba(255,255,255,0.04);
+      color: #cbd5e1;
+      font-family: 'KaTeX_Math', 'Times New Roman', serif;
+      font-size: 15px; font-style: italic;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .pal-btn:hover {
+      background: rgba(99,102,241,0.15);
+      border-color: rgba(99,102,241,0.3);
+      color: #a5b4fc;
+      transform: translateY(-1px);
+    }
+    .pal-btn:active { transform: translateY(0); }
+
+    /* ── LaTeX preview ── */
+    #latex-preview {
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(0,0,0,0.3);
+      padding: 10px 14px;
+      display: flex; align-items: flex-start; gap: 10px;
+      min-height: 38px;
+      flex-shrink: 0;
+    }
+    #latex-preview .label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #6366f1; white-space: nowrap;
+      padding-top: 2px;
+    }
+    #latex-code {
+      flex: 1;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', 'Menlo', monospace;
+      font-size: 12.5px; color: #94a3b8;
+      word-break: break-all; line-height: 1.5;
+      user-select: all; -webkit-user-select: all;
+    }
+
+    /* ── Footer ── */
+    #footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px 14px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      flex-shrink: 0;
+      gap: 12px;
+    }
+    .hint { font-size: 11px; color: #475569; line-height: 1.4; }
+    .hint kbd {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 1px 5px; border-radius: 4px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-family: inherit; font-size: 10px;
+      color: #64748b; margin: 0 1px;
+    }
+    .action-group { display: flex; gap: 8px; flex-shrink: 0; }
+
+    .btn {
+      padding: 8px 16px; border-radius: 10px; border: none;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+    .btn.secondary {
+      background: rgba(255,255,255,0.06); color: #94a3b8;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .btn.secondary:hover { background: rgba(255,255,255,0.1); color: #cbd5e1; }
+    .btn.primary {
+      background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+      color: #fff;
+      box-shadow: 0 2px 12px rgba(99,102,241,0.35);
+    }
+    .btn.primary:hover {
+      background: linear-gradient(135deg, #818cf8 0%, #8b5cf6 100%);
+      box-shadow: 0 4px 20px rgba(99,102,241,0.45);
+      transform: translateY(-1px);
+    }
+    .btn.primary:active { transform: translateY(0); }
+
+    /* ── Scrollbar ── */
+    #body::-webkit-scrollbar { width: 5px; }
+    #body::-webkit-scrollbar-track { background: transparent; }
+    #body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    #body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+
+    /* ── Loading state ── */
+    #loading {
+      display: flex; align-items: center; justify-content: center;
+      height: 80px; color: #64748b; font-size: 13px;
+    }
+    #loading.hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="panel">
+    <div id="header">
+      <div id="title">
+        <span class="icon">
+          <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z"/><path d="M17 14v8M13 18h8"/></svg>
+        </span>
+        MathPaster
+      </div>
+      <button id="close-btn" title="Close (Esc)">✕</button>
+    </div>
+
+    <div id="mode-bar">
+      <div id="mode-selector">
+        <button class="mode-btn active" data-mode="inline">Inline $…$</button>
+        <button class="mode-btn" data-mode="block">Block $$…$$</button>
+      </div>
+    </div>
+
+    <div id="body">
+      <div id="mf-wrap">
+        <div id="loading">Loading editor…</div>
+        <math-field id="mf" virtual-keyboard-mode="manual" style="display:none"></math-field>
+      </div>
+      <div id="palette"></div>
+      <div id="latex-preview">
+        <span class="label">LaTeX</span>
+        <code id="latex-code"></code>
+      </div>
+    </div>
+
+    <div id="footer">
+      <span class="hint"><kbd>Ctrl</kbd>+<kbd>M</kbd> toggle · <kbd>Esc</kbd> close · <kbd>Ctrl</kbd>+<kbd>⏎</kbd> insert</span>
+      <div class="action-group">
+        <button class="btn secondary" id="copy-btn">Copy LaTeX</button>
+        <button class="btn primary" id="insert-btn">Insert ⏎</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Load MathLive AFTER the DOM so the page renders instantly -->
+  <script src="lib/mathlive.min.js"></script>
+  <script src="editor.js"></script>
+</body>
+</html>
