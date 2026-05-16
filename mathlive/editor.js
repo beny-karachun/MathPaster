@@ -454,7 +454,7 @@ document.addEventListener("click", e => {
   }
 });
 document.addEventListener("mousedown", e => {
-  if (!e.target.closest("#editor-window") && !e.target.closest("#settings-panel")) {
+  if (!e.target.closest("#editor-window") && !e.target.closest("#settings-panel") && !e.target.closest("#matrix-selector")) {
     window.parent.postMessage({ mathpaster: "close" }, "*");
   }
 });
