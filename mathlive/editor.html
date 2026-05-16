@@ -85,7 +85,7 @@
       padding: 14px 20px;
       flex: 1 1 0;
       display: flex; flex-direction: column; gap: 12px;
-      overflow-y: auto;
+      overflow: hidden; /* Changed from overflow-y: auto */
       min-height: 0;  /* crucial for flex overflow */
     }
 
@@ -122,14 +122,55 @@
       --_keyboard-zindex: 2147483645;
     }
 
-    /* ── Palette ── */
-    #palette {
-      display: flex; flex-wrap: wrap; gap: 5px;
+    /* ── Categories Tab Bar ── */
+    #category-tabs {
+      display: flex;
+      overflow-x: auto;
+      gap: 6px;
+      padding-bottom: 6px;
       flex-shrink: 0;
+    }
+    #category-tabs::-webkit-scrollbar { height: 4px; }
+    #category-tabs::-webkit-scrollbar-track { background: transparent; }
+    #category-tabs::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+    #category-tabs::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+    .cat-tab {
+      padding: 6px 14px; border-radius: 8px; border: none;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.05);
+      color: #94a3b8; font-family: inherit; font-size: 12px; font-weight: 500;
+      cursor: pointer; transition: all 0.15s ease;
+      white-space: nowrap; user-select: none;
+    }
+    .cat-tab:hover { background: rgba(255,255,255,0.08); color: #cbd5e1; }
+    .cat-tab.active {
+      background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.3);
+      color: #a5b4fc; box-shadow: 0 2px 8px rgba(99,102,241,0.15);
+    }
+
+    /* ── Palette Container ── */
+    #palette-container {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      min-height: 0;
+      border-radius: 12px;
+      background: rgba(0,0,0,0.15);
+      border: 1px solid rgba(255,255,255,0.04);
+      padding: 12px;
+    }
+    #palette-container::-webkit-scrollbar { width: 5px; }
+    #palette-container::-webkit-scrollbar-track { background: transparent; }
+    #palette-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    #palette-container::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+    #palette {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      align-content: flex-start;
     }
     .pal-btn {
       display: flex; align-items: center; justify-content: center;
-      min-width: 40px; height: 34px; padding: 0 8px; border-radius: 8px;
+      min-width: 42px; height: 36px; padding: 0 8px; border-radius: 8px;
       border: 1px solid rgba(255,255,255,0.07);
       background: rgba(255,255,255,0.04);
       color: #cbd5e1;
@@ -213,11 +254,7 @@
     }
     .btn.primary:active { transform: translateY(0); }
 
-    /* ── Scrollbar ── */
-    #body::-webkit-scrollbar { width: 5px; }
-    #body::-webkit-scrollbar-track { background: transparent; }
-    #body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
-    #body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.18); }
+    /* ── Scrollbar (for mode selector, etc, if needed) ── */
 
     /* ── Loading state ── */
     #loading {
@@ -251,7 +288,13 @@
         <div id="loading">Loading editor…</div>
         <math-field id="mf" virtual-keyboard-mode="manual" style="display:none"></math-field>
       </div>
-      <div id="palette"></div>
+      
+      <div id="category-tabs"></div>
+
+      <div id="palette-container">
+        <div id="palette"></div>
+      </div>
+
       <div id="latex-preview">
         <span class="label">LaTeX</span>
         <code id="latex-code"></code>
