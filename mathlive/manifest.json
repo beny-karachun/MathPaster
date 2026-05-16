@@ -36,7 +36,8 @@
       "resources": [
         "editor.html",
         "editor.js",
-        "lib/*"
+        "lib/*",
+        "lib/fonts/*"
       ],
       "matches": ["<all_urls>"]
     }
