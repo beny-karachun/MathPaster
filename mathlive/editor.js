@@ -308,10 +308,21 @@ document.addEventListener("keydown", e => {
 window.addEventListener("message", e => {
   if (e.data?.mathpaster === "reset") {
     if (mfReady) {
-      const draft = localStorage.getItem("mathpaster_draft") || "";
+      let draft = "";
+      
+      if (e.data.initialMath) {
+        draft = e.data.initialMath.text;
+        insertMode = e.data.initialMath.mode;
+        // Also update local storage so it persists if they reload or toggle again without inserting
+        localStorage.setItem("mathpaster_draft", draft);
+        localStorage.setItem("mathpaster_mode", insertMode);
+      } else {
+        draft = localStorage.getItem("mathpaster_draft") || "";
+        insertMode = localStorage.getItem("mathpaster_mode") || "inline";
+      }
+
       mf.value = draft;
       
-      insertMode = localStorage.getItem("mathpaster_mode") || "inline";
       document.querySelectorAll(".mode-btn").forEach(b => {
         b.classList.toggle("active", b.dataset.mode === insertMode);
       });

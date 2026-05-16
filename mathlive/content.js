@@ -15,6 +15,7 @@
   let isVisible = false;
   let iframeReady = false;
   let toastTimer = 0;
+  let initialMathDraft = null;
 
   /* ── Capture the element that was focused before opening ── */
   function captureActiveTarget() {
@@ -44,14 +45,25 @@
 
     if (target) {
       activeTarget = target;
+      let rawText = "";
+
       // Capture exact caret position before focus is lost to the iframe
       if (isTextarea) {
         activeTargetSelection = { start: target.selectionStart, end: target.selectionEnd };
+        rawText = target.value.substring(target.selectionStart, target.selectionEnd);
       } else {
         const sel = window.getSelection();
         if (sel && sel.rangeCount > 0) {
           activeTargetRange = sel.getRangeAt(0).cloneRange();
+          rawText = sel.toString();
         }
+      }
+
+      rawText = rawText.trim();
+      if (rawText.startsWith("$$") && rawText.endsWith("$$") && rawText.length >= 4) {
+        initialMathDraft = { mode: "block", text: rawText.slice(2, -2).trim() };
+      } else if (rawText.startsWith("$") && rawText.endsWith("$") && rawText.length >= 2) {
+        initialMathDraft = { mode: "inline", text: rawText.slice(1, -1).trim() };
       }
     }
   }
@@ -187,7 +199,7 @@
     // Only send reset if iframe is fully ready.
     // If not ready yet, the "ready" event listener will send it.
     if (iframeReady) {
-      iframe.contentWindow?.postMessage({ mathpaster: "reset" }, "*");
+      iframe.contentWindow?.postMessage({ mathpaster: "reset", initialMath: initialMathDraft }, "*");
     }
   }
 
@@ -219,7 +231,7 @@
       case "ready":
         iframeReady = true;
         if (isVisible) {
-          iframe.contentWindow?.postMessage({ mathpaster: "reset" }, "*");
+          iframe.contentWindow?.postMessage({ mathpaster: "reset", initialMath: initialMathDraft }, "*");
         }
         break;
 
