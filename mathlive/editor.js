@@ -237,15 +237,24 @@ for (const cat of Object.keys(PALETTE_DATA)) {
 renderPalette(activeCategory);
 
 /* ── Mode toggle ── */
-document.querySelectorAll(".mode-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    insertMode = btn.dataset.mode;
-    localStorage.setItem("mathpaster_mode", insertMode);
-    updatePreview();
-    if (mfReady) mf.focus();
-  });
+const modeSwitch = document.getElementById("mode-switch");
+const modeLabels = document.querySelectorAll(".mode-label");
+
+function updateModeUI(mode) {
+  insertMode = mode;
+  modeSwitch.checked = (mode === "block");
+  modeLabels.forEach(l => l.classList.toggle("active", l.dataset.mode === mode));
+  localStorage.setItem("mathpaster_mode", insertMode);
+  updatePreview();
+  if (mfReady) mf.focus();
+}
+
+modeSwitch.addEventListener("change", e => {
+  updateModeUI(e.target.checked ? "block" : "inline");
+});
+
+modeLabels.forEach(l => {
+  l.addEventListener("click", () => updateModeUI(l.dataset.mode));
 });
 
 /* ── Close ── */
@@ -323,8 +332,9 @@ window.addEventListener("message", e => {
 
       mf.value = draft;
       
-      document.querySelectorAll(".mode-btn").forEach(b => {
-        b.classList.toggle("active", b.dataset.mode === insertMode);
+      document.getElementById("mode-switch").checked = (insertMode === "block");
+      document.querySelectorAll(".mode-label").forEach(l => {
+        l.classList.toggle("active", l.dataset.mode === insertMode);
       });
       
       updatePreview();

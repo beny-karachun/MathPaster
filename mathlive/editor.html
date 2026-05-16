@@ -65,19 +65,31 @@
       flex-shrink: 0;
     }
     #mode-selector {
-      display: flex; align-items: center; gap: 5px; padding: 4px;
-      border-radius: 11px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);
+      display: flex; align-items: center; gap: 10px; padding: 4px;
     }
-    .mode-btn {
-      padding: 6px 16px; border-radius: 8px; border: none; background: transparent;
+    .mode-label {
       color: #64748b; font-family: inherit; font-size: 14px; font-weight: 500;
-      cursor: pointer; transition: all 0.15s ease;
+      cursor: pointer; transition: all 0.2s ease;
     }
-    .mode-btn.active {
-      background: rgba(99,102,241,0.15); color: #a5b4fc;
-      box-shadow: 0 1px 4px rgba(99,102,241,0.1);
+    .mode-label.active {
+      color: #a5b4fc; font-weight: 600; text-shadow: 0 0 8px rgba(165,180,252,0.3);
     }
-    .mode-btn:hover:not(.active) { color: #94a3b8; }
+    .switch {
+      position: relative; display: inline-block; width: 42px; height: 24px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1);
+      transition: .3s; border-radius: 24px;
+    }
+    .switch .slider:before {
+      position: absolute; content: ""; height: 18px; width: 18px;
+      left: 2px; bottom: 2px; background-color: #94a3b8;
+      transition: .3s; border-radius: 50%; box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .switch input:checked + .slider { background-color: rgba(99,102,241,0.2); border-color: rgba(99,102,241,0.4); }
+    .switch input:checked + .slider:before { transform: translateX(18px); background-color: #a5b4fc; }
 
     /* ── Body ── */
     #body {
@@ -284,8 +296,12 @@
 
     <div id="mode-bar">
       <div id="mode-selector">
-        <button class="mode-btn active" data-mode="inline">Inline $…$</button>
-        <button class="mode-btn" data-mode="block">Block $$…$$</button>
+        <span class="mode-label active" data-mode="inline">Inline</span>
+        <label class="switch">
+          <input type="checkbox" id="mode-switch">
+          <span class="slider"></span>
+        </label>
+        <span class="mode-label" data-mode="block">Block</span>
       </div>
     </div>
 
