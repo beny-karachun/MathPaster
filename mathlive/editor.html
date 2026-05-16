@@ -280,6 +280,48 @@
       height: 92px; color: #64748b; font-size: 15px;
     }
     #loading.hidden { display: none; }
+
+    /* ── Matrix Selector ── */
+    #matrix-selector {
+      display: none;
+      position: fixed;
+      background: #16172b;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      z-index: 9999;
+      flex-direction: column;
+      gap: 8px;
+    }
+    #matrix-selector.visible {
+      display: flex;
+    }
+    .matrix-row {
+      display: flex;
+      gap: 6px;
+    }
+    .matrix-cell {
+      width: 24px;
+      height: 24px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 5px;
+      cursor: pointer;
+      background: rgba(255,255,255,0.03);
+      transition: all 0.1s ease;
+    }
+    .matrix-cell.highlight {
+      background: rgba(99,102,241,0.6);
+      border-color: #8b5cf6;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2);
+    }
+    #matrix-label {
+      text-align: center;
+      font-size: 13px;
+      color: #e2e8f0;
+      font-weight: 600;
+      margin-top: 2px;
+    }
   </style>
 </head>
 <body>
@@ -330,6 +372,8 @@
         <button class="btn primary" id="insert-btn">Insert ⏎</button>
       </div>
     </div>
+    
+    <div id="matrix-selector"></div>
   </div>
 
   <!-- Load MathLive AFTER the DOM so the page renders instantly -->
