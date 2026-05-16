@@ -474,7 +474,8 @@ const defaultSettings = {
   tabPaddingV: 14,
   tabFontSize: 15,
   borderRadiusTab: 30,
-  primaryHue: 250 // purple-ish
+  primaryHue: 250, // purple-ish
+  showLatexBar: true
 };
 
 let currentSettings = { ...defaultSettings };
@@ -489,6 +490,7 @@ function applySettings(settings) {
   
   styleEl.innerHTML = `
     #editor-window { width: ${settings.popupWidth}px !important; height: ${settings.popupHeight}px !important; }
+    #latex-preview { display: ${settings.showLatexBar ? 'flex' : 'none'} !important; }
     #body { gap: ${settings.gapSize}px !important; }
     #category-tabs { gap: ${settings.gapSize}px !important; padding-bottom: ${settings.gapSize}px !important; }
     #palette { grid-template-columns: repeat(auto-fill, minmax(${settings.symbolGridWidth}px, 1fr)) !important; gap: ${settings.gapSize}px !important; }
@@ -554,8 +556,12 @@ settingsKeys.forEach(k => {
   const valDisp = document.getElementById('val-' + k);
   if (input) {
     input.addEventListener('input', e => {
-      currentSettings[k] = parseInt(e.target.value, 10);
-      if (valDisp) valDisp.textContent = currentSettings[k];
+      if (input.type === "checkbox") {
+        currentSettings[k] = e.target.checked;
+      } else {
+        currentSettings[k] = parseInt(e.target.value, 10);
+        if (valDisp) valDisp.textContent = currentSettings[k];
+      }
       applySettings(currentSettings);
     });
   }
@@ -571,8 +577,12 @@ document.getElementById('reset-settings-btn').addEventListener('click', () => {
     const input = document.getElementById('set-' + k);
     const valDisp = document.getElementById('val-' + k);
     if (input) {
-      input.value = currentSettings[k];
-      if (valDisp) valDisp.textContent = currentSettings[k];
+      if (input.type === "checkbox") {
+        input.checked = currentSettings[k];
+      } else {
+        input.value = currentSettings[k];
+        if (valDisp) valDisp.textContent = currentSettings[k];
+      }
     }
   });
   applySettings(currentSettings);
