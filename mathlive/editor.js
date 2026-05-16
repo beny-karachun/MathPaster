@@ -544,8 +544,12 @@ document.getElementById('settings-btn').addEventListener('click', () => {
     const input = document.getElementById('set-' + k);
     const valDisp = document.getElementById('val-' + k);
     if (input) {
-      input.value = currentSettings[k];
-      if (valDisp) valDisp.textContent = currentSettings[k];
+      if (input.type === "checkbox") {
+        input.checked = currentSettings[k];
+      } else {
+        input.value = currentSettings[k];
+        if (valDisp) valDisp.textContent = currentSettings[k];
+      }
     }
   });
   document.getElementById('settings-overlay').classList.add('visible');
