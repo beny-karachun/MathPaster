@@ -242,7 +242,7 @@ document.addEventListener("keydown", e => {
     return;
   }
   // Ctrl+M inside iframe → toggle (close)
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "m") {
+  if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === "m" || e.code === "KeyM")) {
     e.preventDefault();
     e.stopPropagation();
     window.parent.postMessage({ mathpaster: "toggle" }, "*");

@@ -256,7 +256,7 @@
 
   /* ── Ctrl+M listener (page level) ── */
   document.addEventListener("keydown", e => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "m") {
+    if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === "m" || e.code === "KeyM")) {
       e.preventDefault();
       e.stopPropagation();
       toggleOverlay();
