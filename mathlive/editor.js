@@ -76,15 +76,22 @@ const PALETTE_DATA = {
   ],
   "Calculus": [
     { label: "∫",   latex: "\\int" },
+    { label: "<div style='display:flex;align-items:center;'><span style='font-size:22px;'>∫</span><div style='display:flex;flex-direction:column;font-size:10px;line-height:1;margin-left:2px;'><span>b</span><span style='margin-top:6px;'>a</span></div></div>", latex: "\\int_{#0}^{#1}" },
     { label: "∬",  latex: "\\iint" },
+    { label: "∬<sub style='font-size:10px;margin-left:-2px;margin-top:8px;'>D</sub>", latex: "\\iint_{#0}^{#1}" },
+    { label: "∭",  latex: "\\iiint" },
+    { label: "∭<sub style='font-size:10px;margin-left:-2px;margin-top:8px;'>V</sub>", latex: "\\iiint_{#0}^{#1}" },
     { label: "∮",  latex: "\\oint" },
+    { label: "∮<sub style='font-size:10px;margin-left:-2px;margin-top:8px;'>C</sub>", latex: "\\oint_{#0}^{#1}" },
     { label: "lim",  latex: "\\lim_{#0}" },
     { label: "∂",   latex: "\\partial" },
     { label: "∇",   latex: "\\nabla" },
-    { label: "d/dx", latex: "\\frac{d}{dx}" },
+    { label: "<div style='display:flex;flex-direction:column;font-size:11px;line-height:1.1;align-items:center;'><span style='border-bottom:1px solid currentColor;padding:0 2px;'>d</span><span>dx</span></div>", latex: "\\frac{d}{dx}" },
     { label: "∑",   latex: "\\sum" },
+    { label: "<div style='display:flex;align-items:center;'><span style='font-size:18px;'>∑</span><div style='display:flex;flex-direction:column;font-size:9px;line-height:1.1;margin-left:2px;'><span>n</span><span style='margin-top:4px;'>i</span></div></div>", latex: "\\sum_{#0}^{#1}" },
     { label: "∏",   latex: "\\prod" },
-    { label: "prime", latex: "'" },
+    { label: "<div style='display:flex;align-items:center;'><span style='font-size:18px;'>∏</span><div style='display:flex;flex-direction:column;font-size:9px;line-height:1.1;margin-left:2px;'><span>n</span><span style='margin-top:4px;'>i</span></div></div>", latex: "\\prod_{#0}^{#1}" },
+    { label: "<span style='font-size:14px;'>prime ( ' )</span>", latex: "'" },
   ],
   "Linear Algebra": [
     { label: "[ ]",  latex: "\\begin{bmatrix} #0 \\end{bmatrix}" },
@@ -142,6 +149,50 @@ const PALETTE_DATA = {
     { label: "≡", latex: "\\equiv" },
     { label: "⊤", latex: "\\top" },
     { label: "⊥", latex: "\\bot" },
+  ],
+  "Greek": [
+    { label: "α", latex: "\\alpha" },
+    { label: "β", latex: "\\beta" },
+    { label: "γ", latex: "\\gamma" },
+    { label: "δ", latex: "\\delta" },
+    { label: "ϵ", latex: "\\epsilon" },
+    { label: "ε", latex: "\\varepsilon" },
+    { label: "ζ", latex: "\\zeta" },
+    { label: "η", latex: "\\eta" },
+    { label: "θ", latex: "\\theta" },
+    { label: "ϑ", latex: "\\vartheta" },
+    { label: "ι", latex: "\\iota" },
+    { label: "κ", latex: "\\kappa" },
+    { label: "ϰ", latex: "\\varkappa" },
+    { label: "λ", latex: "\\lambda" },
+    { label: "μ", latex: "\\mu" },
+    { label: "ν", latex: "\\nu" },
+    { label: "ξ", latex: "\\xi" },
+    { label: "ο", latex: "o" },
+    { label: "π", latex: "\\pi" },
+    { label: "ϖ", latex: "\\varpi" },
+    { label: "ρ", latex: "\\rho" },
+    { label: "ϱ", latex: "\\varrho" },
+    { label: "σ", latex: "\\sigma" },
+    { label: "ς", latex: "\\varsigma" },
+    { label: "τ", latex: "\\tau" },
+    { label: "υ", latex: "\\upsilon" },
+    { label: "ϕ", latex: "\\phi" },
+    { label: "φ", latex: "\\varphi" },
+    { label: "χ", latex: "\\chi" },
+    { label: "ψ", latex: "\\psi" },
+    { label: "ω", latex: "\\omega" },
+    { label: "Γ", latex: "\\Gamma" },
+    { label: "Δ", latex: "\\Delta" },
+    { label: "Θ", latex: "\\Theta" },
+    { label: "Λ", latex: "\\Lambda" },
+    { label: "Ξ", latex: "\\Xi" },
+    { label: "Π", latex: "\\Pi" },
+    { label: "Σ", latex: "\\Sigma" },
+    { label: "Υ", latex: "\\Upsilon" },
+    { label: "Φ", latex: "\\Phi" },
+    { label: "Ψ", latex: "\\Psi" },
+    { label: "Ω", latex: "\\Omega" }
   ]
 };
 
@@ -154,7 +205,7 @@ function renderPalette(categoryName) {
   for (const item of items) {
     const btn = document.createElement("button");
     btn.className = "pal-btn";
-    btn.textContent = item.label;
+    btn.innerHTML = item.label;
     btn.title = item.latex;
     btn.addEventListener("mousedown", e => e.preventDefault()); // don't steal focus
     btn.addEventListener("click", e => {
