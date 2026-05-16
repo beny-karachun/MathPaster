@@ -135,16 +135,18 @@
     #category-tabs::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
     .cat-tab {
-      padding: 8px 16px; border-radius: 8px; border: none;
+      padding: 10px 28px; border-radius: 4px;
       background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.05);
+      border: 1.5px dashed rgba(255,255,255,0.25);
       color: #94a3b8; font-family: inherit; font-size: 14px; font-weight: 500;
+      line-height: 1.4;
       cursor: pointer; transition: all 0.15s ease;
       white-space: nowrap; user-select: none;
+      flex-shrink: 0;
     }
     .cat-tab:hover { background: rgba(255,255,255,0.08); color: #cbd5e1; }
     .cat-tab.active {
-      background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.3);
+      background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.5);
       color: #a5b4fc; box-shadow: 0 2px 8px rgba(99,102,241,0.15);
     }
 
@@ -231,22 +233,25 @@
     .action-group { display: flex; gap: 9px; flex-shrink: 0; }
 
     .btn {
-      padding: 9px 18px; border-radius: 11px; border: none;
+      padding: 10px 28px; border-radius: 4px;
       font-family: inherit; font-size: 15px; font-weight: 600;
+      line-height: 1.4;
       cursor: pointer; transition: all 0.18s ease;
       white-space: nowrap;
+      flex-shrink: 0;
     }
     .btn.secondary {
       background: rgba(255,255,255,0.06); color: #94a3b8;
-      border: 1px solid rgba(255,255,255,0.08);
+      border: 1.5px dashed rgba(255,255,255,0.25);
     }
     .btn.secondary:hover { background: rgba(255,255,255,0.1); color: #cbd5e1; }
     .btn.primary {
       background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
       color: #fff;
+      border: 1.5px dashed rgba(255,255,255,0.4);
       box-shadow: 0 2px 12px rgba(99,102,241,0.35);
       display: flex; align-items: center; gap: 8px;
-      font-size: 16px; padding: 10px 22px;
+      font-size: 16px; padding: 11px 32px;
     }
     .btn.primary:hover {
       background: linear-gradient(135deg, #818cf8 0%, #8b5cf6 100%);

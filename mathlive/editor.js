@@ -30,7 +30,7 @@ function initMathField() {
       MFE.fontsDirectory = "./lib/fonts/";
       MFE.soundsDirectory = null;
     } catch (e) {
-      console.warn("Could not set fontsDirectory:", e);
+      console.warn("Could not set MathfieldElement properties:", e);
     }
 
     if (!customElements.get("math-field")) {
