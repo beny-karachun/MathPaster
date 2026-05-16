@@ -7,7 +7,6 @@
   <title>MathPaster Editor</title>
 
   <!-- @import MUST come before any other CSS rules -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
   <link rel="stylesheet" href="lib/mathlive-static.css" />
 
   <style>
@@ -41,12 +40,12 @@
       flex-shrink: 0;
     }
     #title {
-      display: flex; align-items: center; gap: 12px;
-      font-size: 17px; font-weight: 600; color: #e2e8f0; letter-spacing: -0.01em;
+      font-size: 16px; font-weight: 600; color: #f8fafc;
+      display: flex; align-items: center; gap: 9px;
     }
     .icon {
       display: flex; align-items: center; justify-content: center;
-      width: 32px; height: 32px; border-radius: 9px;
+      width: 34px; height: 34px; border-radius: 10px;
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
       box-shadow: 0 2px 8px rgba(99,102,241,0.35);
     }
@@ -54,7 +53,7 @@
 
     #close-btn {
       display: flex; align-items: center; justify-content: center;
-      width: 32px; height: 32px; border-radius: 8px; border: none;
+      width: 32px; height: 32px; border-radius: 9px; border: none;
       background: rgba(255,255,255,0.06); color: #94a3b8; cursor: pointer;
       transition: all 0.15s ease; font-size: 16px; line-height: 1;
     }
@@ -62,15 +61,15 @@
 
     /* ── Mode selector ── */
     #mode-bar {
-      display: flex; gap: 6px; padding: 10px 24px 0;
+      display: flex; gap: 5px; padding: 9px 23px 0;
       flex-shrink: 0;
     }
     #mode-selector {
-      display: flex; align-items: center; gap: 4px; padding: 4px;
-      border-radius: 10px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);
+      display: flex; align-items: center; gap: 5px; padding: 4px;
+      border-radius: 11px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05);
     }
     .mode-btn {
-      padding: 6px 16px; border-radius: 7px; border: none; background: transparent;
+      padding: 6px 16px; border-radius: 8px; border: none; background: transparent;
       color: #64748b; font-family: inherit; font-size: 14px; font-weight: 500;
       cursor: pointer; transition: all 0.15s ease;
     }
@@ -82,10 +81,10 @@
 
     /* ── Body ── */
     #body {
-      padding: 16px 24px;
+      padding: 16px 23px;
       flex: 1 1 0;
-      display: flex; flex-direction: column; gap: 12px;
-      overflow: hidden; /* Changed from overflow-y: auto */
+      display: flex; flex-direction: column; gap: 14px;
+      overflow-y: auto;
       min-height: 0;  /* crucial for flex overflow */
     }
 
@@ -107,11 +106,11 @@
     math-field, #mf {
       display: block;
       width: 100%;
-      min-height: 90px;
-      font-size: 1.6rem;
+      min-height: 92px;
+      font-size: 1.55rem;
       padding: 16px 18px;
       border: none;
-      border-radius: 12px;
+      border-radius: 14px;
       background: transparent;
       color: #e2e8f0;
       outline: none;
@@ -165,17 +164,17 @@
     #palette-container::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
 
     #palette {
-      display: flex; flex-wrap: wrap; gap: 8px;
-      align-content: flex-start;
+      display: flex; flex-wrap: wrap; gap: 6px;
+      flex-shrink: 0;
     }
     .pal-btn {
       display: flex; align-items: center; justify-content: center;
-      min-width: 48px; min-height: 44px; height: auto; padding: 6px 10px; border-radius: 8px;
+      min-width: 46px; height: 39px; padding: 0 9px; border-radius: 9px;
       border: 1px solid rgba(255,255,255,0.07);
       background: rgba(255,255,255,0.04);
       color: #cbd5e1;
       font-family: 'KaTeX_Math', 'Times New Roman', serif;
-      font-size: 18px; font-style: italic;
+      font-size: 17px; font-style: italic;
       cursor: pointer;
       transition: all 0.15s ease;
       user-select: none;
@@ -191,23 +190,23 @@
 
     /* ── LaTeX preview ── */
     #latex-preview {
-      border-radius: 10px;
+      border-radius: 11px;
       border: 1px solid rgba(255,255,255,0.06);
       background: rgba(0,0,0,0.3);
-      padding: 10px 14px;
-      display: flex; align-items: flex-start; gap: 10px;
-      min-height: 38px;
+      padding: 11px 16px;
+      display: flex; align-items: flex-start; gap: 11px;
+      min-height: 43px;
       flex-shrink: 0;
     }
     #latex-preview .label {
-      font-size: 11.5px; font-weight: 700; text-transform: uppercase;
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
       letter-spacing: 0.08em; color: #6366f1; white-space: nowrap;
-      padding-top: 2px;
+      padding-top: 3px;
     }
     #latex-code {
       flex: 1;
       font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', 'Menlo', monospace;
-      font-size: 14.5px; color: #94a3b8;
+      font-size: 14px; color: #94a3b8;
       word-break: break-all; line-height: 1.5;
       user-select: all; -webkit-user-select: all;
     }
@@ -215,24 +214,24 @@
     /* ── Footer ── */
     #footer {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 24px 18px;
+      padding: 11px 23px 16px;
       border-top: 1px solid rgba(255,255,255,0.06);
       flex-shrink: 0;
       gap: 14px;
     }
-    .hint { font-size: 12.5px; color: #475569; line-height: 1.4; }
+    .hint { font-size: 13px; color: #475569; line-height: 1.4; }
     .hint kbd {
       display: inline-flex; align-items: center; justify-content: center;
-      padding: 1px 6px; border-radius: 4px;
+      padding: 1px 6px; border-radius: 5px;
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.08);
-      font-family: inherit; font-size: 11.5px;
+      font-family: inherit; font-size: 11px;
       color: #64748b; margin: 0 1px;
     }
-    .action-group { display: flex; gap: 10px; flex-shrink: 0; }
+    .action-group { display: flex; gap: 9px; flex-shrink: 0; }
 
     .btn {
-      padding: 10px 20px; border-radius: 10px; border: none;
+      padding: 9px 18px; border-radius: 11px; border: none;
       font-family: inherit; font-size: 15px; font-weight: 600;
       cursor: pointer; transition: all 0.18s ease;
       white-space: nowrap;
@@ -261,7 +260,7 @@
     /* ── Loading state ── */
     #loading {
       display: flex; align-items: center; justify-content: center;
-      height: 80px; color: #64748b; font-size: 13px;
+      height: 92px; color: #64748b; font-size: 15px;
     }
     #loading.hidden { display: none; }
   </style>
