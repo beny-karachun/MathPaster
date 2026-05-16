@@ -453,6 +453,11 @@ document.addEventListener("click", e => {
     }
   }
 });
+document.addEventListener("mousedown", e => {
+  if (!e.target.closest("#editor-window") && !e.target.closest("#settings-panel")) {
+    window.parent.postMessage({ mathpaster: "close" }, "*");
+  }
+});
 
 buildMatrixSelectorUI();
 
@@ -483,6 +488,7 @@ function applySettings(settings) {
   }
   
   styleEl.innerHTML = `
+    #editor-window { width: ${settings.popupWidth}px !important; height: ${settings.popupHeight}px !important; }
     #body { gap: ${settings.gapSize}px !important; }
     #category-tabs { gap: ${settings.gapSize}px !important; padding-bottom: ${settings.gapSize}px !important; }
     #palette { grid-template-columns: repeat(auto-fill, minmax(${settings.symbolGridWidth}px, 1fr)) !important; gap: ${settings.gapSize}px !important; }
@@ -517,12 +523,6 @@ function applySettings(settings) {
     }
     .icon svg { stroke: hsl(${settings.primaryHue}, 90%, 75%) !important; }
   `;
-  
-  window.parent.postMessage({ 
-    mathpaster: "resize", 
-    width: settings.popupWidth, 
-    height: settings.popupHeight 
-  }, "*");
   
   localStorage.setItem('mathpaster_settings', JSON.stringify(settings));
 }

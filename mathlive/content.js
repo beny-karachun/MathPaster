@@ -165,12 +165,8 @@
     iframe.id = "mathpaster-iframe";
     iframe.src = chrome.runtime.getURL("editor.html");
     iframe.style.cssText = [
-      "width:min(1000px,95vw)", "height:700px", "max-height:88vh",
-      "margin-bottom:2.5vh", "border:none", "border-radius:20px",
-      "transform:translateY(30px) scale(0.97)",
-      "transition:transform .28s cubic-bezier(.34,1.56,.64,1),opacity .22s ease",
-      "background:#111227",   /* match panel bg so no white flash */
-      "color-scheme:dark",
+      "position:absolute", "inset:0", "width:100%", "height:100%", "border:none",
+      "background:transparent", "color-scheme:dark"
     ].join(";");
     iframe.setAttribute("allow", "clipboard-write");
 
@@ -192,7 +188,6 @@
     isVisible = true;
     overlay.style.opacity = "1";
     overlay.style.pointerEvents = "auto";
-    iframe.style.transform = "translateY(0) scale(1)";
     // Block page scrolling
     document.body.style.overflow = "hidden";
     
@@ -208,7 +203,6 @@
     isVisible = false;
     overlay.style.opacity = "0";
     overlay.style.pointerEvents = "none";
-    iframe.style.transform = "translateY(30px) scale(0.97)";
     // Restore page scrolling
     document.body.style.overflow = "";
     if (activeTarget && activeTarget.isConnected) {
