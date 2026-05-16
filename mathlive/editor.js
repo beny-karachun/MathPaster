@@ -7,9 +7,10 @@ const latexEl  = document.getElementById("latex-code");
 const palette  = document.getElementById("palette");
 const loading  = document.getElementById("loading");
 
-/* ── Live preview ── */
+/* ── Live preview & Caching ── */
 function updatePreview() {
   const raw = mf.value || "";
+  localStorage.setItem("mathpaster_draft", raw);
   if (!raw) { latexEl.textContent = ""; return; }
   latexEl.textContent = insertMode === "block" ? `$$${raw}$$` : `$${raw}$`;
 }
@@ -241,6 +242,7 @@ document.querySelectorAll(".mode-btn").forEach(btn => {
     document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     insertMode = btn.dataset.mode;
+    localStorage.setItem("mathpaster_mode", insertMode);
     updatePreview();
     if (mfReady) mf.focus();
   });
@@ -256,6 +258,7 @@ function doInsert() {
   const raw = (mf.value || "").trim();
   if (!raw) return;
   const wrap = insertMode === "block" ? `$$${raw}$$` : `$${raw}$`;
+  localStorage.removeItem("mathpaster_draft");
   window.parent.postMessage({ mathpaster: "insert", latex: wrap }, "*");
 }
 document.getElementById("insert-btn").addEventListener("click", doInsert);
@@ -305,13 +308,15 @@ document.addEventListener("keydown", e => {
 window.addEventListener("message", e => {
   if (e.data?.mathpaster === "reset") {
     if (mfReady) {
-      mf.value = "";
-      latexEl.textContent = "";
-      // Reset mode to inline
-      insertMode = "inline";
+      const draft = localStorage.getItem("mathpaster_draft") || "";
+      mf.value = draft;
+      
+      insertMode = localStorage.getItem("mathpaster_mode") || "inline";
       document.querySelectorAll(".mode-btn").forEach(b => {
-        b.classList.toggle("active", b.dataset.mode === "inline");
+        b.classList.toggle("active", b.dataset.mode === insertMode);
       });
+      
+      updatePreview();
       setTimeout(() => { try { mf.focus(); } catch {} }, 100);
     }
   }
