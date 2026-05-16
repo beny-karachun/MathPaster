@@ -29,6 +29,9 @@ function initMathField() {
     try {
       MFE.fontsDirectory = "./lib/fonts/";
       MFE.soundsDirectory = null;
+      if (window.mathVirtualKeyboard) {
+        window.mathVirtualKeyboard.container = document.body;
+      }
     } catch (e) {
       console.warn("Could not set MathfieldElement properties:", e);
     }
