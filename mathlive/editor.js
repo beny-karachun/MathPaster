@@ -49,8 +49,11 @@ function initMathField() {
       if (savedAuto === "false") {
         document.getElementById("auto-symbol-switch").checked = false;
         document.querySelector("#auto-symbol-selector .mode-label").classList.remove("active");
-        if (mf.setOptions) mf.setOptions({ inlineShortcuts: {} });
-        else mf.inlineShortcuts = {};
+        if (mf.setOptions) mf.setOptions({ inlineShortcuts: {}, mathModeSpace: "\\:" });
+        else { mf.inlineShortcuts = {}; mf.mathModeSpace = "\\:"; }
+      } else {
+        if (mf.setOptions) mf.setOptions({ mathModeSpace: "\\:" });
+        else mf.mathModeSpace = "\\:";
       }
 
       loading.classList.add("hidden");
