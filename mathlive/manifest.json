@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "MathPaster",
   "version": "1.0.0",
-  "description": "Insert LaTeX math into any text input with a beautiful WYSIWYG editor. Press Ctrl+M to open.",
+  "description": "Visually write math and insert flawless LaTeX into AI chatbots like ChatGPT, Claude, and Gemini with a beautiful WYSIWYG editor.",
   "permissions": ["activeTab"],
   "icons": {
     "16": "icons/icon16.png",

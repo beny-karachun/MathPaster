@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,11 +9,14 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <div class="grid-background"></div>
-    
+
     <header>
         <div class="container header-container">
             <div class="logo">
@@ -21,7 +25,12 @@
             </div>
             <nav>
                 <a href="https://chrome.google.com/webstore" class="nav-btn install-btn" target="_blank">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
                     INSTALL
                 </a>
                 <a href="privacy.html" class="nav-link">Privacy Policy</a>
@@ -33,21 +42,81 @@
         <section class="hero">
             <h1 class="hero-title">MathPaster<span class="cursor">_</span></h1>
             <p class="hero-subtitle">Supercharge your math typing anywhere on the web</p>
-            
+
             <div class="hero-actions">
-                <a href="https://chrome.google.com/webstore" class="btn btn-primary" target="_blank">INSTALL EXTENSION</a>
-                <a href="#demo" class="btn btn-secondary" style="gap: 8px;">TRY WITHOUT DOWNLOADING <span style="font-size: 14px;">↓↓</span></a>
+                <a href="https://chrome.google.com/webstore" class="btn btn-primary" target="_blank">INSTALL
+                    EXTENSION</a>
+                <a href="#demo" class="btn btn-secondary" style="gap: 8px;">TRY WITHOUT DOWNLOADING <span
+                        style="font-size: 14px;">↓↓</span></a>
+            </div>
+        </section>
+
+        <section class="benefits-section" style="padding: 20px 0 60px 0;">
+            <h2 class="section-title">WHY MATHPASTER?</h2>
+
+            <div class="features-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+
+                <!-- Benefit 1 -->
+                <div class="feature-card" style="padding: 28px;">
+                    <div class="feature-header">
+                        <h3 class="feature-title">AI LIKES UNAMBIGUOUS MATH</h3>
+                        <p class="feature-desc">Typing math conventionally like <code>e^(-x^2) / (sqrt(pi))</code> is
+                            ambiguous and makes it difficult for AI models to understand your exact intent.</p>
+                        <p class="feature-desc" style="margin-top: 12px;">MathPaster generates flawless, standard LaTeX
+                            (e.g. <code>\frac{e^{-x^2}}{\sqrt{\pi}}</code>), ensuring ChatGPT, Gemini and Claude process
+                            your complex formulas with 100% accuracy.</p>
+                    </div>
+                </div>
+
+                <!-- Benefit 2 -->
+                <div class="feature-card" style="padding: 28px;">
+                    <div class="feature-header">
+                        <h3 class="feature-title">LIVE WYSIWYG PREVIEW</h3>
+                        <p class="feature-desc">Stop guessing if you missed a parenthesis or a curly brace. MathPaster
+                            provides a beautiful, real-time render of your equation as you write it, letting you catch
+                            syntax errors instantly.</p>
+                    </div>
+                </div>
+
+                <!-- Benefit 3 -->
+                <div class="feature-card" style="padding: 28px;">
+                    <div class="feature-header">
+                        <h3 class="feature-title">SEAMLESS WORKFLOW</h3>
+                        <p class="feature-desc">No external tabs. No awkward copy-pasting. Just pure convenience
+                            directly where you are working.</p>
+                        <ol
+                            style="color: var(--text-secondary); font-size: 0.95rem; padding-left: 20px; line-height: 1.8; margin-top: 16px;">
+                            <li>Place your cursor on any text input box</li>
+                            <li>Press <kbd
+                                    style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent);">Ctrl+M</kbd>
+                            </li>
+                            <li>Write your math visually</li>
+                            <li>Press <kbd
+                                    style="background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent);">Ctrl+Enter</kbd>
+                                to insert!</li>
+                        </ol>
+                    </div>
+                </div>
+
             </div>
         </section>
 
         <section id="demo" class="demo-section" style="padding: 60px 0 100px 0;">
             <h2 class="section-title">TRY IT LIVE</h2>
-            <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px;">
-                <label for="demo-input" style="display: block; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 12px;">Your Input Field (Type or paste math here)</label>
-                <textarea id="demo-input" style="width: 100%; height: 100px; background: var(--bg-main); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-primary); padding: 16px; font-size: 1rem; margin-bottom: 24px; resize: vertical; font-family: inherit;" placeholder="Place cursor here, type text, and use the editor below to insert math..."></textarea>
-                
-                <h3 style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 12px; font-weight: normal;">MathPaster Editor</h3>
-                <iframe id="mathpaster-frame" src="editor.html" style="width: 100%; height: 650px; border: none; border-radius: 12px; background: transparent;" title="MathPaster Editor Demo"></iframe>
+            <div
+                style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px;">
+                <label for="demo-input"
+                    style="display: block; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 12px;">Your
+                    Input Field (Type or paste math here)</label>
+                <textarea id="demo-input"
+                    style="width: 100%; height: 100px; background: var(--bg-main); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-primary); padding: 16px; font-size: 1rem; margin-bottom: 24px; resize: vertical; font-family: inherit;"
+                    placeholder="Place cursor here, type text, and use the editor below to insert math..."></textarea>
+
+                <h3 style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 12px; font-weight: normal;">
+                    MathPaster Editor</h3>
+                <iframe id="mathpaster-frame" src="editor.html"
+                    style="width: 100%; height: 650px; border: none; border-radius: 12px; background: transparent;"
+                    title="MathPaster Editor Demo"></iframe>
             </div>
         </section>
     </main>
@@ -63,17 +132,17 @@
     </footer>
     <script>
         const demoInput = document.getElementById('demo-input');
-        
+
         // Listen for messages from the MathPaster iframe editor
         window.addEventListener('message', (event) => {
             if (event.data && event.data.mathpaster === 'insert') {
                 const latex = event.data.latex;
-                
+
                 // Insert at cursor position
                 const startPos = demoInput.selectionStart;
                 const endPos = demoInput.selectionEnd;
                 const text = demoInput.value;
-                
+
                 demoInput.value = text.substring(0, startPos) + latex + text.substring(endPos, text.length);
                 demoInput.focus();
                 demoInput.selectionStart = startPos + latex.length;
@@ -82,9 +151,9 @@
                 alert(event.data.text);
             }
         });
-        
+
         // Smooth scroll for the demo button
-        document.querySelector('a[href="#demo"]').addEventListener('click', function(e) {
+        document.querySelector('a[href="#demo"]').addEventListener('click', function (e) {
             e.preventDefault();
             document.querySelector('#demo').scrollIntoView({ behavior: 'smooth' });
             setTimeout(() => {
@@ -93,4 +162,5 @@
         });
     </script>
 </body>
+
 </html>
