@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MathPaster - Visual Math Editor for the Web</title>
+    <link rel="icon" type="image/png" href="icon.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="grid-background"></div>
+    
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <img src="icon.png" alt="MathPaster Logo" class="logo-img">
+                <span class="logo-text">MATHPASTER</span>
+            </div>
+            <nav>
+                <a href="https://chrome.google.com/webstore" class="nav-btn install-btn" target="_blank">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                    INSTALL
+                </a>
+                <a href="privacy.html" class="nav-link">Privacy Policy</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <h1 class="hero-title">MathPaster<span class="cursor">_</span></h1>
+            <p class="hero-subtitle">Supercharge your math typing anywhere on the web</p>
+            
+            <div class="hero-actions">
+                <a href="https://chrome.google.com/webstore" class="btn btn-primary" target="_blank">INSTALL EXTENSION</a>
+                <a href="#demo" class="btn btn-secondary" style="gap: 8px;">TRY WITHOUT DOWNLOADING <span style="font-size: 14px;">↓↓</span></a>
+            </div>
+        </section>
+
+        <section id="demo" class="demo-section" style="padding: 60px 0 100px 0;">
+            <h2 class="section-title">TRY IT LIVE</h2>
+            <div style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px;">
+                <label for="demo-input" style="display: block; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 12px;">Your Input Field (Type or paste math here)</label>
+                <textarea id="demo-input" style="width: 100%; height: 100px; background: var(--bg-main); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-primary); padding: 16px; font-size: 1rem; margin-bottom: 24px; resize: vertical; font-family: inherit;" placeholder="Place cursor here, type text, and use the editor below to insert math..."></textarea>
+                
+                <h3 style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 12px; font-weight: normal;">MathPaster Editor</h3>
+                <iframe id="mathpaster-frame" src="editor.html" style="width: 100%; height: 750px; border: none; border-radius: 12px; background: transparent;" title="MathPaster Editor Demo"></iframe>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container footer-content">
+            <p>&copy; 2026 MathPaster. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+    <script>
+        const demoInput = document.getElementById('demo-input');
+        
+        // Listen for messages from the MathPaster iframe editor
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.mathpaster === 'insert') {
+                const latex = event.data.latex;
+                
+                // Insert at cursor position
+                const startPos = demoInput.selectionStart;
+                const endPos = demoInput.selectionEnd;
+                const text = demoInput.value;
+                
+                demoInput.value = text.substring(0, startPos) + latex + text.substring(endPos, text.length);
+                demoInput.focus();
+                demoInput.selectionStart = startPos + latex.length;
+                demoInput.selectionEnd = startPos + latex.length;
+            } else if (event.data && event.data.mathpaster === 'toast') {
+                alert(event.data.text);
+            }
+        });
+        
+        // Smooth scroll for the demo button
+        document.querySelector('a[href="#demo"]').addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector('#demo').scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => {
+                demoInput.focus();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
