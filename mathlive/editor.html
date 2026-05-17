@@ -451,13 +451,22 @@
     </div>
 
     <div id="mode-bar">
-      <div id="mode-selector">
-        <span class="mode-label active" data-mode="inline">Inline</span>
+      <div style="display: flex; gap: 24px;">
+        <div id="auto-symbol-selector" style="display: flex; align-items: center; gap: 10px;">
+          <span class="mode-label active" style="font-weight: 500;">Auto-Symbols</span>
+          <label class="switch">
+            <input type="checkbox" id="auto-symbol-switch" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div id="mode-selector" style="display: flex; align-items: center; gap: 10px;">
+          <span class="mode-label active" data-mode="inline">Inline</span>
         <label class="switch">
           <input type="checkbox" id="mode-switch">
           <span class="slider"></span>
         </label>
         <span class="mode-label" data-mode="block">Block</span>
+        </div>
       </div>
     </div>
 

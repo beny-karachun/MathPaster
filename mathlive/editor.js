@@ -1,6 +1,7 @@
 /* ── State ── */
 let insertMode = "inline";
 let mfReady = false;
+let defaultShortcuts = null;
 
 const mf       = document.getElementById("mf");
 const latexEl  = document.getElementById("latex-code");
@@ -42,6 +43,16 @@ function initMathField() {
 
     customElements.whenDefined("math-field").then(() => {
       mfReady = true;
+      defaultShortcuts = mf.getOption ? mf.getOption("inlineShortcuts") : mf.inlineShortcuts;
+      
+      const savedAuto = localStorage.getItem("mathpaster_autosymbols");
+      if (savedAuto === "false") {
+        document.getElementById("auto-symbol-switch").checked = false;
+        document.querySelector("#auto-symbol-selector .mode-label").classList.remove("active");
+        if (mf.setOptions) mf.setOptions({ inlineShortcuts: {} });
+        else mf.inlineShortcuts = {};
+      }
+
       loading.classList.add("hidden");
       mf.style.display = "block";
       mf.addEventListener("input", updatePreview);
@@ -282,6 +293,29 @@ modeSwitch.addEventListener("change", e => {
 
 modeLabels.forEach(l => {
   l.addEventListener("click", () => updateModeUI(l.dataset.mode));
+});
+
+/* ── Auto-Symbols toggle ── */
+const autoSymbolSwitch = document.getElementById("auto-symbol-switch");
+const autoSymbolLabel = document.querySelector("#auto-symbol-selector .mode-label");
+
+autoSymbolSwitch.addEventListener("change", e => {
+  const isAuto = e.target.checked;
+  if (isAuto) {
+    autoSymbolLabel.classList.add("active");
+    if (mfReady && mf) {
+      if (mf.setOptions) mf.setOptions({ inlineShortcuts: defaultShortcuts || {} });
+      else mf.inlineShortcuts = defaultShortcuts || {};
+    }
+  } else {
+    autoSymbolLabel.classList.remove("active");
+    if (mfReady && mf) {
+      if (mf.setOptions) mf.setOptions({ inlineShortcuts: {} });
+      else mf.inlineShortcuts = {};
+    }
+  }
+  localStorage.setItem("mathpaster_autosymbols", isAuto ? "true" : "false");
+  if (mfReady) { window.focus(); mf.focus(); }
 });
 
 /* ── Close ── */
