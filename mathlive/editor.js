@@ -497,7 +497,17 @@ const defaultSettings = {
   tabPaddingV: 14,
   tabFontSize: 15,
   borderRadiusTab: 30,
-  primaryHue: 250, // purple-ish
+  borderRadiusTab: 30,
+  actionBtnPaddingX: 28,
+  actionBtnPaddingY: 12,
+  actionBtnFontSize: 16,
+  actionBtnRoundness: 14,
+  primaryHue: 250,
+  primarySat: 80,
+  primaryLight: 65,
+  bgHue: 236,
+  bgSat: 30,
+  bgLight: 12,
   showLatexBar: true,
   blurBackground: true
 };
@@ -513,7 +523,14 @@ function applySettings(settings) {
   }
   
   styleEl.innerHTML = `
-    #editor-window { width: ${settings.popupWidth}px !important; height: ${settings.popupHeight}px !important; }
+    #editor-window {
+      width: ${settings.popupWidth}px !important;
+      height: ${settings.popupHeight}px !important;
+      background: linear-gradient(145deg, 
+        hsl(${settings.bgHue}, ${settings.bgSat}%, ${settings.bgLight + 6}%) 0%, 
+        hsl(${settings.bgHue}, ${settings.bgSat}%, ${settings.bgLight}%) 50%, 
+        hsl(${settings.bgHue}, ${settings.bgSat}%, ${Math.max(0, settings.bgLight - 5)}%) 100%) !important;
+    }
     #latex-preview { display: ${settings.showLatexBar ? 'flex' : 'none'} !important; }
     #body { gap: ${settings.gapSize}px !important; }
     #category-tabs { gap: ${settings.gapSize}px !important; padding-bottom: ${settings.gapSize}px !important; }
@@ -525,29 +542,62 @@ function applySettings(settings) {
     
     .cat-tab { padding: ${settings.tabPaddingV}px ${settings.tabPaddingH}px !important; font-size: ${settings.tabFontSize}px !important; border-radius: ${settings.borderRadiusTab}px !important; }
     
-    .btn, .icon, .header-btn, #close-btn, #settings-btn, .matrix-cell { border-radius: ${settings.borderRadiusBtn}px !important; }
+    .icon, .header-btn, #close-btn, #settings-btn, .matrix-cell { border-radius: ${settings.borderRadiusBtn}px !important; }
     
+    .btn {
+      padding: ${settings.actionBtnPaddingY}px ${settings.actionBtnPaddingX}px !important;
+      font-size: ${settings.actionBtnFontSize}px !important;
+      border-radius: ${settings.actionBtnRoundness}px !important;
+    }
+
     .cat-tab.active {
-      background: linear-gradient(135deg, hsla(${settings.primaryHue}, 80%, 65%, 0.8) 0%, hsla(${settings.primaryHue}, 80%, 55%, 0.8) 100%) !important;
-      border-color: hsl(${settings.primaryHue}, 90%, 75%) !important;
-      box-shadow: 0 0 24px hsla(${settings.primaryHue}, 80%, 60%, 0.5), inset 0 2px 4px rgba(255,255,255,0.3) !important;
+      background: linear-gradient(135deg, hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.8) 0%, hsla(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 10)}%, 0.8) 100%) !important;
+      border-color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight + 10}%) !important;
+      box-shadow: 0 0 24px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 5)}%, 0.5), inset 0 2px 4px rgba(255,255,255,0.3) !important;
     }
     
     .btn.primary {
-      background: linear-gradient(135deg, hsl(${settings.primaryHue}, 80%, 55%) 0%, hsl(${settings.primaryHue}, 75%, 45%) 100%) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px hsla(${settings.primaryHue}, 80%, 55%, 0.5) !important;
+      background: linear-gradient(135deg, hsl(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 10)}%) 0%, hsl(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 20)}%) 100%) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 10)}%, 0.5) !important;
     }
     .btn.primary:hover {
-      background: linear-gradient(135deg, hsl(${settings.primaryHue}, 85%, 60%) 0%, hsl(${settings.primaryHue}, 80%, 50%) 100%) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 16px hsla(${settings.primaryHue}, 85%, 60%, 0.5) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 20px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 10)}%, 0.6) !important;
+    }
+    
+    .btn.secondary {
+      color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${Math.min(100, settings.primaryLight + 20)}%) !important;
+      background: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.1) !important;
+      border-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.3) !important;
     }
     
     .icon {
-      background: linear-gradient(135deg, hsla(${settings.primaryHue}, 80%, 65%, 0.15) 0%, hsla(${settings.primaryHue}, 80%, 55%, 0.15) 100%) !important;
-      border-color: hsla(${settings.primaryHue}, 80%, 65%, 0.3) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px hsla(${settings.primaryHue}, 80%, 65%, 0.2) !important;
+      background: linear-gradient(135deg, hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.15) 0%, hsla(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 10)}%, 0.15) 100%) !important;
+      border-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.3) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.2) !important;
     }
-    .icon svg { stroke: hsl(${settings.primaryHue}, 90%, 75%) !important; }
+    
+    #latex-preview {
+      border-left-color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%) !important;
+    }
+    
+    .matrix-selector-btn {
+      background: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.1) !important;
+      border-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.3) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.2) !important;
+    }
+    .icon svg { stroke: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${Math.min(100, settings.primaryLight + 15)}%) !important; }
+    
+    #mf-wrap:focus-within {
+      border-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.5) !important;
+      box-shadow: 0 0 0 3px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.12), 0 4px 16px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.08) !important;
+    }
+    .matrix-cell.highlight {
+      background: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.6) !important;
+      border-color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%) !important;
+    }
+    .toggle-switch input:checked + .slider {
+      background: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%) !important;
+    }
   `;
   
   window.parent.postMessage({ mathpaster: "update-blur", blur: settings.blurBackground }, "*");
