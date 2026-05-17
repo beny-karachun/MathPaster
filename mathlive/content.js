@@ -264,6 +264,18 @@
           iframe.style.height = `${e.data.height}px`;
         }
         break;
+
+      case "update-blur":
+        if (overlay) {
+          if (e.data.blur) {
+            overlay.style.backdropFilter = "blur(6px)";
+            overlay.style.webkitBackdropFilter = "blur(6px)";
+          } else {
+            overlay.style.backdropFilter = "none";
+            overlay.style.webkitBackdropFilter = "none";
+          }
+        }
+        break;
     }
   });
 

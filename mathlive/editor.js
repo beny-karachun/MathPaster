@@ -482,7 +482,8 @@ const defaultSettings = {
   tabFontSize: 15,
   borderRadiusTab: 30,
   primaryHue: 250, // purple-ish
-  showLatexBar: true
+  showLatexBar: true,
+  blurBackground: true
 };
 
 let currentSettings = { ...defaultSettings };
@@ -533,6 +534,7 @@ function applySettings(settings) {
     .icon svg { stroke: hsl(${settings.primaryHue}, 90%, 75%) !important; }
   `;
   
+  window.parent.postMessage({ mathpaster: "update-blur", blur: settings.blurBackground }, "*");
   localStorage.setItem('mathpaster_settings', JSON.stringify(settings));
 }
 
@@ -600,3 +602,40 @@ document.getElementById('reset-settings-btn').addEventListener('click', () => {
 });
 
 loadSettings();
+
+/* ── Dragging logic ── */
+const header = document.getElementById("header");
+const editorWindow = document.getElementById("editor-window");
+let isDragging = false;
+let startX, startY;
+let currentX = 0, currentY = 0;
+let baseX = 0, baseY = 0;
+
+header.style.cursor = "grab";
+
+header.addEventListener("mousedown", e => {
+  if (e.target.closest(".header-btn") || e.target.tagName === "INPUT") return;
+  isDragging = true;
+  startX = e.clientX;
+  startY = e.clientY;
+  header.style.cursor = "grabbing";
+});
+
+document.addEventListener("mousemove", e => {
+  if (!isDragging) return;
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+  currentX = baseX + dx;
+  currentY = baseY + dy;
+  editorWindow.style.left = `${currentX}px`;
+  editorWindow.style.top = `${currentY}px`;
+});
+
+document.addEventListener("mouseup", () => {
+  if (isDragging) {
+    isDragging = false;
+    header.style.cursor = "grab";
+    baseX = currentX;
+    baseY = currentY;
+  }
+});
