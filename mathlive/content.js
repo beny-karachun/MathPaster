@@ -6,6 +6,8 @@
 
 (() => {
   "use strict";
+  if (window.mathPasterInjected) return;
+  window.mathPasterInjected = true;
 
   let overlay = null;
   let iframe  = null;
@@ -287,14 +289,7 @@
     }
   });
 
-  /* ── Ctrl+M listener (page level) ── */
-  document.addEventListener("keydown", e => {
-    if ((e.ctrlKey || e.metaKey) && (e.key.toLowerCase() === "m" || e.code === "KeyM")) {
-      e.preventDefault();
-      e.stopPropagation();
-      toggleOverlay();
-    }
-  }, true);
+
 
   /* ── Message from background (toolbar icon click) ── */
   chrome.runtime.onMessage.addListener(msg => {
