@@ -58,6 +58,13 @@ function initMathField() {
 // Initialize
 initMathField();
 
+// Enforce focus when clicking anywhere inside the editor wrap
+document.getElementById("mf-wrap").addEventListener("click", () => {
+  if (mfReady && mf) {
+    mf.focus();
+  }
+});
+
 /* ── Palette data ── */
 const PALETTE_DATA = {
   "Common": [

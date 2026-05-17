@@ -404,9 +404,10 @@
       opacity: 0; transition: opacity 0.2s ease;
     }
     #settings-overlay.visible { opacity: 1; }
+    #settings-overlay.visible #settings-panel { pointer-events: auto; }
     
     #settings-panel {
-      pointer-events: auto; /* Catch clicks on the panel itself */
+      pointer-events: none; /* Only catch clicks when visible */
       background: rgba(17, 18, 39, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
       width: 340px; max-height: 100%;
       border-radius: 16px; border: 1px solid rgba(255,255,255,0.15);
