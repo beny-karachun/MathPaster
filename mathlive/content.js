@@ -196,6 +196,14 @@
     if (iframeReady) {
       iframe.contentWindow?.postMessage({ mathpaster: "reset", initialMath: initialMathDraft }, "*");
     }
+    
+    // Explicitly focus iframe to ensure keyboard events are captured
+    setTimeout(() => { 
+      if (iframe) {
+        iframe.focus(); 
+        if (iframe.contentWindow) iframe.contentWindow.focus();
+      }
+    }, 10);
   }
 
   function hideOverlay() {

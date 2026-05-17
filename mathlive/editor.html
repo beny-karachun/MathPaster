@@ -500,6 +500,14 @@
           <button class="header-btn" id="close-settings-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
         </div>
         <div class="settings-body">
+          <div class="setting-group" style="flex-direction: row; align-items: center; justify-content: space-between;">
+            <label style="margin: 0;">Show LaTeX Code Bar</label>
+            <input type="checkbox" id="set-showLatexBar" style="width: 20px; height: 20px; accent-color: #8b5cf6; cursor: pointer;">
+          </div>
+          <div class="setting-group" style="flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <label style="margin: 0;">Blur Background Overlay</label>
+            <input type="checkbox" id="set-blurBackground" style="width: 20px; height: 20px; accent-color: #8b5cf6; cursor: pointer;">
+          </div>
           <div class="setting-group">
             <label>Popup Width (px) <span id="val-popupWidth"></span></label>
             <input type="range" id="set-popupWidth" min="400" max="1600" step="10">
@@ -547,14 +555,6 @@
           <div class="setting-group">
             <label>Theme Color (Hue) <span id="val-primaryHue"></span></label>
             <input type="range" id="set-primaryHue" min="0" max="360" step="5">
-          </div>
-          <div class="setting-group" style="flex-direction: row; align-items: center; justify-content: space-between; margin-top: 5px;">
-            <label style="margin: 0;">Show LaTeX Code Bar</label>
-            <input type="checkbox" id="set-showLatexBar" style="width: 20px; height: 20px; accent-color: #8b5cf6; cursor: pointer;">
-          </div>
-          <div class="setting-group" style="flex-direction: row; align-items: center; justify-content: space-between; margin-top: 5px;">
-            <label style="margin: 0;">Blur Background Overlay</label>
-            <input type="checkbox" id="set-blurBackground" style="width: 20px; height: 20px; accent-color: #8b5cf6; cursor: pointer;">
           </div>
           <button class="btn secondary" id="reset-settings-btn" style="margin-top:10px;">Reset to Defaults</button>
         </div>

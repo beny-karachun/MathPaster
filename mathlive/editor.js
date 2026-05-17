@@ -58,10 +58,21 @@ function initMathField() {
 // Initialize
 initMathField();
 
-// Enforce focus when clicking anywhere inside the editor wrap
-document.getElementById("mf-wrap").addEventListener("click", () => {
-  if (mfReady && mf) {
-    mf.focus();
+// Guarantee the iframe window claims focus on ANY click before MathLive can preventDefault
+window.addEventListener("mousedown", () => {
+  window.focus();
+}, true);
+
+// Enforce focus when clicking anywhere inside the editor wrap or the empty space of the math field
+document.getElementById("mf-wrap").addEventListener("mousedown", (e) => {
+  if (e.target === document.getElementById("mf-wrap") || e.target === mf) {
+    e.preventDefault();
+    if (mfReady && mf) {
+      window.focus();
+      mf.focus();
+      try { mf.executeCommand("moveToMathFieldEnd"); } catch(err) {}
+      try { mf.executeCommand("moveToRightEnd"); } catch(err) {}
+    }
   }
 });
 
@@ -226,6 +237,7 @@ function renderPalette(categoryName) {
         showMatrixSelector(btn, item.matrixType);
       } else {
         mf.executeCommand(["insert", item.latex]);
+        window.focus();
         mf.focus();
       }
     });
@@ -239,6 +251,7 @@ for (const cat of Object.keys(PALETTE_DATA)) {
   const tab = document.createElement("button");
   tab.className = "cat-tab" + (cat === activeCategory ? " active" : "");
   tab.textContent = cat;
+  tab.addEventListener("mousedown", e => e.preventDefault()); // don't steal focus
   tab.addEventListener("click", () => {
     document.querySelectorAll(".cat-tab").forEach(t => t.classList.remove("active"));
     tab.classList.add("active");
@@ -260,7 +273,7 @@ function updateModeUI(mode) {
   modeLabels.forEach(l => l.classList.toggle("active", l.dataset.mode === mode));
   localStorage.setItem("mathpaster_mode", insertMode);
   updatePreview();
-  if (mfReady) mf.focus();
+  if (mfReady) { window.focus(); mf.focus(); }
 }
 
 modeSwitch.addEventListener("change", e => {
@@ -284,9 +297,11 @@ function doInsert() {
   localStorage.removeItem("mathpaster_draft");
   window.parent.postMessage({ mathpaster: "insert", latex: wrap }, "*");
 }
+document.getElementById("insert-btn").addEventListener("mousedown", e => e.preventDefault());
 document.getElementById("insert-btn").addEventListener("click", doInsert);
 
 /* ── Copy ── */
+document.getElementById("copy-btn").addEventListener("mousedown", e => e.preventDefault());
 document.getElementById("copy-btn").addEventListener("click", () => {
   const raw = (mf.value || "").trim();
   if (!raw) return;
@@ -352,7 +367,7 @@ window.addEventListener("message", e => {
       });
       
       updatePreview();
-      setTimeout(() => { try { mf.focus(); } catch {} }, 100);
+      setTimeout(() => { try { window.focus(); mf.focus(); } catch {} }, 100);
     }
   }
 });
@@ -450,6 +465,7 @@ function insertMatrix(type, rows, cols) {
   }
   const latex = `\\begin{${type}}${inner}\\end{${type}}`;
   mf.executeCommand(["insert", latex]);
+  window.focus();
   mf.focus();
 }
 
