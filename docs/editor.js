@@ -363,6 +363,28 @@ document.addEventListener("keydown", e => {
     window.parent.postMessage({ mathpaster: "close" }, "*");
     return;
   }
+  // Enter key when autocomplete popover is open → select & commit suggestion
+  if (e.key === "Enter" && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+    console.log("Enter key down detected");
+    const popover = document.getElementById("mathlive-suggestion-popover");
+    console.log("Popover element found:", !!popover);
+    if (popover) {
+      console.log("Popover classes:", popover.className, "is-visible:", popover.classList.contains("is-visible"));
+    }
+    if (popover && popover.classList.contains("is-visible")) {
+      const activeItem = popover.querySelector(".ML__popover__current");
+      console.log("Active item found:", !!activeItem);
+      if (activeItem) {
+        console.log("Active item command:", activeItem.dataset.command);
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("Clicking active item...");
+        activeItem.click();
+        console.log("Clicked active item. Mathfield value now:", document.getElementById("mf").value);
+        return;
+      }
+    }
+  }
   // Ctrl+Enter → insert
   if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
     e.preventDefault();
