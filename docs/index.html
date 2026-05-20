@@ -102,6 +102,157 @@
             </div>
         </section>
 
+        <section id="manual" class="manual-section">
+            <h2 class="section-title">USER MANUAL & FEATURES</h2>
+            
+            <div class="manual-container">
+                <div class="manual-tabs">
+                    <button class="manual-tab active" data-tab="shortcuts">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-icon">
+                            <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+                            <line x1="6" y1="8" x2="6.01" y2="8"></line>
+                            <line x1="10" y1="8" x2="10.01" y2="8"></line>
+                            <line x1="14" y1="8" x2="14.01" y2="8"></line>
+                            <line x1="18" y1="8" x2="18.01" y2="8"></line>
+                            <line x1="6" y1="12" x2="6.01" y2="12"></line>
+                            <line x1="10" y1="12" x2="10.01" y2="12"></line>
+                            <line x1="14" y1="12" x2="14.01" y2="12"></line>
+                            <line x1="18" y1="12" x2="18.01" y2="12"></line>
+                            <line x1="7" y1="16" x2="17" y2="16"></line>
+                        </svg>
+                        Shortcuts
+                    </button>
+                    <button class="manual-tab" data-tab="commands">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-icon">
+                            <path d="M4 19h16"></path>
+                            <path d="M20 8l-8 8-4-4-4 4"></path>
+                        </svg>
+                        LaTeX & Autocomplete
+                    </button>
+                    <button class="manual-tab" data-tab="customization">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tab-icon">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                        Customization & UI
+                    </button>
+                </div>
+
+                <div class="manual-content">
+                    <!-- Shortcuts Panel -->
+                    <div class="manual-panel active" id="panel-shortcuts">
+                        <div class="manual-grid">
+                            <div class="manual-card">
+                                <div class="card-icon-wrap">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="6" y1="8" x2="6.01" y2="8"></line><line x1="10" y1="8" x2="10.01" y2="8"></line><line x1="14" y1="8" x2="14.01" y2="8"></line><line x1="18" y1="8" x2="18.01" y2="8"></line><line x1="6" y1="12" x2="6.01" y2="12"></line><line x1="10" y1="12" x2="10.01" y2="12"></line><line x1="14" y1="12" x2="14.01" y2="12"></line><line x1="18" y1="12" x2="18.01" y2="12"></line><line x1="7" y1="16" x2="17" y2="16"></line></svg>
+                                </div>
+                                <h4>Global Toggle</h4>
+                                <p class="card-text">Press <kbd>Ctrl</kbd> + <kbd>M</kbd> (or <kbd>Cmd</kbd> + <kbd>M</kbd> on macOS) to instantly summon or hide the MathPaster visual editor when focused on any input field on any website.</p>
+                            </div>
+                            <div class="manual-card">
+                                <div class="card-icon-wrap">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"></polyline><path d="M20 4v7a4 4 0 0 1-4 4H4"></path></svg>
+                                </div>
+                                <h4>Fast Insertion</h4>
+                                <p class="card-text">Press <kbd>Ctrl</kbd> + <kbd>Enter</kbd> (or click the <strong>Insert</strong> button) to automatically type the rendered LaTeX formula directly into the active chatbot textbox.</p>
+                            </div>
+                            <div class="manual-card">
+                                <div class="card-icon-wrap">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                </div>
+                                <h4>Quick Close</h4>
+                                <p class="card-text">Press <kbd>Esc</kbd> or toggle <kbd>Ctrl</kbd> + <kbd>M</kbd> again to hide the editor window. Your draft math equation is automatically saved in local browser storage so you can resume work anytime.</p>
+                            </div>
+                            <div class="manual-card">
+                                <div class="card-icon-wrap">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                <h4>Autocomplete Selection</h4>
+                                <p class="card-text">When typing commands, use autocomplete list and press <kbd>Enter</kbd> to select and commit the formula block without needing to click or press tab beforehand.</p>
+                            </div>
+                            <div class="manual-card">
+                                <div class="card-icon-wrap">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"></polyline><polyline points="9 5 12 2 15 5"></polyline><polyline points="15 19 12 22 9 19"></polyline><polyline points="19 9 22 12 19 15"></polyline><line x1="2" y1="12" x2="22" y2="12"></line><line x1="12" y1="2" x2="12" y2="22"></line></svg>
+                                </div>
+                                <h4>Draggable Window</h4>
+                                <p class="card-text">Click and hold the header bar of the MathPaster editor to drag the window anywhere on your screen. This ensures the editor never blocks your active chat or reference documents.</p>
+                            </div>
+                            <div class="manual-card">
+                                <div class="card-icon-wrap">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v13H3V8"></path><path d="M1 3h22v5H1z"></path><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+                                </div>
+                                <h4>Smart Caching</h4>
+                                <p class="card-text">Your equation drafts are cached locally in real-time. If you close the popup, reload the page, or toggle the editor, your formula stays safely saved until you resume.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LaTeX Commands Panel -->
+                    <div class="manual-panel" id="panel-commands">
+                        <div class="manual-grid">
+                            <div class="manual-card wide-card">
+                                <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap; justify-content: space-between; width: 100%;">
+                                    <div style="flex: 1; min-width: 280px;">
+                                        <h4>Backslash Autocomplete Recommendations</h4>
+                                        <p class="card-text" style="margin-bottom: 12px;">Type a backslash <code class="mono-code">\</code> followed by your LaTeX symbol name (e.g. <code>\frac</code>, <code>\sqrt</code>, <code>\alpha</code>) to invoke autocomplete recommendations.</p>
+                                        <p class="card-text">Use arrow keys or press <kbd>Enter</kbd> to select and insert the math node instantly. This allows superfast visual formula generation entirely via keyboard inputs.</p>
+                                    </div>
+                                    <div class="visual-badge" style="background: rgba(0, 229, 155, 0.05); border: 1px solid rgba(0, 229, 155, 0.3); padding: 20px; border-radius: 10px; font-family: var(--font-mono); font-size: 0.9rem; color: var(--accent); max-width: 380px; width: 100%; box-sizing: border-box;">
+                                        <div style="opacity: 0.6; font-size: 0.75rem; margin-bottom: 8px; letter-spacing: 0.5px;">TYPING IN EDITOR:</div>
+                                        <div style="font-weight: bold; color: #fff;">\int_a^b \frac{e^{-x^2}}{\sqrt{\pi}}</div>
+                                        <div style="border-top: 1px solid rgba(0, 229, 155, 0.15); margin-top: 16px; padding-top: 16px; opacity: 0.6; font-size: 0.75rem; margin-bottom: 8px; letter-spacing: 0.5px;">WYSIWYG LIVE RENDER:</div>
+                                        <div style="font-family: serif; font-size: 1.8rem; color: #ffffff; line-height: 1.2; text-align: center;">∫<sub>a</sub><sup>b</sup> (e<sup>-x²</sup> / √π) dx</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="manual-card">
+                                <h4>Auto-Symbols Switch</h4>
+                                <p class="card-text">Toggle the <strong>Auto-Symbols</strong> switch in the editor toolbar. When active, common combinations automatically format (e.g. typing <code>/</code> creates a fraction). Turn it off if you prefer to write traditional, raw LaTeX code.</p>
+                            </div>
+                            <div class="manual-card">
+                                <h4>Inline vs Block Modes</h4>
+                                <p class="card-text">Toggle the <strong>Inline/Block</strong> switch to change how MathPaster wraps your formula. Inline wraps formulas with single <code>$</code> tags (perfect for standard sentences). Block mode uses double <code>$$</code> tags (for centered, prominent equations).</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Customization Panel -->
+                    <div class="manual-panel" id="panel-customization">
+                        <div class="manual-grid">
+                            <div class="manual-card">
+                                <div class="card-icon-wrap">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a7 7 0 1 0 10 10"></path></svg>
+                                </div>
+                                <h4>Blur Background Backdrop</h4>
+                                <p class="card-text">Toggle <strong>Blur Background</strong> in settings. This adds a glassmorphic blur to the extension backdrop, allowing you to see the webpage or active conversation behind the popup window while typing math.</p>
+                            </div>
+                            <div class="manual-card">
+                                <div class="card-icon-wrap">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                                </div>
+                                <h4>Show LaTeX Code Bar</h4>
+                                <p class="card-text">Toggle <strong>Show LaTeX Code Bar</strong> to show or hide the live preview bar at the bottom, which displays the exact LaTeX syntax that will be injected or copied.</p>
+                            </div>
+                            <div class="manual-card">
+                                <div class="card-icon-wrap">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line></svg>
+                                </div>
+                                <h4>Popup Size & Layout</h4>
+                                <p class="card-text">Adjust sliders to resize the popup window (width, height), control the grid spacing gap, and scale symbol buttons. Make it compact or expand it to fit your desktop workspace.</p>
+                            </div>
+                            <div class="manual-card">
+                                <div class="card-icon-wrap">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19C5.0345 19.1759 5.09908 19.4312 5.02102 19.6653C4.85292 20.17 4.76 20.71 4.76 21.27C4.76 21.6732 5.0868 22 5.49 22H12Z"></path><circle cx="7.5" cy="10.5" r="1.5"></circle><circle cx="11.5" cy="7.5" r="1.5"></circle><circle cx="16.5" cy="9.5" r="1.5"></circle><circle cx="15.5" cy="14.5" r="1.5"></circle></svg>
+                                </div>
+                                <h4>Custom Theme & Accents</h4>
+                                <p class="card-text">Change the editor's design styling dynamically. Adjust sliders for Theme Accent Hue, Saturation, Lightness, and background tones to match your preferred theme, dark mode, or chatbot branding.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="demo" class="demo-section" style="padding: 60px 0 100px 0;">
             <h2 class="section-title">TRY IT LIVE</h2>
             <div
@@ -160,6 +311,29 @@
             setTimeout(() => {
                 demoInput.focus();
             }, 500);
+        });
+
+        // Tab switching logic for the manual
+        const manualTabs = document.querySelectorAll('.manual-tab');
+        const manualPanels = document.querySelectorAll('.manual-panel');
+
+        manualTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.tab;
+                
+                // Update active tab class
+                manualTabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Update active panel class with transition support
+                manualPanels.forEach(panel => {
+                    if (panel.id === `panel-${target}`) {
+                        panel.classList.add('active');
+                    } else {
+                        panel.classList.remove('active');
+                    }
+                });
+            });
         });
     </script>
 </body>

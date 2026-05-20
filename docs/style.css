@@ -409,6 +409,167 @@ footer {
     color: var(--text-primary);
 }
 
+/* User Manual Section */
+.manual-section {
+    padding: 60px 0 40px 0;
+}
+
+.manual-container {
+    background-color: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 32px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.manual-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 16px;
+    overflow-x: auto;
+}
+
+.manual-tab {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-secondary);
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.manual-tab:hover {
+    color: var(--text-primary);
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.manual-tab.active {
+    color: var(--accent);
+    background-color: rgba(0, 229, 155, 0.05);
+    border-color: rgba(0, 229, 155, 0.2);
+}
+
+.tab-icon {
+    transition: transform 0.25s ease;
+}
+
+.manual-tab:hover .tab-icon,
+.manual-tab.active .tab-icon {
+    transform: scale(1.1);
+}
+
+.manual-content {
+    position: relative;
+}
+
+.manual-panel {
+    display: none;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.manual-panel.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.manual-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.manual-card {
+    background-color: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 24px;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.manual-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 24px rgba(0, 229, 155, 0.05);
+}
+
+.manual-card.wide-card {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.01) 100%);
+}
+
+.card-icon-wrap {
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background-color: rgba(0, 229, 155, 0.05);
+    border: 1px solid rgba(0, 229, 155, 0.15);
+    border-radius: 8px;
+    color: var(--accent);
+}
+
+.manual-card h4 {
+    font-family: var(--font-mono);
+    color: var(--text-primary);
+    font-size: 1rem;
+    margin-bottom: 12px;
+}
+
+.card-text {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* Keyboard styling */
+kbd {
+    background-color: #1e293b;
+    border: 1px solid #334155;
+    border-bottom: 3px solid #334155;
+    border-radius: 5px;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    padding: 2px 6px;
+    margin: 0 2px;
+    display: inline-block;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.3);
+    font-weight: 700;
+}
+
+/* Inline code styling */
+.manual-card code {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: var(--text-primary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+}
+
 @media (max-width: 900px) {
     .features-grid {
         grid-template-columns: 1fr;
@@ -416,5 +577,13 @@ footer {
     
     .hero-title {
         font-size: 3rem;
+    }
+    
+    .manual-tabs {
+        padding-bottom: 8px;
+    }
+    
+    .manual-card.wide-card {
+        grid-column: span 1;
     }
 }
