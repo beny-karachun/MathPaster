@@ -543,16 +543,16 @@ buildMatrixSelectorUI();
 
 /* ── Settings Logic ── */
 const defaultSettings = {
-  popupWidth: 1000,
-  popupHeight: 700,
-  gapSize: 16,
-  symbolGridWidth: 70,
-  symbolHeight: 56,
+  popupWidth: 760,
+  popupHeight: 550,
+  gapSize: 8,
+  symbolGridWidth: 52,
+  symbolHeight: 46,
   symbolFontSize: 22,
-  borderRadiusBtn: 12,
-  tabPaddingH: 32,
-  tabPaddingV: 14,
-  tabFontSize: 15,
+  borderRadiusBtn: 11,
+  tabPaddingH: 19,
+  tabPaddingV: 10,
+  tabFontSize: 12,
   borderRadiusTab: 30,
   actionBtnPaddingX: 28,
   actionBtnPaddingY: 12,
@@ -564,8 +564,8 @@ const defaultSettings = {
   bgHue: 236,
   bgSat: 30,
   bgLight: 12,
-  showLatexBar: true,
-  blurBackground: true
+  showLatexBar: false,
+  blurBackground: false
 };
 
 let currentSettings = { ...defaultSettings };
