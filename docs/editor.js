@@ -302,6 +302,13 @@ modeLabels.forEach(l => {
 const autoSymbolSwitch = document.getElementById("auto-symbol-switch");
 const autoSymbolLabel = document.querySelector("#auto-symbol-selector .mode-label");
 
+if (autoSymbolLabel) {
+  autoSymbolLabel.addEventListener("click", () => {
+    autoSymbolSwitch.checked = !autoSymbolSwitch.checked;
+    autoSymbolSwitch.dispatchEvent(new Event("change"));
+  });
+}
+
 autoSymbolSwitch.addEventListener("change", e => {
   const isAuto = e.target.checked;
   if (isAuto) {
@@ -581,6 +588,11 @@ function applySettings(settings) {
   }
   
   styleEl.innerHTML = `
+    :root {
+      --primary-hue: ${settings.primaryHue};
+      --primary-sat: ${settings.primarySat}%;
+      --primary-light: ${settings.primaryLight}%;
+    }
     #editor-window {
       width: ${settings.popupWidth}px !important;
       height: ${settings.popupHeight}px !important;
@@ -653,11 +665,37 @@ function applySettings(settings) {
       background: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.6) !important;
       border-color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%) !important;
     }
-    .toggle-switch input:checked + .slider {
-      background: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%) !important;
+    .switch input:checked + .slider {
+      background-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.2) !important;
+      border-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.4) !important;
+    }
+    .switch input:checked + .slider:before {
+      background-color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%) !important;
+    }
+    .mode-label.active {
+      color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${Math.min(100, settings.primaryLight + 20)}%) !important;
+      text-shadow: 0 0 8px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.3) !important;
+    }
+    math-field, #mf {
+      --caret-color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%) !important;
+      --selection-background-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.3) !important;
+      --contains-highlight-background-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.12) !important;
+      --smart-fence-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.5) !important;
     }
   `;
   
+  // Update toggle state labels
+  const labelLatex = document.getElementById("label-showLatexBar");
+  if (labelLatex) labelLatex.classList.toggle("active", !!settings.showLatexBar);
+  const labelBlur = document.getElementById("label-blurBackground");
+  if (labelBlur) labelBlur.classList.toggle("active", !!settings.blurBackground);
+  
+  // Make sure the checkboxes match
+  const inputLatex = document.getElementById("set-showLatexBar");
+  if (inputLatex) inputLatex.checked = !!settings.showLatexBar;
+  const inputBlur = document.getElementById("set-blurBackground");
+  if (inputBlur) inputBlur.checked = !!settings.blurBackground;
+
   window.parent.postMessage({ mathpaster: "update-blur", blur: settings.blurBackground }, "*");
   localStorage.setItem('mathpaster_settings', JSON.stringify(settings));
 }
@@ -692,7 +730,7 @@ settingsKeys.forEach(k => {
   const input = document.getElementById('set-' + k);
   const valDisp = document.getElementById('val-' + k);
   if (input) {
-    input.addEventListener('input', e => {
+    const handleEvent = e => {
       if (input.type === "checkbox") {
         currentSettings[k] = e.target.checked;
       } else {
@@ -700,9 +738,37 @@ settingsKeys.forEach(k => {
         if (valDisp) valDisp.textContent = currentSettings[k];
       }
       applySettings(currentSettings);
-    });
+    };
+    input.addEventListener('input', handleEvent);
+    if (input.type === "checkbox") {
+      input.addEventListener('change', handleEvent);
+    }
   }
 });
+
+// Relocated settings label click listeners
+const labelLatex = document.getElementById("label-showLatexBar");
+if (labelLatex) {
+  labelLatex.addEventListener("click", () => {
+    const input = document.getElementById("set-showLatexBar");
+    if (input) {
+      input.checked = !input.checked;
+      currentSettings.showLatexBar = input.checked;
+      applySettings(currentSettings);
+    }
+  });
+}
+const labelBlur = document.getElementById("label-blurBackground");
+if (labelBlur) {
+  labelBlur.addEventListener("click", () => {
+    const input = document.getElementById("set-blurBackground");
+    if (input) {
+      input.checked = !input.checked;
+      currentSettings.blurBackground = input.checked;
+      applySettings(currentSettings);
+    }
+  });
+}
 
 document.getElementById('close-settings-btn').addEventListener('click', () => {
   document.getElementById('settings-overlay').classList.remove('visible');

@@ -676,7 +676,102 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 16px;
+    }
+
+    .settings-body::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .settings-body::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .settings-body::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+    }
+
+    .settings-body::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* ── Details / Summary Accordions ── */
+    .settings-body details {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      overflow: hidden;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .settings-body details[open] {
+      border-color: hsla(var(--primary-hue, 160), var(--primary-sat, 100%), var(--primary-light, 45%), 0.4);
+      background: rgba(0, 0, 0, 0.25);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .settings-body summary {
+      padding: 14px 18px;
+      font-size: 14.5px;
+      font-weight: 600;
+      color: #e2e8f0;
+      cursor: pointer;
+      list-style: none; /* Hide default triangle */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .settings-body summary::-webkit-details-marker {
+      display: none; /* Hide default triangle in Safari */
+    }
+
+    .settings-body summary:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: #fff;
+    }
+
+    /* Custom chevron indicator */
+    .settings-body summary::after {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-right: 2.5px solid #94a3b8;
+      border-bottom: 2.5px solid #94a3b8;
+      transform: rotate(-45deg);
+      transition: transform 0.25s ease, border-color 0.25s ease;
+      margin-right: 4px;
+    }
+
+    .settings-body details[open] summary::after {
+      transform: rotate(45deg);
+      border-color: hsl(var(--primary-hue, 160), var(--primary-sat, 100%), var(--primary-light, 45%));
+    }
+
+    .settings-body details[open] summary {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .details-content {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .setting-group {
@@ -689,13 +784,41 @@
       display: flex;
       justify-content: space-between;
       color: #cbd5e1;
-      font-size: 14px;
+      font-size: 13.5px;
       font-weight: 500;
     }
 
     .setting-group input[type="range"] {
       width: 100%;
-      accent-color: #8b5cf6;
+      accent-color: hsl(var(--primary-hue, 160), var(--primary-sat, 100%), var(--primary-light, 45%));
+      background: rgba(255, 255, 255, 0.08);
+      height: 6px;
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .setting-group input[type="range"]::-webkit-slider-runnable-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      height: 6px;
+    }
+
+    .setting-group input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: hsl(var(--primary-hue, 160), var(--primary-sat, 100%), var(--primary-light, 45%));
+      cursor: pointer;
+      margin-top: -4px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+      transition: transform 0.1s ease;
+    }
+
+    .setting-group input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
     }
     #mathlive-suggestion-popover,
     .ML__keyboard,
@@ -737,7 +860,7 @@
     </div>
 
     <div id="mode-bar">
-      <div style="display: flex; gap: 24px;">
+      <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: center;">
         <div id="auto-symbol-selector" style="display: flex; align-items: center; gap: 10px;">
           <span class="mode-label active" style="font-weight: 500;">Auto-Symbols</span>
           <label class="switch">
@@ -752,6 +875,20 @@
             <span class="slider"></span>
           </label>
           <span class="mode-label" data-mode="block">Block</span>
+        </div>
+        <div id="latex-bar-selector" style="display: flex; align-items: center; gap: 10px;">
+          <span class="mode-label active" id="label-showLatexBar" style="font-weight: 500;">LaTeX Bar</span>
+          <label class="switch">
+            <input type="checkbox" id="set-showLatexBar">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div id="blur-bg-selector" style="display: flex; align-items: center; gap: 10px;">
+          <span class="mode-label active" id="label-blurBackground" style="font-weight: 500;">Blur BG</span>
+          <label class="switch">
+            <input type="checkbox" id="set-blurBackground">
+            <span class="slider"></span>
+          </label>
         </div>
       </div>
     </div>
@@ -801,101 +938,120 @@
         <button class="header-btn" id="close-settings-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
       </div>
       <div class="settings-body">
-        <div class="setting-group" style="flex-direction: row; align-items: center; justify-content: space-between;">
-          <label style="margin: 0;">Show LaTeX Code Bar</label>
-          <input type="checkbox" id="set-showLatexBar"
-            style="width: 20px; height: 20px; accent-color: #8b5cf6; cursor: pointer;">
-        </div>
-        <div class="setting-group"
-          style="flex-direction: row; align-items: center; justify-content: space-between; margin-bottom: 10px;">
-          <label style="margin: 0;">Blur Background (See chat behind)</label>
-          <input type="checkbox" id="set-blurBackground"
-            style="width: 20px; height: 20px; accent-color: #8b5cf6; cursor: pointer;">
-        </div>
-        <div class="setting-group">
-          <label>Popup Width (px) <span id="val-popupWidth"></span></label>
-          <input type="range" id="set-popupWidth" min="400" max="1600" step="10">
-        </div>
-        <div class="setting-group">
-          <label>Popup Height (px) <span id="val-popupHeight"></span></label>
-          <input type="range" id="set-popupHeight" min="300" max="1200" step="10">
-        </div>
-        <div class="setting-group">
-          <label>UI Spacing Gap (px) <span id="val-gapSize"></span></label>
-          <input type="range" id="set-gapSize" min="4" max="40" step="2">
-        </div>
-        <div class="setting-group">
-          <label>Symbol Button Width (px) <span id="val-symbolGridWidth"></span></label>
-          <input type="range" id="set-symbolGridWidth" min="40" max="120" step="2">
-        </div>
-        <div class="setting-group">
-          <label>Symbol Button Height (px) <span id="val-symbolHeight"></span></label>
-          <input type="range" id="set-symbolHeight" min="30" max="100" step="2">
-        </div>
-        <div class="setting-group">
-          <label>Symbol Font Size (px) <span id="val-symbolFontSize"></span></label>
-          <input type="range" id="set-symbolFontSize" min="14" max="40" step="1">
-        </div>
-        <div class="setting-group">
-          <label>Button Roundness (px) <span id="val-borderRadiusBtn"></span></label>
-          <input type="range" id="set-borderRadiusBtn" min="0" max="40" step="1">
-        </div>
-        <div class="setting-group">
-          <label>Tab Padding X (px) <span id="val-tabPaddingH"></span></label>
-          <input type="range" id="set-tabPaddingH" min="10" max="60" step="1">
-        </div>
-        <div class="setting-group">
-          <label>Tab Padding Y (px) <span id="val-tabPaddingV"></span></label>
-          <input type="range" id="set-tabPaddingV" min="4" max="30" step="1">
-        </div>
-        <div class="setting-group">
-          <label>Tab Font Size (px) <span id="val-tabFontSize"></span></label>
-          <input type="range" id="set-tabFontSize" min="10" max="24" step="1">
-        </div>
-        <div class="setting-group">
-          <label>Tab Roundness (px) <span id="val-borderRadiusTab"></span></label>
-          <input type="range" id="set-borderRadiusTab" min="0" max="40" step="1">
-        </div>
-        <div class="setting-group">
-          <label>Action Button Padding X (px) <span id="val-actionBtnPaddingX"></span></label>
-          <input type="range" id="set-actionBtnPaddingX" min="10" max="60" step="2">
-        </div>
-        <div class="setting-group">
-          <label>Action Button Padding Y (px) <span id="val-actionBtnPaddingY"></span></label>
-          <input type="range" id="set-actionBtnPaddingY" min="4" max="30" step="2">
-        </div>
-        <div class="setting-group">
-          <label>Action Button Font Size (px) <span id="val-actionBtnFontSize"></span></label>
-          <input type="range" id="set-actionBtnFontSize" min="10" max="24" step="1">
-        </div>
-        <div class="setting-group">
-          <label>Action Button Roundness (px) <span id="val-actionBtnRoundness"></span></label>
-          <input type="range" id="set-actionBtnRoundness" min="0" max="40" step="1">
-        </div>
-        <div class="setting-group">
-          <label>Theme Accent Hue <span id="val-primaryHue"></span></label>
-          <input type="range" id="set-primaryHue" min="0" max="360" step="5">
-        </div>
-        <div class="setting-group">
-          <label>Theme Accent Saturation (%) <span id="val-primarySat"></span></label>
-          <input type="range" id="set-primarySat" min="0" max="100" step="5">
-        </div>
-        <div class="setting-group">
-          <label>Theme Accent Lightness (%) <span id="val-primaryLight"></span></label>
-          <input type="range" id="set-primaryLight" min="0" max="100" step="5">
-        </div>
-        <div class="setting-group">
-          <label>Background Hue <span id="val-bgHue"></span></label>
-          <input type="range" id="set-bgHue" min="0" max="360" step="5">
-        </div>
-        <div class="setting-group">
-          <label>Background Saturation (%) <span id="val-bgSat"></span></label>
-          <input type="range" id="set-bgSat" min="0" max="100" step="5">
-        </div>
-        <div class="setting-group">
-          <label>Background Lightness (%) <span id="val-bgLight"></span></label>
-          <input type="range" id="set-bgLight" min="0" max="100" step="2">
-        </div>
+        <details name="settings-group" open>
+          <summary>General & Window</summary>
+          <div class="details-content">
+            <div class="setting-group">
+              <label>Popup Width (px) <span id="val-popupWidth"></span></label>
+              <input type="range" id="set-popupWidth" min="400" max="1600" step="10">
+            </div>
+            <div class="setting-group">
+              <label>Popup Height (px) <span id="val-popupHeight"></span></label>
+              <input type="range" id="set-popupHeight" min="300" max="1200" step="10">
+            </div>
+            <div class="setting-group">
+              <label>UI Spacing Gap (px) <span id="val-gapSize"></span></label>
+              <input type="range" id="set-gapSize" min="4" max="40" step="2">
+            </div>
+          </div>
+        </details>
+
+        <details name="settings-group">
+          <summary>Category Tabs</summary>
+          <div class="details-content">
+            <div class="setting-group">
+              <label>Tab Padding X (px) <span id="val-tabPaddingH"></span></label>
+              <input type="range" id="set-tabPaddingH" min="10" max="60" step="1">
+            </div>
+            <div class="setting-group">
+              <label>Tab Padding Y (px) <span id="val-tabPaddingV"></span></label>
+              <input type="range" id="set-tabPaddingV" min="4" max="30" step="1">
+            </div>
+            <div class="setting-group">
+              <label>Tab Font Size (px) <span id="val-tabFontSize"></span></label>
+              <input type="range" id="set-tabFontSize" min="10" max="24" step="1">
+            </div>
+            <div class="setting-group">
+              <label>Tab Roundness (px) <span id="val-borderRadiusTab"></span></label>
+              <input type="range" id="set-borderRadiusTab" min="0" max="40" step="1">
+            </div>
+          </div>
+        </details>
+
+        <details name="settings-group">
+          <summary>Symbol Buttons</summary>
+          <div class="details-content">
+            <div class="setting-group">
+              <label>Symbol Button Width (px) <span id="val-symbolGridWidth"></span></label>
+              <input type="range" id="set-symbolGridWidth" min="40" max="120" step="2">
+            </div>
+            <div class="setting-group">
+              <label>Symbol Button Height (px) <span id="val-symbolHeight"></span></label>
+              <input type="range" id="set-symbolHeight" min="30" max="100" step="2">
+            </div>
+            <div class="setting-group">
+              <label>Symbol Font Size (px) <span id="val-symbolFontSize"></span></label>
+              <input type="range" id="set-symbolFontSize" min="14" max="40" step="1">
+            </div>
+            <div class="setting-group">
+              <label>Button Roundness (px) <span id="val-borderRadiusBtn"></span></label>
+              <input type="range" id="set-borderRadiusBtn" min="0" max="40" step="1">
+            </div>
+          </div>
+        </details>
+
+        <details name="settings-group">
+          <summary>Action Buttons</summary>
+          <div class="details-content">
+            <div class="setting-group">
+              <label>Action Button Padding X (px) <span id="val-actionBtnPaddingX"></span></label>
+              <input type="range" id="set-actionBtnPaddingX" min="10" max="60" step="2">
+            </div>
+            <div class="setting-group">
+              <label>Action Button Padding Y (px) <span id="val-actionBtnPaddingY"></span></label>
+              <input type="range" id="set-actionBtnPaddingY" min="4" max="30" step="2">
+            </div>
+            <div class="setting-group">
+              <label>Action Button Font Size (px) <span id="val-actionBtnFontSize"></span></label>
+              <input type="range" id="set-actionBtnFontSize" min="10" max="24" step="1">
+            </div>
+            <div class="setting-group">
+              <label>Action Button Roundness (px) <span id="val-actionBtnRoundness"></span></label>
+              <input type="range" id="set-actionBtnRoundness" min="0" max="40" step="1">
+            </div>
+          </div>
+        </details>
+
+        <details name="settings-group">
+          <summary>Theme Colors</summary>
+          <div class="details-content">
+            <div class="setting-group">
+              <label>Theme Accent Hue <span id="val-primaryHue"></span></label>
+              <input type="range" id="set-primaryHue" min="0" max="360" step="5">
+            </div>
+            <div class="setting-group">
+              <label>Theme Accent Saturation (%) <span id="val-primarySat"></span></label>
+              <input type="range" id="set-primarySat" min="0" max="100" step="5">
+            </div>
+            <div class="setting-group">
+              <label>Theme Accent Lightness (%) <span id="val-primaryLight"></span></label>
+              <input type="range" id="set-primaryLight" min="0" max="100" step="5">
+            </div>
+            <div class="setting-group">
+              <label>Background Hue <span id="val-bgHue"></span></label>
+              <input type="range" id="set-bgHue" min="0" max="360" step="5">
+            </div>
+            <div class="setting-group">
+              <label>Background Saturation (%) <span id="val-bgSat"></span></label>
+              <input type="range" id="set-bgSat" min="0" max="100" step="5">
+            </div>
+            <div class="setting-group">
+              <label>Background Lightness (%) <span id="val-bgLight"></span></label>
+              <input type="range" id="set-bgLight" min="0" max="100" step="2">
+            </div>
+          </div>
+        </details>
+
         <button class="btn secondary" id="reset-settings-btn" style="margin-top:10px;">Reset to Defaults</button>
       </div>
     </div>
