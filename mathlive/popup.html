@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MathPaster Settings</title>
+  <link rel="stylesheet" href="popup.css">
+  <!-- Load Inter font for premium look -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="logo">
+          <svg viewBox="0 0 24 24">
+            <!-- Root symbol / Math radical icon -->
+            <path d="M4 12h3l3 8 5-16h5" />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>MathPaster</h1>
+          <p>Easy Math for Chatbots</p>
+        </div>
+      </div>
+      <div class="status-badge" id="status-badge">
+        <span class="status-dot"></span>
+        <span class="status-text" id="status-text">Active</span>
+      </div>
+    </header>
+
+    <!-- Main Settings -->
+    <main class="content">
+      <!-- Site Toggle Card -->
+      <div class="card" id="site-card">
+        <div class="card-info">
+          <span class="card-title">Active on this site</span>
+          <span class="card-subtitle" id="site-name">detecting...</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="site-toggle" checked disabled>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Global Toggle Card -->
+      <div class="card">
+        <div class="card-info">
+          <span class="card-title">Enable Globally</span>
+          <span class="card-subtitle">Toggle extension overlay activation</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="global-toggle" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Action Button -->
+      <button class="action-btn" id="open-editor-btn">
+        <svg viewBox="0 0 24 24" width="16" height="16">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+        </svg>
+        Open Editor on Page
+      </button>
+
+      <!-- Rating Button -->
+      <button class="rate-store-btn" id="rate-store-btn">
+        Give us 5 stars if you like it! ⭐⭐⭐⭐⭐
+      </button>
+    </main>
+
+    <!-- Footer Shortcuts -->
+    <footer class="footer">
+      <div class="shortcuts-title">Keyboard Shortcuts</div>
+      <div class="shortcuts-grid">
+        <div class="shortcut-item">
+          <span class="shortcut-key">Ctrl</span>
+          <span class="shortcut-plus">+</span>
+          <span class="shortcut-key">M</span>
+          <span class="shortcut-desc">Toggle Editor Overlay</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-key">Ctrl</span>
+          <span class="shortcut-plus">+</span>
+          <span class="shortcut-key">Enter</span>
+          <span class="shortcut-desc">Insert LaTeX into Input</span>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-key">Esc</span>
+          <span class="shortcut-desc" style="margin-left: 8px;">Close Editor Overlay</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

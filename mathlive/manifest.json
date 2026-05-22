@@ -1,25 +1,26 @@
 {
   "manifest_version": 3,
-  "name": "MathPaster",
-  "version": "1.0.0",
+  "name": "MathPaster - Easy Math for AI Chatbots",
+  "version": "1.0.1",
   "description": "Visually write math and insert flawless LaTeX into AI chatbots like ChatGPT, Claude, and Gemini with a beautiful WYSIWYG editor.",
-  "permissions": ["activeTab", "scripting"],
+  "permissions": ["activeTab", "scripting", "storage"],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
   "commands": {
-    "_execute_action": {
+    "toggle-editor": {
       "suggested_key": {
         "default": "Ctrl+M",
         "mac": "Command+M"
       },
-      "description": "Open MathPaster editor"
+      "description": "Toggle MathPaster editor overlay"
     }
   },
   "action": {
-    "default_title": "MathPaster – Insert LaTeX Math (Ctrl+M)"
+    "default_popup": "popup.html",
+    "default_title": "MathPaster – Easy Math for AI Chatbots (Ctrl+M)"
   },
   "background": {
     "service_worker": "background.js"
