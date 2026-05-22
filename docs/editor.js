@@ -603,7 +603,11 @@ function applySettings(settings) {
     }
     #latex-preview { display: ${settings.showLatexBar ? 'flex' : 'none'} !important; }
     #body { gap: ${settings.gapSize}px !important; }
-    #category-tabs { gap: ${settings.gapSize}px !important; padding-bottom: ${settings.gapSize}px !important; }
+    #category-tabs {
+      gap: ${settings.gapSize}px !important;
+      padding: 20px 24px !important;
+      margin: -20px -24px !important;
+    }
     #palette { grid-template-columns: repeat(auto-fill, minmax(${settings.symbolGridWidth}px, 1fr)) !important; gap: ${settings.gapSize}px !important; }
     #footer { gap: ${settings.gapSize}px !important; }
     .action-group { gap: ${settings.gapSize}px !important; }
