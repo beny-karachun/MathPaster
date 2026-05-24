@@ -587,3 +587,12 @@ kbd {
         grid-column: span 1;
     }
 }
+
+@media (max-width: 600px) {
+    #mathpaster-frame {
+        height: calc(68vw - 10.3px) !important;
+    }
+    .demo-section > div {
+        padding: 12px !important;
+    }
+}

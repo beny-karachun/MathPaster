@@ -571,6 +571,14 @@ const defaultSettings = {
 let currentSettings = { ...defaultSettings };
 
 function applySettings(settings) {
+  let scaleFactor = Math.min((window.innerWidth * 0.94) / settings.popupWidth, (window.innerHeight * 0.90) / settings.popupHeight);
+  
+  if (window.innerWidth <= 600 && window.frameElement) {
+    scaleFactor = (window.innerWidth * 0.94) / settings.popupWidth;
+    const scaledHeight = settings.popupHeight * scaleFactor;
+    window.frameElement.style.setProperty('height', (scaledHeight + 40) + 'px', 'important');
+  }
+
   let styleEl = document.getElementById('dynamic-theme');
   if (!styleEl) {
     styleEl = document.createElement('style');
@@ -635,7 +643,7 @@ function applySettings(settings) {
         max-width: none !important;
         max-height: none !important;
         transform-origin: top center !important;
-        transform: scale(${Math.min((window.innerWidth * 0.94) / settings.popupWidth, (window.innerHeight * 0.90) / settings.popupHeight)}) !important;
+        transform: scale(${scaleFactor}) !important;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
         border-radius: 20px !important;
         animation: none !important;
