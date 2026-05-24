@@ -628,12 +628,13 @@ function applySettings(settings) {
     @media (max-width: 600px) {
       body {
         display: flex !important;
-        align-items: center !important;
+        align-items: flex-start !important;
         justify-content: center !important;
         height: 100vh !important;
         width: 100vw !important;
         overflow: hidden !important;
         padding: 0 !important;
+        padding-top: 20px !important;
         margin: 0 !important;
         background: transparent !important;
       }
@@ -642,12 +643,13 @@ function applySettings(settings) {
         height: ${settings.popupHeight}px !important;
         max-width: none !important;
         max-height: none !important;
-        transform-origin: center center !important;
+        transform-origin: top center !important;
         transform: scale(${Math.min((window.innerWidth * 0.94) / settings.popupWidth, (window.innerHeight * 0.90) / settings.popupHeight)}) !important;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
         border-radius: 20px !important;
         animation: none !important;
-        position: absolute !important;
+        position: relative !important;
+        margin: 0 !important;
       }
       #drag-hint {
         display: none !important;
