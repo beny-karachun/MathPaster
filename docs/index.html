@@ -443,7 +443,7 @@
             e.preventDefault();
             document.querySelector('#demo').scrollIntoView({ behavior: 'smooth' });
             setTimeout(() => {
-                demoInput.focus();
+                demoInput.focus({ preventScroll: true });
             }, 500);
         });
 
