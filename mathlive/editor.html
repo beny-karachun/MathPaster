@@ -935,12 +935,12 @@
       pointer-events: auto !important;
 
       /* Keyboard scaling variables */
-      --keycap-height: 34px !important;
+      --keycap-height: var(--kbd-keycap-height, 34px) !important;
       --keycap-gap: 3px !important;
-      --keycap-font-size: 14.5px !important;
-      --keycap-small-font-size: 11px !important;
-      --keycap-shift-font-size: 11px !important;
-      --keycap-glyph-size: 14px !important;
+      --keycap-font-size: calc(var(--kbd-keycap-height, 34px) * 0.426) !important;
+      --keycap-small-font-size: calc(var(--kbd-keycap-height, 34px) * 0.324) !important;
+      --keycap-shift-font-size: calc(var(--kbd-keycap-height, 34px) * 0.324) !important;
+      --keycap-glyph-size: calc(var(--kbd-keycap-height, 34px) * 0.412) !important;
       --keyboard-background: #16172b !important;
     }
 
@@ -951,12 +951,12 @@
     .MLK__plate,
     .mathfield-suggest {
       pointer-events: auto !important;
-      --keycap-height: 34px !important;
+      --keycap-height: var(--kbd-keycap-height, 34px) !important;
       --keycap-gap: 3px !important;
-      --keycap-font-size: 14.5px !important;
-      --keycap-small-font-size: 11px !important;
-      --keycap-shift-font-size: 11px !important;
-      --keycap-glyph-size: 14px !important;
+      --keycap-font-size: calc(var(--kbd-keycap-height, 34px) * 0.426) !important;
+      --keycap-small-font-size: calc(var(--kbd-keycap-height, 34px) * 0.324) !important;
+      --keycap-shift-font-size: calc(var(--kbd-keycap-height, 34px) * 0.324) !important;
+      --keycap-glyph-size: calc(var(--kbd-keycap-height, 34px) * 0.412) !important;
       --keyboard-background: #16172b !important;
     }
 

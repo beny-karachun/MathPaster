@@ -367,6 +367,57 @@ document.getElementById("copy-btn").addEventListener("click", () => {
   });
 });
 
+/* ── Word Deletion Handler ── */
+function performCustomWordDelete() {
+  if (!mfReady || !mf) return;
+  try {
+    const sel = mf.selection;
+    if (!sel || sel.length === 0) return;
+    
+    const range = sel[0];
+    const [start, end] = range;
+    
+    // If there's an active non-empty selection, delete it first
+    if (start !== end) {
+      mf.executeCommand("deleteBackward");
+      return;
+    }
+    
+    let pos = start;
+    if (pos <= 0) return;
+    
+    const isBoundary = (latex) => {
+      if (!latex) return true;
+      const clean = latex.trim();
+      if (clean === "" || clean === " " || clean === "," || clean === "." || clean === ";" || clean === ":") return true;
+      if (clean === "\\:" || clean === "\\ " || clean === "\\space" || clean === "\\;" || clean === "\\," || clean === "\\!" || clean === "\\quad" || clean === "\\qquad") return true;
+      return false;
+    };
+    
+    // Check if we start on a boundary
+    const startBoundary = isBoundary(mf.getValue([pos - 1, pos], 'latex'));
+    if (startBoundary) {
+      while (pos > 0 && isBoundary(mf.getValue([pos - 1, pos], 'latex'))) {
+        pos--;
+      }
+    }
+    
+    // Scan backward for the word
+    while (pos > 0 && !isBoundary(mf.getValue([pos - 1, pos], 'latex'))) {
+      pos--;
+    }
+    
+    if (pos < start) {
+      mf.selection = { ranges: [[pos, start]] };
+      mf.executeCommand("deleteBackward");
+    }
+  } catch (err) {
+    console.error("Error in performCustomWordDelete:", err);
+    // Fallback to standard delete
+    try { mf.executeCommand("deletePreviousWord"); } catch (e) {}
+  }
+}
+
 /* ── Keyboard shortcuts ── */
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
@@ -377,12 +428,12 @@ document.addEventListener("keydown", e => {
   }
   // Ctrl+Backspace inside mathfield -> delete word backward
   if (e.key === "Backspace" && (e.ctrlKey || e.metaKey)) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (mfReady && mf) {
-      mf.executeCommand("deletePreviousWord");
+    if (mfReady && mf && (document.activeElement === mf || mf.hasFocus())) {
+      e.preventDefault();
+      e.stopPropagation();
+      performCustomWordDelete();
+      return;
     }
-    return;
   }
   // Enter key when autocomplete popover is open → select & commit suggestion
   if (e.key === "Enter" && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
@@ -566,6 +617,7 @@ document.addEventListener("mousedown", e => {
     !e.target.closest("#editor-window") && 
     !e.target.closest("#settings-panel") && 
     !e.target.closest("#matrix-selector") &&
+    !e.target.closest("#keyboard-window") &&
     !e.target.closest("mathlive-virtual-keyboard") &&
     !e.target.closest(".MLK__container") &&
     !e.target.closest(".ML__keyboard")
@@ -944,6 +996,21 @@ let kbdStartLeft, kbdStartTop;
 
 let kbdLeft = 0, kbdTop = 0;
 
+function updateKeyboardKeycapHeight() {
+  if (!kbdWindow || kbdWindow.style.display === "none") return;
+  const H = kbdWindow.offsetHeight;
+  const headerEl = document.getElementById("keyboard-header");
+  const headerHeight = headerEl ? headerEl.offsetHeight : 34;
+  const containerHeight = H - headerHeight;
+  
+  // base height: 34px at containerHeight: 246px
+  // formula: keycapHeight = (containerHeight - 110) / 4
+  let keycapHeight = (containerHeight - 110) / 4;
+  if (keycapHeight < 24) keycapHeight = 24;
+  
+  kbdWindow.style.setProperty("--kbd-keycap-height", `${keycapHeight}px`);
+}
+
 function clampKeyboardPosition() {
   const width = parseFloat(kbdWindow.style.width) || 680;
   const height = parseFloat(kbdWindow.style.height) || 280;
@@ -967,6 +1034,7 @@ function positionKeyboardDefault() {
   kbdWindow.style.height = `${kbdHeight}px`;
   kbdWindow.style.left = `${kbdLeft}px`;
   kbdWindow.style.top = `${kbdTop}px`;
+  updateKeyboardKeycapHeight();
 }
 
 // Keyboard Header Drag setup
@@ -1014,6 +1082,8 @@ if (window.mathVirtualKeyboard) {
       kbdWindow.style.display = "flex";
       if (!kbdWindow.style.left) {
         positionKeyboardDefault();
+      } else {
+        updateKeyboardKeycapHeight();
       }
     } else {
       kbdWindow.style.display = "none";
@@ -1140,7 +1210,7 @@ document.addEventListener("mousemove", e => {
     }
     
     const minWidth = 400;
-    const minHeight = 150;
+    const minHeight = 200;
     
     if (kbdResizeHandle === "tl" || kbdResizeHandle === "bl") {
       const maxLeftWidth = kbdStartLeft + kbdStartWidth;
@@ -1168,6 +1238,8 @@ document.addEventListener("mousemove", e => {
     kbdWindow.style.height = `${newHeight}px`;
     kbdWindow.style.left = `${kbdLeft}px`;
     kbdWindow.style.top = `${kbdTop}px`;
+    
+    updateKeyboardKeycapHeight();
   }
 });
 
