@@ -31,7 +31,7 @@ function initMathField() {
       MFE.fontsDirectory = "./lib/fonts/";
       MFE.soundsDirectory = null;
       if (window.mathVirtualKeyboard) {
-        window.mathVirtualKeyboard.container = document.body;
+        window.mathVirtualKeyboard.container = document.getElementById("keyboard-container");
       }
     } catch (e) {
       console.warn("Could not set MathfieldElement properties:", e);
@@ -43,6 +43,11 @@ function initMathField() {
 
     customElements.whenDefined("math-field").then(() => {
       mfReady = true;
+      
+      // Prevent virtual keyboard from automatically popping up on focus
+      mf.mathVirtualKeyboardPolicy = "manual";
+      mf.setAttribute("math-virtual-keyboard-policy", "manual");
+      
       defaultShortcuts = mf.getOption ? mf.getOption("inlineShortcuts") : mf.inlineShortcuts;
       
       const savedAuto = localStorage.getItem("mathpaster_autosymbols");
@@ -370,6 +375,15 @@ document.addEventListener("keydown", e => {
     window.parent.postMessage({ mathpaster: "close" }, "*");
     return;
   }
+  // Ctrl+Backspace inside mathfield -> delete word backward
+  if (e.key === "Backspace" && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (mfReady && mf) {
+      mf.executeCommand("deletePreviousWord");
+    }
+    return;
+  }
   // Enter key when autocomplete popover is open → select & commit suggestion
   if (e.key === "Enter" && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
     const popover = document.getElementById("mathlive-suggestion-popover");
@@ -395,6 +409,20 @@ document.addEventListener("keydown", e => {
     e.preventDefault();
     e.stopPropagation();
     window.parent.postMessage({ mathpaster: "toggle" }, "*");
+    return;
+  }
+  // Alt+K inside iframe → toggle virtual keyboard
+  if (e.altKey && (e.key.toLowerCase() === "k" || e.code === "KeyK")) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (window.mathVirtualKeyboard) {
+      if (window.mathVirtualKeyboard.visible) {
+        window.mathVirtualKeyboard.hide();
+      } else {
+        window.mathVirtualKeyboard.show();
+        setTimeout(() => { if (mfReady && mf) mf.focus(); }, 50);
+      }
+    }
     return;
   }
 }, true);
@@ -534,7 +562,14 @@ document.addEventListener("click", e => {
   }
 });
 document.addEventListener("mousedown", e => {
-  if (!e.target.closest("#editor-window") && !e.target.closest("#settings-panel") && !e.target.closest("#matrix-selector")) {
+  if (
+    !e.target.closest("#editor-window") && 
+    !e.target.closest("#settings-panel") && 
+    !e.target.closest("#matrix-selector") &&
+    !e.target.closest("mathlive-virtual-keyboard") &&
+    !e.target.closest(".MLK__container") &&
+    !e.target.closest(".ML__keyboard")
+  ) {
     window.parent.postMessage({ mathpaster: "close" }, "*");
   }
 });
@@ -894,6 +929,98 @@ document.querySelectorAll(".resize-handle").forEach(handle => {
   });
 });
 
+/* ── Keyboard Window State & Events ── */
+const kbdWindow = document.getElementById("keyboard-window");
+const kbdHeader = document.getElementById("keyboard-header");
+
+let kbdDragging = false;
+let kbdResizing = false;
+let kbdResizeHandle = null;
+
+let kbdStartX, kbdStartY;
+let kbdStartMouseX, kbdStartMouseY;
+let kbdStartWidth, kbdStartHeight;
+let kbdStartLeft, kbdStartTop;
+
+let kbdLeft = 0, kbdTop = 0;
+
+function clampKeyboardPosition() {
+  const width = parseFloat(kbdWindow.style.width) || 680;
+  const height = parseFloat(kbdWindow.style.height) || 280;
+  
+  kbdLeft = Math.max(0, Math.min(kbdLeft, window.innerWidth - width));
+  kbdTop = Math.max(0, Math.min(kbdTop, window.innerHeight - height));
+  
+  kbdWindow.style.left = `${kbdLeft}px`;
+  kbdWindow.style.top = `${kbdTop}px`;
+}
+
+function positionKeyboardDefault() {
+  const editorRect = editorWindow.getBoundingClientRect();
+  const kbdWidth = 680;
+  const kbdHeight = 280;
+  
+  kbdLeft = Math.max(10, (window.innerWidth - kbdWidth) / 2);
+  kbdTop = Math.max(10, editorRect.top - kbdHeight - 20);
+  
+  kbdWindow.style.width = `${kbdWidth}px`;
+  kbdWindow.style.height = `${kbdHeight}px`;
+  kbdWindow.style.left = `${kbdLeft}px`;
+  kbdWindow.style.top = `${kbdTop}px`;
+}
+
+// Keyboard Header Drag setup
+kbdHeader.style.cursor = "grab";
+kbdHeader.addEventListener("mousedown", e => {
+  if (e.target.closest(".header-btn")) return;
+  kbdDragging = true;
+  kbdStartX = e.clientX;
+  kbdStartY = e.clientY;
+  kbdStartLeft = kbdLeft;
+  kbdStartTop = kbdTop;
+  kbdHeader.style.cursor = "grabbing";
+});
+
+// Keyboard Resize handles setup
+document.querySelectorAll(".kbd-resize-handle").forEach(handle => {
+  handle.addEventListener("mousedown", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    kbdResizing = true;
+    kbdResizeHandle = handle.dataset.handle;
+    kbdStartWidth = parseFloat(kbdWindow.style.width) || 680;
+    kbdStartHeight = parseFloat(kbdWindow.style.height) || 280;
+    kbdStartLeft = kbdLeft;
+    kbdStartTop = kbdTop;
+    kbdStartMouseX = e.clientX;
+    kbdStartMouseY = e.clientY;
+    
+    const handleCursor = window.getComputedStyle(handle).cursor;
+    document.body.style.cursor = handleCursor;
+  });
+});
+
+// Keyboard close button setup
+document.getElementById("close-keyboard-btn").addEventListener("click", () => {
+  if (window.mathVirtualKeyboard) {
+    window.mathVirtualKeyboard.hide();
+  }
+});
+
+// Virtual keyboard show/hide event listener
+if (window.mathVirtualKeyboard) {
+  window.mathVirtualKeyboard.addEventListener("virtual-keyboard-toggle", () => {
+    if (window.mathVirtualKeyboard.visible) {
+      kbdWindow.style.display = "flex";
+      if (!kbdWindow.style.left) {
+        positionKeyboardDefault();
+      }
+    } else {
+      kbdWindow.style.display = "none";
+    }
+  });
+}
+
 document.addEventListener("mousemove", e => {
   if (isDragging) {
     const dx = e.clientX - startX;
@@ -901,7 +1028,6 @@ document.addEventListener("mousemove", e => {
     let proposedX = baseX + dx;
     let proposedY = baseY + dy;
     
-    // Clamp proposed coordinates to prevent the window from getting off-screen
     const width = currentSettings.popupWidth;
     const height = currentSettings.popupHeight;
     
@@ -925,27 +1051,23 @@ document.addEventListener("mousemove", e => {
     let newWidth = startWidth;
     let newHeight = startHeight;
     
-    // Width resizing proposed value
     if (resizeHandleType === "tl" || resizeHandleType === "bl") {
       newWidth = startWidth - dx;
     } else if (resizeHandleType === "tr" || resizeHandleType === "br") {
       newWidth = startWidth + dx;
     }
     
-    // Height resizing proposed value
     if (resizeHandleType === "tl" || resizeHandleType === "tr") {
       newHeight = startHeight - dy;
     } else if (resizeHandleType === "bl" || resizeHandleType === "br") {
       newHeight = startHeight + dy;
     }
     
-    // Base min limits
     const minWidth = 400;
     const minHeight = 300;
     if (newWidth < minWidth) newWidth = minWidth;
     if (newHeight < minHeight) newHeight = minHeight;
     
-    // Screen border boundary limits based on initial placement
     const startLeft = (window.innerWidth - startWidth) / 2 + startBaseX;
     const startRight = startLeft + startWidth;
     
@@ -954,7 +1076,6 @@ document.addEventListener("mousemove", e => {
     const startTop = T_default + startBaseY;
     const startBottom = startTop + startHeight;
     
-    // Cap dimensions so that we can't resize past screen edges
     if (resizeHandleType === "tr" || resizeHandleType === "br") {
       newWidth = Math.min(newWidth, Math.max(minWidth, window.innerWidth - startLeft));
     } else {
@@ -967,11 +1088,9 @@ document.addEventListener("mousemove", e => {
       newHeight = Math.min(newHeight, Math.max(minHeight, window.innerHeight - startTop));
     }
     
-    // Width and height settings sliders max-clamp safeguards
     if (newWidth > 1600) newWidth = 1600;
     if (newHeight > 1200) newHeight = 1200;
     
-    // Visual position offset correction based on final dimension changes
     const dw = newWidth - startWidth;
     let newBaseX = startBaseX;
     if (resizeHandleType === "tr" || resizeHandleType === "br") {
@@ -990,10 +1109,65 @@ document.addEventListener("mousemove", e => {
     editorWindow.style.left = `${currentX}px`;
     editorWindow.style.top = `${currentY}px`;
     
-    // Apply dimension changes
     currentSettings.popupWidth = newWidth;
     currentSettings.popupHeight = newHeight;
     applySettings(currentSettings);
+  } else if (kbdDragging) {
+    const dx = e.clientX - kbdStartX;
+    const dy = e.clientY - kbdStartY;
+    kbdLeft = kbdStartLeft + dx;
+    kbdTop = kbdStartTop + dy;
+    clampKeyboardPosition();
+  } else if (kbdResizing) {
+    const dx = e.clientX - kbdStartMouseX;
+    const dy = e.clientY - kbdStartMouseY;
+    
+    let newWidth = kbdStartWidth;
+    let newHeight = kbdStartHeight;
+    let newLeft = kbdStartLeft;
+    let newTop = kbdStartTop;
+    
+    if (kbdResizeHandle === "tl" || kbdResizeHandle === "bl") {
+      newWidth = kbdStartWidth - dx;
+    } else {
+      newWidth = kbdStartWidth + dx;
+    }
+    
+    if (kbdResizeHandle === "tl" || kbdResizeHandle === "tr") {
+      newHeight = kbdStartHeight - dy;
+    } else {
+      newHeight = kbdStartHeight + dy;
+    }
+    
+    const minWidth = 400;
+    const minHeight = 150;
+    
+    if (kbdResizeHandle === "tl" || kbdResizeHandle === "bl") {
+      const maxLeftWidth = kbdStartLeft + kbdStartWidth;
+      newWidth = Math.min(newWidth, maxLeftWidth);
+      if (newWidth < minWidth) newWidth = minWidth;
+      newLeft = kbdStartLeft + (kbdStartWidth - newWidth);
+    } else {
+      newWidth = Math.min(newWidth, window.innerWidth - kbdStartLeft);
+      if (newWidth < minWidth) newWidth = minWidth;
+    }
+    
+    if (kbdResizeHandle === "tl" || kbdResizeHandle === "tr") {
+      const maxTopHeight = kbdStartTop + kbdStartHeight;
+      newHeight = Math.min(newHeight, maxTopHeight);
+      if (newHeight < minHeight) newHeight = minHeight;
+      newTop = kbdStartTop + (kbdStartHeight - newHeight);
+    } else {
+      newHeight = Math.min(newHeight, window.innerHeight - kbdStartTop);
+      if (newHeight < minHeight) newHeight = minHeight;
+    }
+    
+    kbdLeft = newLeft;
+    kbdTop = newTop;
+    kbdWindow.style.width = `${newWidth}px`;
+    kbdWindow.style.height = `${newHeight}px`;
+    kbdWindow.style.left = `${kbdLeft}px`;
+    kbdWindow.style.top = `${kbdTop}px`;
   }
 });
 
@@ -1009,10 +1183,8 @@ document.addEventListener("mouseup", () => {
     baseX = currentX;
     baseY = currentY;
     
-    // Persist settings
     localStorage.setItem('mathpaster_settings', JSON.stringify(currentSettings));
     
-    // Sync settings panel inputs if they are visible
     settingsKeys.forEach(k => {
       const input = document.getElementById('set-' + k);
       const valDisp = document.getElementById('val-' + k);
@@ -1021,14 +1193,28 @@ document.addEventListener("mouseup", () => {
         if (valDisp) valDisp.textContent = currentSettings[k];
       }
     });
+  } else if (kbdDragging) {
+    kbdDragging = false;
+    kbdHeader.style.cursor = "grab";
+  } else if (kbdResizing) {
+    kbdResizing = false;
+    document.body.style.cursor = "";
   }
 });
 
-// Re-apply scaled settings or clamp position on window resize
+// Re-apply scaled settings or clamp positions on window resize
 window.addEventListener("resize", () => {
   if (window.innerWidth <= 600) {
     applySettings(currentSettings);
   } else {
     clampPositionToBounds();
+    if (kbdWindow.style.display !== "none") {
+      clampKeyboardPosition();
+    }
   }
+});
+
+// Prevent viewport scroll shifting when focusing inputs or opening the virtual keyboard
+window.addEventListener("scroll", () => {
+  window.scrollTo(0, 0);
 });
