@@ -362,6 +362,69 @@ document.getElementById("copy-btn").addEventListener("click", () => {
   });
 });
 
+/* ── Word Deletion Handler ── */
+function performCustomWordDelete() {
+  if (!mfReady || !mf) return;
+  try {
+    const sel = mf.selection;
+    const ranges = sel ? sel.ranges : null;
+    let start = mf.position;
+    let end = mf.position;
+    
+    if (ranges && ranges.length > 0) {
+      start = ranges[0][0];
+      end = ranges[0][1];
+    }
+    
+    // If there's an active non-empty selection, delete it first
+    if (start !== end) {
+      mf.executeCommand("deleteBackward");
+      return;
+    }
+    
+    let pos = start;
+    if (pos <= 0) return;
+    
+    const isBoundary = (latex) => {
+      if (!latex) return true;
+      const clean = latex.trim();
+      if (clean === "" || clean === " " || clean === "," || clean === "." || clean === ";" || clean === ":") return true;
+      if (clean === "\\:" || clean === "\\ " || clean === "\\space" || clean === "\\;" || clean === "\\," || clean === "\\!" || clean === "\\quad" || clean === "\\qquad") return true;
+      return false;
+    };
+    
+    // Check if we start on a boundary
+    const startBoundary = isBoundary(mf.getValue([pos - 1, pos], 'latex'));
+    if (startBoundary) {
+      while (pos > 0 && isBoundary(mf.getValue([pos - 1, pos], 'latex'))) {
+        pos--;
+      }
+    }
+    
+    // Scan backward for the word
+    while (pos > 0 && !isBoundary(mf.getValue([pos - 1, pos], 'latex'))) {
+      pos--;
+    }
+    
+    if (pos < start) {
+      try {
+        mf.selection = { ranges: [[pos, start]] };
+      } catch (selErr) {
+        if (mf.setSelectionRange) {
+          mf.setSelectionRange(pos, start);
+        } else {
+          mf.position = pos;
+        }
+      }
+      mf.executeCommand("deleteBackward");
+    }
+  } catch (err) {
+    console.error("Error in performCustomWordDelete:", err);
+    // Fallback to standard delete
+    try { mf.executeCommand("deletePreviousWord"); } catch (e) {}
+  }
+}
+
 /* ── Keyboard shortcuts ── */
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
@@ -369,6 +432,21 @@ document.addEventListener("keydown", e => {
     e.stopPropagation();
     window.parent.postMessage({ mathpaster: "close" }, "*");
     return;
+  }
+  // Ctrl+Backspace inside mathfield -> delete word backward
+  if (e.key === "Backspace" && (e.ctrlKey || e.metaKey)) {
+    if (mfReady && mf && (
+      document.activeElement === mf || 
+      (typeof mf.hasFocus === "function" && mf.hasFocus()) || 
+      e.target === mf || 
+      mf.contains(e.target) || 
+      (e.target.closest && e.target.closest("math-field") === mf)
+    )) {
+      e.preventDefault();
+      e.stopPropagation();
+      performCustomWordDelete();
+      return;
+    }
   }
   // Enter key when autocomplete popover is open → select & commit suggestion
   if (e.key === "Enter" && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
