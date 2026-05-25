@@ -39,6 +39,11 @@
       /* Let clicks pass to content.js overlay if not hitting panel */
     }
 
+    body.demo-mode {
+      align-items: center;
+      padding-bottom: 0;
+    }
+
     /* ── Panel ── */
     #editor-window {
       pointer-events: auto;
@@ -1249,6 +1254,12 @@
 
     <div id="keyboard-container"></div>
   </div>
+
+  <script>
+    if (window.location.search.includes('demo=true')) {
+      document.body.classList.add('demo-mode');
+    }
+  </script>
 
   <!-- Load MathLive AFTER the DOM so the page renders instantly -->
   <script src="lib/mathlive.min.js"></script>

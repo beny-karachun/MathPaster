@@ -5,7 +5,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-site-verification" content="KLAYgoIGr8aO1pe7WRSK-xamxhkoB1gDjdo2y5P61BI" />
-    <title>MathPaster - Visual Math Editor for the Web</title>
+    <title>MathPaster - Easily Write and Input Math to AI (ChatGPT, Claude, Gemini)</title>
+    <meta name="description" content="Stop struggling to type complex equations in AI chatbots. MathPaster is a visual WYSIWYG math editor that lets you easily write and input math formulas into ChatGPT, Claude, Gemini, and DeepSeek using clean LaTeX.">
+    <meta name="keywords" content="input math to ai, write math to chatgpt, type math in ai, visual math editor, latex editor chatgpt, mathpaster, easy math ai, math formulas chatgpt">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mathpaster.com/">
+    <meta property="og:title" content="MathPaster - Easily Write and Input Math to AI">
+    <meta property="og:description" content="Easily write and input math formulas into ChatGPT, Claude, Gemini, and DeepSeek using a visual editor.">
+    <meta property="og:image" content="https://mathpaster.com/1280x800%20promotional.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://mathpaster.com/">
+    <meta property="twitter:title" content="MathPaster - Easily Write and Input Math to AI">
+    <meta property="twitter:description" content="Easily write and input math formulas into ChatGPT, Claude, Gemini, and DeepSeek using a visual editor.">
+    <meta property="twitter:image" content="https://mathpaster.com/1280x800%20promotional.png">
+
+    <!-- FAQ JSON-LD Schema for Rich Snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why is it so hard to type math in AI chatbots?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Traditional text inputs are built for standard text, not mathematical syntax. Typing formulas like fractions, matrices, integrals, or Greek letters using standard keyboard symbols (e.g., e^(-x^2)/sqrt(pi)) is tedious and highly ambiguous. AI models need standard LaTeX formatting to interpret complex formulas correctly."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How to easily write and input math to ChatGPT, Claude, and Gemini?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The easiest way to input math to AI is by using a visual math editor like MathPaster. It provides a visual WYSIWYG interface and autocompletes LaTeX commands. When you finish writing, it automatically inserts the perfectly formatted LaTeX code directly into your AI chatbot prompt box."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I input math to AI tools without syntax errors?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "To input math error-free: 1) Use standard LaTeX formatting ($ for inline formulas, $$ for block equations), 2) Preview your math in real-time to catch missing parentheses or braces, and 3) Use hotkeys like Ctrl+M to summon a math editor and Ctrl+Enter to insert it."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Which browsers and AI models are supported by MathPaster?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "MathPaster works in any Chromium-based desktop browser, including Google Chrome, Opera, Brave, Microsoft Edge, and Vivaldi. It supports all leading AI models and chatbots that parse LaTeX math formatting, including ChatGPT, Claude (Opus / Sonnet), Gemini (Pro / Flash), DeepSeek, Copilot, and Qwen."
+          }
+        }
+      ]
+    }
+    </script>
+
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -253,6 +312,81 @@
             </div>
         </section>
 
+        <section id="faq" class="faq-section">
+            <h2 class="section-title">HOW TO WRITE MATH TO AI: FAQ & GUIDE</h2>
+            <p class="section-subtitle-faq">Find answers to common questions about typing, inputting, and formatting math equations for AI chatbots like ChatGPT, Claude, and Gemini.</p>
+            
+            <div class="faq-container">
+                <!-- FAQ Item 1 -->
+                <details class="faq-item" name="faq-accordion" open>
+                    <summary class="faq-question">
+                        <span>Why is it so hard to type math in AI chatbots?</span>
+                        <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </summary>
+                    <div class="faq-answer">
+                        <p>Traditional text inputs (like the prompt boxes in ChatGPT, Claude, or Gemini) are built for standard text, not complex mathematical notation. Typing math equations using standard keyboard characters (for example, typing <code>e^(-x^2) / sqrt(pi)</code>) is extremely tedious, requires counting brackets, and is highly prone to syntax errors. Furthermore, raw text symbols are often ambiguous, leading the AI model to misinterpret your equation and output incorrect mathematical steps.</p>
+                    </div>
+                </details>
+
+                <!-- FAQ Item 2 -->
+                <details class="faq-item" name="faq-accordion">
+                    <summary class="faq-question">
+                        <span>How to easily write and input math to ChatGPT, Claude, and Gemini?</span>
+                        <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </summary>
+                    <div class="faq-answer">
+                        <p>The standard way to feed math to AI models is using <strong>LaTeX</strong>, which is the academic standard formatting they are trained to read. Since writing raw LaTeX commands like <code>\frac{e^{-x^2}}{\sqrt{\pi}}</code> by hand is difficult, the easiest solution is to use a visual WYSIWYG editor like <strong>MathPaster</strong>.</p>
+                        <p>With MathPaster, you can either select symbols from a toolbar or use simple autocompleting math commands to build your equation visually. When finished, MathPaster automatically copies and inputs the properly formatted LaTeX directly into the active chatbot prompt box instantly, ensuring the AI understands your query without errors.</p>
+                    </div>
+                </details>
+
+                <!-- FAQ Item 3 -->
+                <details class="faq-item" name="faq-accordion">
+                    <summary class="faq-question">
+                        <span>How do I input math to AI tools without syntax errors?</span>
+                        <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </summary>
+                    <div class="faq-answer">
+                        <p>To ensure your mathematical equations are processed correctly by LLMs, follow these formatting guidelines:</p>
+                        <ul>
+                            <li><strong>Wrap in math delimiters</strong>: Use single dollar signs (<code>$</code>) for inline equations (e.g. $E=mc^2$) and double dollar signs (<code>$$</code>) for standalone, centered block equations.</li>
+                            <li><strong>Use a live visual preview</strong>: Never write complex formulas blind. Using an interactive preview tool lets you catch missing closing brackets or syntax errors in real-time.</li>
+                            <li><strong>Optimize your workflow</strong>: Install the MathPaster extension to press <kbd>Ctrl+M</kbd> on any input field, type your formula visually, and press <kbd>Ctrl+Enter</kbd> to type it into the chatbot box instantly.</li>
+                        </ul>
+                    </div>
+                </details>
+
+                <!-- FAQ Item 4 -->
+                <details class="faq-item" name="faq-accordion">
+                    <summary class="faq-question">
+                        <span>Which browsers and AI models are supported by MathPaster?</span>
+                        <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                        </svg>
+                    </summary>
+                    <div class="faq-answer">
+                        <p><strong>Supported Browsers</strong>: MathPaster works in any Chromium-based desktop browser. This includes Google Chrome, Opera, Brave, Microsoft Edge, Vivaldi, and others.</p>
+                        <p><strong>Supported AI Models & Platforms</strong>: All leading Large Language Models (LLMs) and AI chatbots are fully trained to read, interpret, and solve mathematical formulas written in LaTeX. MathPaster works seamlessly with:</p>
+                        <ul>
+                            <li><strong>ChatGPT</strong></li>
+                            <li><strong>Claude</strong> (Opus / Sonnet)</li>
+                            <li><strong>Gemini</strong> (Pro / Flash)</li>
+                            <li><strong>DeepSeek</strong></li>
+                            <li><strong>Copilot</strong></li>
+                            <li><strong>Qwen</strong></li>
+                        </ul>
+                        <p>You can use MathPaster to type math into any of these websites, as well as online homework tools, research wikis, and educational forums.</p>
+                    </div>
+                </details>
+            </div>
+        </section>
+
         <section id="demo" class="demo-section" style="padding: 60px 0 100px 0;">
             <h2 class="section-title">TRY IT LIVE</h2>
             <div
@@ -266,7 +400,7 @@
 
                 <h3 style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 12px; font-weight: normal;">
                     MathPaster Editor</h3>
-                <iframe id="mathpaster-frame" src="editor.html"
+                <iframe id="mathpaster-frame" src="editor.html?demo=true"
                     style="width: 100%; height: 950px; border: none; border-radius: 12px; background: transparent;"
                     title="MathPaster Editor Demo"></iframe>
             </div>
