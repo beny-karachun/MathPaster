@@ -372,10 +372,14 @@ function performCustomWordDelete() {
   if (!mfReady || !mf) return;
   try {
     const sel = mf.selection;
-    if (!sel || sel.length === 0) return;
+    const ranges = sel ? sel.ranges : null;
+    let start = mf.position;
+    let end = mf.position;
     
-    const range = sel[0];
-    const [start, end] = range;
+    if (ranges && ranges.length > 0) {
+      start = ranges[0][0];
+      end = ranges[0][1];
+    }
     
     // If there's an active non-empty selection, delete it first
     if (start !== end) {
@@ -408,7 +412,15 @@ function performCustomWordDelete() {
     }
     
     if (pos < start) {
-      mf.selection = { ranges: [[pos, start]] };
+      try {
+        mf.selection = { ranges: [[pos, start]] };
+      } catch (selErr) {
+        if (mf.setSelectionRange) {
+          mf.setSelectionRange(pos, start);
+        } else {
+          mf.position = pos;
+        }
+      }
       mf.executeCommand("deleteBackward");
     }
   } catch (err) {
@@ -428,7 +440,13 @@ document.addEventListener("keydown", e => {
   }
   // Ctrl+Backspace inside mathfield -> delete word backward
   if (e.key === "Backspace" && (e.ctrlKey || e.metaKey)) {
-    if (mfReady && mf && (document.activeElement === mf || mf.hasFocus())) {
+    if (mfReady && mf && (
+      document.activeElement === mf || 
+      (typeof mf.hasFocus === "function" && mf.hasFocus()) || 
+      e.target === mf || 
+      mf.contains(e.target) || 
+      (e.target.closest && e.target.closest("math-field") === mf)
+    )) {
       e.preventDefault();
       e.stopPropagation();
       performCustomWordDelete();
