@@ -828,16 +828,23 @@ document.getElementById('reset-settings-btn').addEventListener('click', () => {
 
 loadSettings();
 
-/* ── Dragging logic ── */
+/* ── Dragging & Resizing logic ── */
 const header = document.getElementById("header");
 const editorWindow = document.getElementById("editor-window");
 let isDragging = false;
+let isResizing = false;
+let resizeHandleType = null;
+
 let startX, startY;
+let startMouseX, startMouseY;
+let startWidth, startHeight;
+let startBaseX, startBaseY;
+
 let currentX = 0, currentY = 0;
 let baseX = 0, baseY = 0;
 
+// Header drag setup
 header.style.cursor = "grab";
-
 header.addEventListener("mousedown", e => {
   if (e.target.closest(".header-btn") || e.target.tagName === "INPUT") return;
   isDragging = true;
@@ -846,14 +853,89 @@ header.addEventListener("mousedown", e => {
   header.style.cursor = "grabbing";
 });
 
+// Resizer handles setup
+document.querySelectorAll(".resize-handle").forEach(handle => {
+  handle.addEventListener("mousedown", e => {
+    e.preventDefault();
+    e.stopPropagation();
+    isResizing = true;
+    resizeHandleType = handle.dataset.handle;
+    startWidth = currentSettings.popupWidth;
+    startHeight = currentSettings.popupHeight;
+    startMouseX = e.clientX;
+    startMouseY = e.clientY;
+    startBaseX = baseX;
+    startBaseY = baseY;
+    
+    const handleCursor = window.getComputedStyle(handle).cursor;
+    document.body.style.cursor = handleCursor;
+  });
+});
+
 document.addEventListener("mousemove", e => {
-  if (!isDragging) return;
-  const dx = e.clientX - startX;
-  const dy = e.clientY - startY;
-  currentX = baseX + dx;
-  currentY = baseY + dy;
-  editorWindow.style.left = `${currentX}px`;
-  editorWindow.style.top = `${currentY}px`;
+  if (isDragging) {
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    currentX = baseX + dx;
+    currentY = baseY + dy;
+    editorWindow.style.left = `${currentX}px`;
+    editorWindow.style.top = `${currentY}px`;
+  } else if (isResizing) {
+    const dx = e.clientX - startMouseX;
+    const dy = e.clientY - startMouseY;
+    
+    let newWidth = startWidth;
+    let newHeight = startHeight;
+    let newBaseX = startBaseX;
+    let newBaseY = startBaseY;
+    
+    // Width resizing
+    if (resizeHandleType === "tl" || resizeHandleType === "bl") {
+      newWidth = startWidth - dx;
+    } else if (resizeHandleType === "tr" || resizeHandleType === "br") {
+      newWidth = startWidth + dx;
+    }
+    
+    // Height resizing
+    if (resizeHandleType === "tl" || resizeHandleType === "tr") {
+      newHeight = startHeight - dy;
+    } else if (resizeHandleType === "bl" || resizeHandleType === "br") {
+      newHeight = startHeight + dy;
+    }
+    
+    // Apply limits (align with settings constraints)
+    const minWidth = 400;
+    const maxWidth = Math.max(minWidth, Math.min(1600, window.innerWidth - 40));
+    const minHeight = 300;
+    const maxHeight = Math.max(minHeight, Math.min(1200, window.innerHeight - 40));
+    
+    if (newWidth < minWidth) newWidth = minWidth;
+    if (newWidth > maxWidth) newWidth = maxWidth;
+    if (newHeight < minHeight) newHeight = minHeight;
+    if (newHeight > maxHeight) newHeight = maxHeight;
+    
+    // Visual position offset correction based on dimension changes
+    const dw = newWidth - startWidth;
+    if (resizeHandleType === "tr" || resizeHandleType === "br") {
+      newBaseX = startBaseX + dw / 2;
+    } else {
+      newBaseX = startBaseX - dw / 2;
+    }
+    
+    if (resizeHandleType === "bl" || resizeHandleType === "br") {
+      newBaseY = startBaseY + (newHeight - startHeight);
+    }
+    
+    currentX = newBaseX;
+    currentY = newBaseY;
+    editorWindow.style.left = `${currentX}px`;
+    editorWindow.style.top = `${currentY}px`;
+    
+    // Apply dimension changes
+    currentSettings.popupWidth = newWidth;
+    currentSettings.popupHeight = newHeight;
+    applySettings(currentSettings);
+  }
 });
 
 document.addEventListener("mouseup", () => {
@@ -862,6 +944,24 @@ document.addEventListener("mouseup", () => {
     header.style.cursor = "grab";
     baseX = currentX;
     baseY = currentY;
+  } else if (isResizing) {
+    isResizing = false;
+    document.body.style.cursor = "";
+    baseX = currentX;
+    baseY = currentY;
+    
+    // Persist settings
+    localStorage.setItem('mathpaster_settings', JSON.stringify(currentSettings));
+    
+    // Sync settings panel inputs if they are visible
+    settingsKeys.forEach(k => {
+      const input = document.getElementById('set-' + k);
+      const valDisp = document.getElementById('val-' + k);
+      if (input && (k === 'popupWidth' || k === 'popupHeight')) {
+        input.value = currentSettings[k];
+        if (valDisp) valDisp.textContent = currentSettings[k];
+      }
+    });
   }
 });
 

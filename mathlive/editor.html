@@ -858,11 +858,54 @@
     .mathfield-suggest {
       pointer-events: auto !important;
     }
+
+    /* ── Resize Handles ── */
+    .resize-handle {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      z-index: 10000;
+      background: transparent;
+      transition: background 0.2s ease;
+    }
+    .resize-handle:hover {
+      background: hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.35);
+    }
+    .resize-tl {
+      top: 0;
+      left: 0;
+      cursor: nwse-resize;
+      border-top-left-radius: 20px;
+    }
+    .resize-tr {
+      top: 0;
+      right: 0;
+      cursor: nesw-resize;
+      border-top-right-radius: 20px;
+    }
+    .resize-bl {
+      bottom: 0;
+      left: 0;
+      cursor: nesw-resize;
+      border-bottom-left-radius: 20px;
+    }
+    .resize-br {
+      bottom: 0;
+      right: 0;
+      cursor: nwse-resize;
+      border-bottom-right-radius: 20px;
+    }
   </style>
 </head>
 
 <body>
   <div id="editor-window">
+    <!-- Resize Handles -->
+    <div class="resize-handle resize-tl" data-handle="tl"></div>
+    <div class="resize-handle resize-tr" data-handle="tr"></div>
+    <div class="resize-handle resize-bl" data-handle="bl"></div>
+    <div class="resize-handle resize-br" data-handle="br"></div>
+
     <div id="header">
       <div id="title">
         <span class="icon">
