@@ -826,11 +826,36 @@ document.getElementById('reset-settings-btn').addEventListener('click', () => {
   applySettings(currentSettings);
 });
 
+// Positioning state & helper to keep window fully visible within the viewport
+const editorWindow = document.getElementById("editor-window");
+let currentX = 0, currentY = 0;
+let baseX = 0, baseY = 0;
+
+function clampPositionToBounds() {
+  const width = currentSettings.popupWidth;
+  const height = currentSettings.popupHeight;
+  
+  const maxXOffset = Math.max(0, (window.innerWidth - width) / 2);
+  currentX = Math.max(-maxXOffset, Math.min(currentX, maxXOffset));
+  baseX = currentX;
+  
+  const defaultYBottom = 0.025 * window.innerHeight; // 2.5vh
+  const T_default = window.innerHeight - height - defaultYBottom;
+  const minYOffset = -T_default;
+  const maxYOffset = defaultYBottom;
+  currentY = Math.max(minYOffset, Math.min(currentY, maxYOffset));
+  baseY = currentY;
+  
+  editorWindow.style.left = `${currentX}px`;
+  editorWindow.style.top = `${currentY}px`;
+}
+
+// Load persisted settings and clamp to screen borders on initialization
 loadSettings();
+clampPositionToBounds();
 
 /* ── Dragging & Resizing logic ── */
 const header = document.getElementById("header");
-const editorWindow = document.getElementById("editor-window");
 let isDragging = false;
 let isResizing = false;
 let resizeHandleType = null;
@@ -839,9 +864,6 @@ let startX, startY;
 let startMouseX, startMouseY;
 let startWidth, startHeight;
 let startBaseX, startBaseY;
-
-let currentX = 0, currentY = 0;
-let baseX = 0, baseY = 0;
 
 // Header drag setup
 header.style.cursor = "grab";
@@ -876,8 +898,24 @@ document.addEventListener("mousemove", e => {
   if (isDragging) {
     const dx = e.clientX - startX;
     const dy = e.clientY - startY;
-    currentX = baseX + dx;
-    currentY = baseY + dy;
+    let proposedX = baseX + dx;
+    let proposedY = baseY + dy;
+    
+    // Clamp proposed coordinates to prevent the window from getting off-screen
+    const width = currentSettings.popupWidth;
+    const height = currentSettings.popupHeight;
+    
+    const maxXOffset = Math.max(0, (window.innerWidth - width) / 2);
+    proposedX = Math.max(-maxXOffset, Math.min(proposedX, maxXOffset));
+    
+    const defaultYBottom = 0.025 * window.innerHeight;
+    const T_default = window.innerHeight - height - defaultYBottom;
+    const minYOffset = -T_default;
+    const maxYOffset = defaultYBottom;
+    proposedY = Math.max(minYOffset, Math.min(proposedY, maxYOffset));
+    
+    currentX = proposedX;
+    currentY = proposedY;
     editorWindow.style.left = `${currentX}px`;
     editorWindow.style.top = `${currentY}px`;
   } else if (isResizing) {
@@ -886,42 +924,63 @@ document.addEventListener("mousemove", e => {
     
     let newWidth = startWidth;
     let newHeight = startHeight;
-    let newBaseX = startBaseX;
-    let newBaseY = startBaseY;
     
-    // Width resizing
+    // Width resizing proposed value
     if (resizeHandleType === "tl" || resizeHandleType === "bl") {
       newWidth = startWidth - dx;
     } else if (resizeHandleType === "tr" || resizeHandleType === "br") {
       newWidth = startWidth + dx;
     }
     
-    // Height resizing
+    // Height resizing proposed value
     if (resizeHandleType === "tl" || resizeHandleType === "tr") {
       newHeight = startHeight - dy;
     } else if (resizeHandleType === "bl" || resizeHandleType === "br") {
       newHeight = startHeight + dy;
     }
     
-    // Apply limits (align with settings constraints)
+    // Base min limits
     const minWidth = 400;
-    const maxWidth = Math.max(minWidth, Math.min(1600, window.innerWidth - 40));
     const minHeight = 300;
-    const maxHeight = Math.max(minHeight, Math.min(1200, window.innerHeight - 40));
-    
     if (newWidth < minWidth) newWidth = minWidth;
-    if (newWidth > maxWidth) newWidth = maxWidth;
     if (newHeight < minHeight) newHeight = minHeight;
-    if (newHeight > maxHeight) newHeight = maxHeight;
     
-    // Visual position offset correction based on dimension changes
+    // Screen border boundary limits based on initial placement
+    const startLeft = (window.innerWidth - startWidth) / 2 + startBaseX;
+    const startRight = startLeft + startWidth;
+    
+    const defaultYBottom = 0.025 * window.innerHeight;
+    const T_default = window.innerHeight - startHeight - defaultYBottom;
+    const startTop = T_default + startBaseY;
+    const startBottom = startTop + startHeight;
+    
+    // Cap dimensions so that we can't resize past screen edges
+    if (resizeHandleType === "tr" || resizeHandleType === "br") {
+      newWidth = Math.min(newWidth, Math.max(minWidth, window.innerWidth - startLeft));
+    } else {
+      newWidth = Math.min(newWidth, Math.max(minWidth, startRight));
+    }
+    
+    if (resizeHandleType === "tl" || resizeHandleType === "tr") {
+      newHeight = Math.min(newHeight, Math.max(minHeight, startBottom));
+    } else {
+      newHeight = Math.min(newHeight, Math.max(minHeight, window.innerHeight - startTop));
+    }
+    
+    // Width and height settings sliders max-clamp safeguards
+    if (newWidth > 1600) newWidth = 1600;
+    if (newHeight > 1200) newHeight = 1200;
+    
+    // Visual position offset correction based on final dimension changes
     const dw = newWidth - startWidth;
+    let newBaseX = startBaseX;
     if (resizeHandleType === "tr" || resizeHandleType === "br") {
       newBaseX = startBaseX + dw / 2;
     } else {
       newBaseX = startBaseX - dw / 2;
     }
     
+    let newBaseY = startBaseY;
     if (resizeHandleType === "bl" || resizeHandleType === "br") {
       newBaseY = startBaseY + (newHeight - startHeight);
     }
@@ -965,9 +1024,11 @@ document.addEventListener("mouseup", () => {
   }
 });
 
-// Re-apply scaled settings on window resize for mobile viewports
+// Re-apply scaled settings or clamp position on window resize
 window.addEventListener("resize", () => {
   if (window.innerWidth <= 600) {
     applySettings(currentSettings);
+  } else {
+    clampPositionToBounds();
   }
 });
