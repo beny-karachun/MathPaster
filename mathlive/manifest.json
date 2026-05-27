@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "MathPaster - Easy Math for AI Chatbots",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Visually write math and insert flawless LaTeX into AI chatbots like ChatGPT, Claude, and Gemini with a beautiful WYSIWYG editor.",
   "permissions": ["activeTab", "scripting", "storage"],
   "icons": {

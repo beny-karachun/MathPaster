@@ -936,6 +936,21 @@ const editorWindow = document.getElementById("editor-window");
 let currentX = 0, currentY = 0;
 let baseX = 0, baseY = 0;
 
+function loadPosition() {
+  try {
+    const savedX = localStorage.getItem("mathpaster_pos_x");
+    const savedY = localStorage.getItem("mathpaster_pos_y");
+    if (savedX !== null) {
+      currentX = parseFloat(savedX);
+      baseX = currentX;
+    }
+    if (savedY !== null) {
+      currentY = parseFloat(savedY);
+      baseY = currentY;
+    }
+  } catch (e) {}
+}
+
 function clampPositionToBounds() {
   const width = currentSettings.popupWidth;
   const height = currentSettings.popupHeight;
@@ -957,6 +972,7 @@ function clampPositionToBounds() {
 
 // Load persisted settings and clamp to screen borders on initialization
 loadSettings();
+loadPosition();
 clampPositionToBounds();
 
 /* ── Dragging & Resizing logic ── */
@@ -1042,11 +1058,19 @@ function clampKeyboardPosition() {
 
 function positionKeyboardDefault() {
   const editorRect = editorWindow.getBoundingClientRect();
-  const kbdWidth = 680;
-  const kbdHeight = 280;
+  const kbdWidth = parseFloat(localStorage.getItem("mathpaster_kbd_width")) || 680;
+  const kbdHeight = parseFloat(localStorage.getItem("mathpaster_kbd_height")) || 280;
   
-  kbdLeft = Math.max(10, (window.innerWidth - kbdWidth) / 2);
-  kbdTop = Math.max(10, editorRect.top - kbdHeight - 20);
+  const savedLeft = localStorage.getItem("mathpaster_kbd_left");
+  const savedTop = localStorage.getItem("mathpaster_kbd_top");
+  
+  if (savedLeft !== null && savedTop !== null) {
+    kbdLeft = parseFloat(savedLeft);
+    kbdTop = parseFloat(savedTop);
+  } else {
+    kbdLeft = Math.max(10, (window.innerWidth - kbdWidth) / 2);
+    kbdTop = Math.max(10, editorRect.top - kbdHeight - 20);
+  }
   
   kbdWindow.style.width = `${kbdWidth}px`;
   kbdWindow.style.height = `${kbdHeight}px`;
@@ -1267,11 +1291,15 @@ document.addEventListener("mouseup", () => {
     header.style.cursor = "grab";
     baseX = currentX;
     baseY = currentY;
+    localStorage.setItem("mathpaster_pos_x", baseX);
+    localStorage.setItem("mathpaster_pos_y", baseY);
   } else if (isResizing) {
     isResizing = false;
     document.body.style.cursor = "";
     baseX = currentX;
     baseY = currentY;
+    localStorage.setItem("mathpaster_pos_x", baseX);
+    localStorage.setItem("mathpaster_pos_y", baseY);
     
     localStorage.setItem('mathpaster_settings', JSON.stringify(currentSettings));
     
@@ -1286,9 +1314,17 @@ document.addEventListener("mouseup", () => {
   } else if (kbdDragging) {
     kbdDragging = false;
     kbdHeader.style.cursor = "grab";
+    localStorage.setItem("mathpaster_kbd_left", kbdLeft);
+    localStorage.setItem("mathpaster_kbd_top", kbdTop);
   } else if (kbdResizing) {
     kbdResizing = false;
     document.body.style.cursor = "";
+    localStorage.setItem("mathpaster_kbd_left", kbdLeft);
+    localStorage.setItem("mathpaster_kbd_top", kbdTop);
+    const kbdWidth = parseFloat(kbdWindow.style.width) || 680;
+    const kbdHeight = parseFloat(kbdWindow.style.height) || 280;
+    localStorage.setItem("mathpaster_kbd_width", kbdWidth);
+    localStorage.setItem("mathpaster_kbd_height", kbdHeight);
   }
 });
 
