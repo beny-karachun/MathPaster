@@ -1,0 +1,4 @@
+# Ignore large raw video recordings
+*.mp4
+# But track optimized exports
+!promo video/exports/*.mp4
