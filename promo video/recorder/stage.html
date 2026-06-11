@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MathPaster promo stage</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; cursor: none; }
+  body {
+    font-family: Inter, system-ui, sans-serif;
+    background: #0b0e14;
+    color: #e2e8f0;
+    position: relative;
+  }
+  /* ambient glows */
+  body::before, body::after {
+    content: ""; position: absolute; border-radius: 50%; filter: blur(140px); z-index: 0;
+  }
+  body::before { width: 700px; height: 700px; background: rgba(79,70,229,0.16); top: -260px; left: -180px; }
+  body::after { width: 800px; height: 800px; background: rgba(147,51,234,0.10); bottom: -340px; right: -220px; }
+
+  #brand {
+    position: absolute; top: 28px; left: 36px; z-index: 1;
+    font-size: 17px; font-weight: 600; color: #94a3b8; letter-spacing: 0.02em;
+  }
+  #brand span { color: #818cf8; margin-right: 8px; }
+
+  #chat-col {
+    position: absolute; inset: 0; z-index: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    padding-bottom: 48px;
+  }
+  #messages { width: 880px; margin-bottom: 26px; }
+  .bubble {
+    background: rgba(30,41,59,0.75); border: 1px solid rgba(99,102,241,0.14);
+    border-radius: 18px; padding: 18px 24px; font-size: 19px; line-height: 1.55;
+    color: #cbd5e1; max-width: 720px;
+  }
+  #chat-input {
+    width: 880px; min-height: 64px; max-height: 200px;
+    background: rgba(15,23,42,0.92); border: 1px solid rgba(99,102,241,0.35);
+    border-radius: 22px; padding: 19px 64px 19px 26px;
+    font-size: 19px; line-height: 1.5; color: #e2e8f0; outline: none;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    white-space: pre-wrap; word-break: break-word;
+  }
+  #chat-input:empty::before { content: "Message…"; color: #475569; }
+  #send-btn {
+    position: absolute; right: calc(50% - 440px + 12px); bottom: 60px;
+    width: 40px; height: 40px; border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 18px;
+  }
+
+  /* ── MathPaster overlay (replicates content.js) ── */
+  #mathpaster-overlay {
+    position: fixed; inset: 0; z-index: 2147483640;
+    display: flex; align-items: flex-end; justify-content: center;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    opacity: 0; pointer-events: none;
+    transition: opacity .22s cubic-bezier(.4,0,.2,1);
+  }
+  #mathpaster-iframe {
+    width: 100%; height: 100%; border: none;
+    background: transparent; color-scheme: dark;
+  }
+
+  /* ── Caption ── */
+  #caption {
+    position: fixed; top: 64px; left: 50%; transform: translateX(-50%) translateY(-14px);
+    z-index: 2147483646; padding: 16px 34px; border-radius: 18px;
+    background: linear-gradient(135deg, rgba(30,27,75,0.92), rgba(49,46,129,0.92));
+    border: 1px solid rgba(129,140,248,0.4);
+    box-shadow: 0 12px 48px rgba(0,0,0,0.55);
+    color: #e0e7ff; font-size: 30px; font-weight: 600; letter-spacing: 0.01em;
+    opacity: 0; transition: opacity .3s ease, transform .3s ease;
+    white-space: nowrap; pointer-events: none;
+  }
+  #caption.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Key HUD ── */
+  #keyhud {
+    position: fixed; bottom: 150px; right: 70px; z-index: 2147483646;
+    display: flex; gap: 10px; align-items: center;
+    opacity: 0; transform: translateY(10px) scale(0.96);
+    transition: opacity .18s ease, transform .18s ease;
+    pointer-events: none;
+  }
+  #keyhud.show { opacity: 1; transform: translateY(0) scale(1); }
+  #keyhud kbd {
+    font-family: Inter, system-ui, sans-serif; font-size: 24px; font-weight: 600;
+    color: #e0e7ff; background: linear-gradient(180deg, #1e293b, #0f172a);
+    border: 1px solid rgba(129,140,248,0.55); border-bottom-width: 3px;
+    border-radius: 12px; padding: 10px 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  }
+  #keyhud .plus { color: #818cf8; font-size: 22px; font-weight: 700; }
+
+  /* ── Toast (replicates content.js) ── */
+  #toast {
+    position: fixed; top: 28px; right: 40px;
+    transform: translateY(-20px);
+    z-index: 2147483647; padding: 10px 20px; border-radius: 10px;
+    background: linear-gradient(135deg, #1e1b4b, #312e81);
+    border: 1px solid rgba(99,102,241,0.3);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    color: #c7d2fe; font-size: 15px; font-weight: 500;
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* ── Fake cursor ── */
+  #fake-cursor {
+    position: fixed; left: 0; top: 0; z-index: 2147483647;
+    width: 26px; height: 26px; pointer-events: none;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));
+  }
+  #fake-cursor svg { display: block; }
+  #fake-cursor .ring {
+    position: absolute; left: -9px; top: -9px; width: 40px; height: 40px;
+    border: 2.5px solid #818cf8; border-radius: 50%;
+    opacity: 0; transform: scale(0.4);
+  }
+  #fake-cursor.clicked .ring { animation: ring .45s ease-out; }
+  @keyframes ring {
+    0% { opacity: 0.9; transform: scale(0.35); }
+    100% { opacity: 0; transform: scale(1.25); }
+  }
+</style>
+</head>
+<body>
+  <div id="brand"><span>✶</span>Chat</div>
+
+  <div id="chat-col">
+    <div id="messages">
+      <div class="bubble">Hi! I can help with math — send me an equation and I'll walk you through it step by step.</div>
+    </div>
+    <div id="chat-input" contenteditable="true"></div>
+  </div>
+  <div id="send-btn">➤</div>
+
+  <div id="mathpaster-overlay">
+    <iframe id="mathpaster-iframe" src="/mathlive/editor.html"></iframe>
+  </div>
+
+  <div id="caption"></div>
+  <div id="keyhud"></div>
+  <div id="toast"></div>
+
+  <div id="fake-cursor">
+    <svg width="26" height="26" viewBox="0 0 24 24">
+      <path d="M5 2 L5 19.5 L9.4 15.6 L12.2 22 L15 20.8 L12.2 14.6 L18 14.2 Z"
+            fill="#f8fafc" stroke="#0f172a" stroke-width="1.4" stroke-linejoin="round"/>
+    </svg>
+    <div class="ring"></div>
+  </div>
+
+<script>
+(() => {
+  // The harness zooms the editor document; resize messages arrive in
+  // unzoomed CSS px, so the iframe must be scaled up to match.
+  const ZOOM = parseFloat(new URLSearchParams(location.search).get("zoom") || "1");
+  const overlay = document.getElementById("mathpaster-overlay");
+  const iframe = document.getElementById("mathpaster-iframe");
+  const chatInput = document.getElementById("chat-input");
+  const caption = document.getElementById("caption");
+  const keyhud = document.getElementById("keyhud");
+  const toast = document.getElementById("toast");
+  const cursor = document.getElementById("fake-cursor");
+
+  let isVisible = false;
+  let iframeReady = false;
+  let toastTimer = 0;
+  let keyhudTimer = 0;
+
+  function showOverlay() {
+    isVisible = true;
+    overlay.style.opacity = "1";
+    overlay.style.pointerEvents = "auto";
+    if (iframeReady) {
+      iframe.contentWindow?.postMessage({ mathpaster: "reset", initialMath: null }, "*");
+    }
+    setTimeout(() => iframe.contentWindow?.focus(), 10);
+  }
+  function hideOverlay() {
+    isVisible = false;
+    overlay.style.opacity = "0";
+    overlay.style.pointerEvents = "none";
+  }
+  function toggleOverlay() { isVisible ? hideOverlay() : showOverlay(); }
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 2200);
+  }
+
+  function insertIntoChat(text) {
+    chatInput.focus();
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(chatInput);
+    range.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(range);
+    document.execCommand("insertText", false, text);
+  }
+
+  window.addEventListener("message", (e) => {
+    if (!e.data || typeof e.data !== "object" || !e.data.mathpaster) return;
+    switch (e.data.mathpaster) {
+      case "ready":
+        iframeReady = true;
+        if (isVisible) iframe.contentWindow?.postMessage({ mathpaster: "reset", initialMath: null }, "*");
+        break;
+      case "close": hideOverlay(); break;
+      case "toggle": toggleOverlay(); break;
+      case "insert":
+        hideOverlay();
+        setTimeout(() => { insertIntoChat(e.data.latex); showToast("LaTeX inserted ✓"); }, 120);
+        break;
+      case "toast": showToast(e.data.text || ""); break;
+      case "resize":
+        if (e.data.width && e.data.height) {
+          iframe.style.width = `min(${e.data.width * ZOOM}px, 95vw)`;
+          iframe.style.height = `${e.data.height * ZOOM}px`;
+        }
+        break;
+      case "update-blur":
+        overlay.style.backdropFilter = e.data.blur ? "blur(6px)" : "none";
+        overlay.style.webkitBackdropFilter = e.data.blur ? "blur(6px)" : "none";
+        break;
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "m") {
+      e.preventDefault();
+      toggleOverlay();
+    }
+  });
+
+  /* ── API driven from the Playwright harness ── */
+  window.__stage = {
+    openOverlay: showOverlay,
+    hideOverlay,
+    setCursor(x, y) {
+      cursor.style.transform = `translate(${x}px, ${y}px)`;
+    },
+    clickPulse() {
+      cursor.classList.remove("clicked");
+      void cursor.offsetWidth;
+      cursor.classList.add("clicked");
+    },
+    setCaption(text) {
+      if (!text) { caption.classList.remove("show"); return; }
+      if (caption.classList.contains("show")) {
+        caption.classList.remove("show");
+        setTimeout(() => { caption.textContent = text; caption.classList.add("show"); }, 320);
+      } else {
+        caption.textContent = text;
+        caption.classList.add("show");
+      }
+    },
+    showKeys(keys, holdMs = 1500) {
+      keyhud.innerHTML = keys
+        .map((k) => `<kbd>${k}</kbd>`)
+        .join('<span class="plus">+</span>');
+      keyhud.classList.add("show");
+      clearTimeout(keyhudTimer);
+      keyhudTimer = setTimeout(() => keyhud.classList.remove("show"), holdMs);
+    },
+  };
+
+  // Park the cursor somewhere neutral at start
+  window.__stage.setCursor(1400, 760);
+})();
+</script>
+</body>
+</html>

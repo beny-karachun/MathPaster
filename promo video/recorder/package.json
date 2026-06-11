@@ -1,0 +1,12 @@
+{
+  "name": "mathpaster-promo-recorder",
+  "private": true,
+  "description": "Records MathPaster promo clips by driving the real editor with Playwright",
+  "scripts": {
+    "serve": "node serve.js",
+    "record": "node record.js"
+  },
+  "dependencies": {
+    "playwright-core": "^1.50.0"
+  }
+}
