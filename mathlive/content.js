@@ -112,7 +112,19 @@
         sel.addRange(range);
       }
       
-      document.execCommand("insertText", false, text);
+      // execCommand keeps the page's undo stack intact where supported;
+      // fall back to manual Range insertion if it's unavailable or refused.
+      if (!document.execCommand("insertText", false, text) && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        range.deleteContents();
+        const node = document.createTextNode(text);
+        range.insertNode(node);
+        range.setStartAfter(node);
+        range.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(range);
+        activeTarget.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: text }));
+      }
       return true;
     }
     return false;

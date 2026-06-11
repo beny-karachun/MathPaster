@@ -44,8 +44,8 @@ English
 | Asset | Dimensions | Status | Filename |
 |-------|-----------|--------|----------|
 | Store Icon | 128×128 PNG | ✅ Ready | `mathlive/icons/icon128.png` |
-| Screenshot 1 | 1280×800 or 640×400 | ✅ Ready | `promo_1280x800.png` |
-| Screenshot 2 | 1280×800 or 640×400 | ✅ Ready | `promo_2_1280x800.png` |
+| Screenshot 1 | 1280×800 or 640×400 | ✅ Ready | `assets/promo_1280x800.png` |
+| Screenshot 2 | 1280×800 or 640×400 | ✅ Ready | `assets/promo_2_1280x800.png` |
 
 ### Screenshot Notes
 - Screenshots demonstrate the visual overlay editor running directly on top of chatbot interfaces.
