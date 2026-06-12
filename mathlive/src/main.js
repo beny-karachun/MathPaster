@@ -9,6 +9,7 @@ import { renderTabs, renderPalette } from './palette.js';
 import { buildMatrixSelectorUI } from './matrix.js';
 import { loadSettings, loadPosition, clampPositionToBounds } from './settings.js';
 import { loadLicense } from './license.js';
+import { maybeShowRateBanner } from './review.js';
 
 // Side-effect modules: register their DOM event listeners on import.
 import './tab-editor.js';
@@ -33,3 +34,6 @@ clampPositionToBounds();
 
 // 5. Pro license (async; gates re-check on the license-changed event)
 loadLicense();
+
+// 6. Review nudge (only once the user has had a few successful inserts)
+maybeShowRateBanner();

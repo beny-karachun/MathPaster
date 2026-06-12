@@ -1,6 +1,7 @@
 import { state } from './state.js';
 import { mf, latexEl } from './dom.js';
 import { updatePreview } from './mathfield.js';
+import { recordUse } from './review.js';
 
 /* ── Mode toggle ── */
 const modeSwitch = document.getElementById("mode-switch");
@@ -64,6 +65,7 @@ export function doInsert() {
   if (!raw) return;
   const wrap = state.insertMode === "block" ? `$$${raw}$$` : `$${raw}$`;
   localStorage.removeItem("mathpaster_draft");
+  recordUse();
   window.parent.postMessage({ mathpaster: "insert", latex: wrap }, "*");
 }
 document.getElementById("insert-btn").addEventListener("mousedown", e => e.preventDefault());
@@ -75,6 +77,7 @@ document.getElementById("copy-btn").addEventListener("click", () => {
   const raw = (mf.value || "").trim();
   if (!raw) return;
   const wrap = state.insertMode === "block" ? `$$${raw}$$` : `$${raw}$`;
+  recordUse();
   navigator.clipboard.writeText(wrap).then(() => {
     window.parent.postMessage({ mathpaster: "toast", text: "Copied to clipboard!" }, "*");
   }).catch(() => {

@@ -134,6 +134,7 @@
     }
 
     /* Pro / licensing bits */
+    body.theme-light #rate-banner { color: #1f2937; }
     body.theme-light .license-status { color: #5b6678; }
     body.theme-light .pro-feature-line { color: #3a4254; }
     body.theme-light .pro-perks { color: #5b6678; }
@@ -1104,6 +1105,47 @@
       background: rgba(0, 0, 0, 0.55);
       border: 1px solid rgba(255, 255, 255, 0.25);
     }
+
+    /* ── Rate-us banner ── */
+    #rate-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.35);
+      background: hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.12);
+      font-size: 13px;
+      color: #e2e8f0;
+    }
+    .rate-banner-text { flex: 1 1 auto; }
+    .rate-banner-btn {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      color: #fff;
+      background: linear-gradient(135deg,
+        hsl(var(--primary-hue, 250), var(--primary-sat, 80%), calc(var(--primary-light, 65%) - 10%)),
+        hsl(var(--primary-hue, 250), var(--primary-sat, 80%), calc(var(--primary-light, 65%) - 20%)));
+    }
+    .rate-banner-btn:hover { filter: brightness(1.12); }
+    .rate-banner-close {
+      border: none;
+      background: transparent;
+      color: inherit;
+      opacity: 0.6;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 4px 6px;
+      border-radius: 6px;
+    }
+    .rate-banner-close:hover { opacity: 1; }
 
     /* ── MathPaster Pro (license + upgrade modal) ── */
     .license-status {

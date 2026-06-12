@@ -869,3 +869,62 @@ kbd {
         font-size: 0.65rem;
     }
 }
+
+/* ── Pricing ── */
+.pricing-price {
+    font-family: var(--font-mono);
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 12px 0 4px 0;
+}
+
+.pricing-period {
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+.pricing-alt {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.pricing-alt strong {
+    color: var(--accent);
+}
+
+.pricing-perks {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0 24px 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.pricing-perks li {
+    padding-left: 22px;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.pricing-perks li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.pricing-pro-card {
+    box-shadow: 0 0 32px rgba(0, 229, 155, 0.12);
+}
+
+.pricing-note {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-top: 12px;
+    text-align: center;
+}

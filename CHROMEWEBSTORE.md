@@ -1,6 +1,6 @@
 # Chrome Web Store Listing — MathPaster - Easy Math for AI Chatbots
 
-> Last Updated: 2026-05-27
+> Last Updated: 2026-06-12
 
 ## Store Listing
 
@@ -19,7 +19,13 @@ Features:
 - Seamless integration with ChatGPT, Claude, Gemini, and other text inputs.
 - Visual editor with comprehensive math notation support.
 - Configurable keyboard shortcuts (Ctrl+M to toggle).
-- Works 100% locally with no external APIs or telemetry.
+- Drag-to-reorder symbol tabs and curated color themes.
+- All math processing happens locally, with zero telemetry.
+
+MathPaster Pro (optional upgrade):
+- Custom symbol tabs — build your own palettes from any LaTeX command.
+- Unlocks all 10 color themes (light & dark).
+- Available as a monthly or yearly subscription, or a one-time lifetime purchase. Payments are handled by Lemon Squeezy; activate with the license key from your purchase email under Settings → MathPaster Pro.
 
 How to use it:
 1. Open any webpage or AI chatbot.
@@ -28,7 +34,7 @@ How to use it:
 4. Press Ctrl+Enter or click the "Insert" button to paste the LaTeX markup directly into the active chatbot input box.
 
 Privacy/permissions note:
-MathPaster operates entirely locally on your device. We do not collect, store, or transmit any user inputs, web history, or personal data.
+All math editing happens locally on your device. We do not collect, store, or transmit your inputs, web history, or personal data. The only network request the extension ever makes is optional: if you activate MathPaster Pro, your license key is verified against the Lemon Squeezy licensing API (and re-checked periodically). No other data is sent.
 
 **Category**
 Developer Tools
@@ -62,7 +68,9 @@ English
 
 ### Data Collection
 
-**Does the extension collect user data?** No
+**Does the extension collect user data?** Minimal — only for optional Pro activation.
+
+In the dashboard disclosures, declare **Authentication information**: when a user activates MathPaster Pro, the license key they enter is transmitted to the Lemon Squeezy licensing API (api.lemonsqueezy.com) to verify the purchase and is re-validated periodically. The key is stored in `chrome.storage.sync`. Nothing else is collected — no equations, browsing data, or identifiers.
 
 ### Data Use Certification
 - [x] Data is NOT sold to third parties
@@ -78,7 +86,7 @@ https://beny-karachun.github.io/MathPaster/privacy.html
 
 **Visibility**: Public
 **Regions**: All regions
-**Pricing**: Free
+**Pricing**: Free (contains optional paid upgrade — tick "This item contains in-app purchases" in the dashboard; payments are processed externally by Lemon Squeezy at https://mathpaster.lemonsqueezy.com)
 
 ## Developer Info
 
@@ -95,6 +103,7 @@ https://github.com/beny-karachun/MathPaster/issues
 
 | Version | Date | Changes | Status |
 |---------|------|---------|--------|
+| 1.2.0 | 2026-06-12 | MathPaster Pro (custom tabs + premium themes, Lemon Squeezy license activation), 10 curated color themes with light mode, drag-to-reorder tabs, in-editor review prompt. | Draft |
 | 1.0.2 | 2026-05-27 | Removed remotely hosted code (Google Fonts and sandbox test files). | Draft |
 | 1.0.1 | 2026-05-23 | Internal optimization. | Rejected |
 | 1.0.0 | 2026-05-17 | Initial release. | Published |
