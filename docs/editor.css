@@ -39,10 +39,10 @@
        ───────────────────────────────────────────────────────────── */
     body.theme-light {
       color-scheme: light;
-      color: #353c4a;
+      color: #3a4254;
     }
 
-    /* Strong text (titles, math, inputs, headings) */
+    /* Strong text (titles, math, inputs, headings, symbol glyphs) */
     body.theme-light #title,
     body.theme-light math-field,
     body.theme-light #mf,
@@ -54,21 +54,23 @@
     body.theme-light .tab-text-input,
     body.theme-light #tab-mf,
     body.theme-light .tab-symbol-chip,
-    body.theme-light .swatch-name { color: #1f2533 !important; }
+    body.theme-light .pal-btn,
+    body.theme-light .swatch-name { color: #1f2937 !important; }
 
     /* Secondary text (buttons, tabs, hints) */
     body.theme-light .header-btn,
     body.theme-light .rate-btn,
     body.theme-light .cat-tab:not(.active),
     body.theme-light .hint,
-    body.theme-light .mode-label { color: #5a6373; }
+    body.theme-light .mode-label { color: #5b6678; }
 
-    /* Subtle raised surfaces + borders (were white-on-dark overlays) */
-    body.theme-light #mf-wrap,
+    /* Elevated WHITE surfaces — clean light cards (not muddy black overlays).
+       Resets the dark-mode 3D shadows/border-bottom so keys look crisp. */
     body.theme-light .pal-btn,
     body.theme-light .cat-tab:not(.active),
     body.theme-light .header-btn,
     body.theme-light .rate-btn,
+    body.theme-light #mf-wrap,
     body.theme-light .tab-text-input,
     body.theme-light #tab-mf,
     body.theme-light .tab-symbol-chip,
@@ -76,43 +78,69 @@
     body.theme-light .settings-body details,
     body.theme-light kbd,
     body.theme-light .hint kbd {
-      background: rgba(0, 0, 0, 0.04);
-      border-color: rgba(0, 0, 0, 0.12);
-    }
-    body.theme-light .pal-btn:hover,
-    body.theme-light .cat-tab:not(.active):hover,
-    body.theme-light .theme-swatch:hover {
-      background: rgba(0, 0, 0, 0.07);
-      border-color: rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0.9) !important;
+      border-color: rgba(15, 23, 42, 0.1) !important;
+      border-bottom-color: rgba(15, 23, 42, 0.14) !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.07), 0 2px 5px rgba(15, 23, 42, 0.05) !important;
     }
 
-    /* Insets (latex bar, symbol tray) */
+    body.theme-light .pal-btn:hover,
+    body.theme-light .cat-tab:not(.active):hover,
+    body.theme-light .header-btn:hover,
+    body.theme-light .rate-btn:hover,
+    body.theme-light .theme-swatch:hover {
+      background: #ffffff !important;
+      border-color: rgba(15, 23, 42, 0.18) !important;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12) !important;
+    }
+
+    body.theme-light .pal-btn:active {
+      background: rgba(15, 23, 42, 0.05) !important;
+      box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.12) !important;
+    }
+
+    /* Recessed insets (latex bar, symbol tray) */
     body.theme-light #latex-preview,
-    body.theme-light .tab-symbol-list { background: rgba(0, 0, 0, 0.035); }
+    body.theme-light .tab-symbol-list {
+      background: rgba(15, 23, 42, 0.04) !important;
+      border-color: rgba(15, 23, 42, 0.07) !important;
+      box-shadow: none !important;
+    }
 
     /* Glass panels → light glass */
     body.theme-light #settings-panel,
     body.theme-light #tab-panel,
     body.theme-light #keyboard-window {
-      background: rgba(255, 255, 255, 0.86);
-      border-color: rgba(0, 0, 0, 0.1);
+      background: rgba(255, 255, 255, 0.92) !important;
+      border-color: rgba(15, 23, 42, 0.1) !important;
     }
 
     /* Dividers */
     body.theme-light #header,
     body.theme-light .settings-header,
     body.theme-light #footer,
-    body.theme-light .settings-body details[open] summary { border-color: rgba(0, 0, 0, 0.08); }
+    body.theme-light .settings-body details[open] summary { border-color: rgba(15, 23, 42, 0.08) !important; }
 
     /* Unchecked toggle track */
     body.theme-light .switch .slider {
-      background-color: rgba(0, 0, 0, 0.1);
-      border-color: rgba(0, 0, 0, 0.15);
+      background-color: rgba(15, 23, 42, 0.13) !important;
+      border-color: rgba(15, 23, 42, 0.12) !important;
+      box-shadow: none !important;
+    }
+    body.theme-light .switch .slider:before {
+      background-color: #ffffff !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3) !important;
+    }
+
+    /* Inline code chips (e.g. the \frac / \alpha hints) */
+    body.theme-light .setting-group label code {
+      background: rgba(15, 23, 42, 0.06) !important;
+      color: #475569 !important;
     }
 
     /* Scrollbars */
-    body.theme-light ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); }
-    body.theme-light ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.32); }
+    body.theme-light ::-webkit-scrollbar-thumb { background: rgba(15, 23, 42, 0.18) !important; }
+    body.theme-light ::-webkit-scrollbar-thumb:hover { background: rgba(15, 23, 42, 0.3) !important; }
 
     /* ── Panel ── */
     #editor-window {
