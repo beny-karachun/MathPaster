@@ -118,19 +118,13 @@
             <div class="video-frame">
                 <div class="video-bar">
                     <div class="video-dots"><span></span><span></span><span></span></div>
-                    <span class="video-bar-title">mathpaster — demo.mp4</span>
+                    <span class="video-bar-title">mathpaster — demo</span>
                 </div>
                 <div class="video-wrap">
-                    <video id="promo-video" class="promo-video" controls playsinline preload="metadata"
-                        poster="promo-poster.jpg">
-                        <source src="mathpaster-promo.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <button class="video-play" id="video-play" aria-label="Play promo video">
-                        <svg width="34" height="34" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M8 5v14l11-7z"></path>
-                        </svg>
-                    </button>
+                    <iframe class="promo-video" src="https://www.youtube-nocookie.com/embed/kmp2xA0Dc_U?rel=0"
+                        title="MathPaster demo" frameborder="0" loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
                 </div>
             </div>
         </section>
@@ -461,18 +455,6 @@
                 alert(event.data.text);
             }
         });
-
-        // Promo video play-overlay handling
-        const promoVideo = document.getElementById('promo-video');
-        const videoPlayBtn = document.getElementById('video-play');
-        if (promoVideo && videoPlayBtn) {
-            const hideOverlay = () => videoPlayBtn.classList.add('hidden');
-            const showOverlay = () => videoPlayBtn.classList.remove('hidden');
-            videoPlayBtn.addEventListener('click', () => { promoVideo.play(); });
-            promoVideo.addEventListener('play', hideOverlay);
-            promoVideo.addEventListener('pause', showOverlay);
-            promoVideo.addEventListener('ended', showOverlay);
-        }
 
         // Smooth scroll for the demo button
         document.querySelector('a[href="#demo"]').addEventListener('click', function (e) {

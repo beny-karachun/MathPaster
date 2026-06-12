@@ -312,45 +312,7 @@ nav {
     display: block;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-}
-
-.video-play {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 86px;
-    height: 86px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--bg-main);
-    background-color: var(--accent);
-    box-shadow: 0 0 0 0 rgba(0, 229, 155, 0.5), 0 12px 40px rgba(0, 229, 155, 0.35);
-    transition: transform 0.2s ease, background-color 0.2s ease, opacity 0.25s ease;
-    animation: pulseRing 2.4s ease-out infinite;
-    padding-left: 4px;
-    z-index: 1;
-}
-
-.video-play:hover {
-    transform: translate(-50%, -50%) scale(1.08);
-    background-color: var(--accent-hover);
-}
-
-.video-play.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
-@keyframes pulseRing {
-    0% { box-shadow: 0 0 0 0 rgba(0, 229, 155, 0.45), 0 12px 40px rgba(0, 229, 155, 0.35); }
-    70% { box-shadow: 0 0 0 22px rgba(0, 229, 155, 0), 0 12px 40px rgba(0, 229, 155, 0.35); }
-    100% { box-shadow: 0 0 0 0 rgba(0, 229, 155, 0), 0 12px 40px rgba(0, 229, 155, 0.35); }
+    border: 0;
 }
 
 .features-grid {
@@ -902,14 +864,6 @@ kbd {
     .faq-answer {
         padding: 0 16px 16px 16px;
         font-size: 0.9rem;
-    }
-    .video-play {
-        width: 64px;
-        height: 64px;
-    }
-    .video-play svg {
-        width: 26px;
-        height: 26px;
     }
     .video-bar-title {
         font-size: 0.65rem;
