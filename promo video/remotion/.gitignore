@@ -1,0 +1,6 @@
+node_modules/
+out/
+public/clips/
+public/track.mp3
+.env
+public/sfx/custom/

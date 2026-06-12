@@ -1,0 +1,508 @@
+{
+ "clips": [
+  {
+   "name": "promo_overview",
+   "durationSec": 30.633333,
+   "events": [
+    {
+     "t": 3609,
+     "type": "click"
+    },
+    {
+     "t": 3803,
+     "type": "key"
+    },
+    {
+     "t": 3836,
+     "type": "key"
+    },
+    {
+     "t": 3869,
+     "type": "key"
+    },
+    {
+     "t": 3905,
+     "type": "key"
+    },
+    {
+     "t": 3940,
+     "type": "key"
+    },
+    {
+     "t": 3980,
+     "type": "key"
+    },
+    {
+     "t": 4015,
+     "type": "key"
+    },
+    {
+     "t": 4049,
+     "type": "key"
+    },
+    {
+     "t": 4086,
+     "type": "key"
+    },
+    {
+     "t": 4119,
+     "type": "key"
+    },
+    {
+     "t": 4155,
+     "type": "key"
+    },
+    {
+     "t": 4187,
+     "type": "key"
+    },
+    {
+     "t": 4221,
+     "type": "key"
+    },
+    {
+     "t": 4254,
+     "type": "key"
+    },
+    {
+     "t": 4287,
+     "type": "key"
+    },
+    {
+     "t": 4321,
+     "type": "key"
+    },
+    {
+     "t": 4357,
+     "type": "key"
+    },
+    {
+     "t": 4390,
+     "type": "key"
+    },
+    {
+     "t": 4426,
+     "type": "key"
+    },
+    {
+     "t": 4460,
+     "type": "key"
+    },
+    {
+     "t": 4493,
+     "type": "key"
+    },
+    {
+     "t": 4526,
+     "type": "key"
+    },
+    {
+     "t": 5694,
+     "type": "key"
+    },
+    {
+     "t": 6688,
+     "type": "key"
+    },
+    {
+     "t": 6816,
+     "type": "key"
+    },
+    {
+     "t": 6905,
+     "type": "key"
+    },
+    {
+     "t": 7025,
+     "type": "key"
+    },
+    {
+     "t": 7115,
+     "type": "key"
+    },
+    {
+     "t": 7230,
+     "type": "key"
+    },
+    {
+     "t": 7342,
+     "type": "key"
+    },
+    {
+     "t": 7351,
+     "type": "key"
+    },
+    {
+     "t": 7460,
+     "type": "key"
+    },
+    {
+     "t": 7471,
+     "type": "key"
+    },
+    {
+     "t": 7559,
+     "type": "key"
+    },
+    {
+     "t": 7649,
+     "type": "key"
+    },
+    {
+     "t": 7739,
+     "type": "key"
+    },
+    {
+     "t": 7827,
+     "type": "key"
+    },
+    {
+     "t": 7915,
+     "type": "key"
+    },
+    {
+     "t": 8006,
+     "type": "key"
+    },
+    {
+     "t": 8096,
+     "type": "key"
+    },
+    {
+     "t": 8185,
+     "type": "key"
+    },
+    {
+     "t": 8274,
+     "type": "key"
+    },
+    {
+     "t": 8360,
+     "type": "key"
+    },
+    {
+     "t": 8459,
+     "type": "key"
+    },
+    {
+     "t": 8818,
+     "type": "key"
+    },
+    {
+     "t": 8927,
+     "type": "key"
+    },
+    {
+     "t": 9025,
+     "type": "key"
+    },
+    {
+     "t": 9122,
+     "type": "key"
+    },
+    {
+     "t": 9222,
+     "type": "key"
+    },
+    {
+     "t": 9325,
+     "type": "key"
+    },
+    {
+     "t": 9425,
+     "type": "key"
+    },
+    {
+     "t": 9523,
+     "type": "key"
+    },
+    {
+     "t": 9629,
+     "type": "key"
+    },
+    {
+     "t": 9728,
+     "type": "key"
+    },
+    {
+     "t": 9825,
+     "type": "key"
+    },
+    {
+     "t": 9838,
+     "type": "key"
+    },
+    {
+     "t": 9937,
+     "type": "key"
+    },
+    {
+     "t": 9946,
+     "type": "key"
+    },
+    {
+     "t": 10201,
+     "type": "key"
+    },
+    {
+     "t": 11959,
+     "type": "click"
+    },
+    {
+     "t": 13240,
+     "type": "click"
+    },
+    {
+     "t": 14893,
+     "type": "click"
+    },
+    {
+     "t": 15610,
+     "type": "key"
+    },
+    {
+     "t": 15625,
+     "type": "key"
+    },
+    {
+     "t": 15750,
+     "type": "key"
+    },
+    {
+     "t": 15764,
+     "type": "key"
+    },
+    {
+     "t": 15888,
+     "type": "key"
+    },
+    {
+     "t": 15902,
+     "type": "key"
+    },
+    {
+     "t": 16029,
+     "type": "key"
+    },
+    {
+     "t": 18272,
+     "type": "click"
+    },
+    {
+     "t": 20456,
+     "type": "click"
+    }
+   ]
+  },
+  {
+   "name": "promo_autocomplete",
+   "durationSec": 11.133333,
+   "events": [
+    {
+     "t": 2948,
+     "type": "key"
+    },
+    {
+     "t": 3059,
+     "type": "key"
+    },
+    {
+     "t": 3168,
+     "type": "key"
+    },
+    {
+     "t": 3277,
+     "type": "key"
+    },
+    {
+     "t": 3389,
+     "type": "key"
+    },
+    {
+     "t": 3501,
+     "type": "key"
+    },
+    {
+     "t": 3611,
+     "type": "key"
+    },
+    {
+     "t": 3718,
+     "type": "key"
+    },
+    {
+     "t": 3826,
+     "type": "key"
+    },
+    {
+     "t": 3935,
+     "type": "key"
+    },
+    {
+     "t": 4042,
+     "type": "key"
+    },
+    {
+     "t": 4553,
+     "type": "key"
+    },
+    {
+     "t": 4665,
+     "type": "key"
+    },
+    {
+     "t": 4785,
+     "type": "key"
+    },
+    {
+     "t": 4897,
+     "type": "key"
+    },
+    {
+     "t": 5488,
+     "type": "key"
+    },
+    {
+     "t": 5743,
+     "type": "key"
+    },
+    {
+     "t": 5855,
+     "type": "key"
+    },
+    {
+     "t": 5966,
+     "type": "key"
+    },
+    {
+     "t": 6079,
+     "type": "key"
+    },
+    {
+     "t": 6196,
+     "type": "key"
+    },
+    {
+     "t": 6317,
+     "type": "key"
+    },
+    {
+     "t": 6427,
+     "type": "key"
+    },
+    {
+     "t": 6538,
+     "type": "key"
+    }
+   ]
+  },
+  {
+   "name": "promo_backslash",
+   "durationSec": 14.233333,
+   "events": [
+    {
+     "t": 2771,
+     "type": "key"
+    },
+    {
+     "t": 2994,
+     "type": "key"
+    },
+    {
+     "t": 3174,
+     "type": "key"
+    },
+    {
+     "t": 3350,
+     "type": "key"
+    },
+    {
+     "t": 3525,
+     "type": "key"
+    },
+    {
+     "t": 3700,
+     "type": "key"
+    },
+    {
+     "t": 4679,
+     "type": "key"
+    },
+    {
+     "t": 5090,
+     "type": "key"
+    },
+    {
+     "t": 5200,
+     "type": "key"
+    },
+    {
+     "t": 5313,
+     "type": "key"
+    },
+    {
+     "t": 6307,
+     "type": "key"
+    },
+    {
+     "t": 6313,
+     "type": "key"
+    },
+    {
+     "t": 6642,
+     "type": "key"
+    },
+    {
+     "t": 6844,
+     "type": "key"
+    },
+    {
+     "t": 7029,
+     "type": "key"
+    },
+    {
+     "t": 7213,
+     "type": "key"
+    },
+    {
+     "t": 7395,
+     "type": "key"
+    },
+    {
+     "t": 8455,
+     "type": "key"
+    },
+    {
+     "t": 8783,
+     "type": "key"
+    },
+    {
+     "t": 8901,
+     "type": "key"
+    },
+    {
+     "t": 9019,
+     "type": "key"
+    },
+    {
+     "t": 9136,
+     "type": "key"
+    },
+    {
+     "t": 11620,
+     "type": "click"
+    }
+   ]
+  }
+ ],
+ "customKeys": [
+  "sfx/custom/k_0.wav",
+  "sfx/custom/k_1.wav",
+  "sfx/custom/k_2.wav",
+  "sfx/custom/k_3.wav",
+  "sfx/custom/k_4.wav",
+  "sfx/custom/k_5.wav",
+  "sfx/custom/k_6.wav",
+  "sfx/custom/k_7.wav"
+ ]
+}
