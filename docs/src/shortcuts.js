@@ -162,7 +162,12 @@ window.addEventListener("message", e => {
       });
       
       updatePreview();
-      setTimeout(() => { try { window.focus(); mf.focus(); } catch {} }, 100);
+      setTimeout(() => {
+        // Don't steal focus into the main field while the custom-tab modal is open.
+        const tabOv = document.getElementById("tab-overlay");
+        if (tabOv && tabOv.classList.contains("visible")) return;
+        try { window.focus(); mf.focus(); } catch {}
+      }, 100);
     }
   }
 });

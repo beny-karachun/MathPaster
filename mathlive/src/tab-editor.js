@@ -25,6 +25,17 @@ function configureTabMf() {
     else { tabMf.inlineShortcuts = state.defaultShortcuts || {}; tabMf.mathModeSpace = "\\:"; }
   } catch (e) {}
 
+  // MathLive's own mouse-focus path leaves this nested mini field unable to capture
+  // keystrokes (programmatic focus works reliably). Intercept the pointer focus and
+  // drive it ourselves so clicking the field always lets the user type.
+  tabMf.addEventListener("pointerdown", e => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    if (document.activeElement !== tabMf) {
+      try { tabMf.focus(); } catch (_) {}
+    }
+  });
+
   // Enter in the mini field commits a suggestion (handled globally) or adds the symbol.
   tabMf.addEventListener("keydown", e => {
     if (e.key !== "Enter" || e.ctrlKey || e.metaKey || e.shiftKey) return;
@@ -113,7 +124,17 @@ export function openTabEditor(id) {
   if (tabMf) tabMf.value = "";
   renderWorkingSymbols();
   tabOverlay.classList.add("visible");
-  setTimeout(() => { try { tabNameInput.focus(); } catch (e) {} }, 50);
+  // Focus the name field on open — immediately and on the next frame for reliability —
+  // but never steal focus once the user has clicked into the modal (e.g. the math input).
+  // A previous deferred focus could fire after a fast click and yank typing into the name box.
+  focusNameInputIfIdle();
+  requestAnimationFrame(focusNameInputIfIdle);
+}
+
+function focusNameInputIfIdle() {
+  if (!tabOverlay.contains(document.activeElement)) {
+    try { tabNameInput.focus(); } catch (e) {}
+  }
 }
 
 function closeTabEditor() {
