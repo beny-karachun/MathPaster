@@ -16,6 +16,15 @@ const EXPECTED_STORE_ID = null;
 const API_BASE = 'https://api.lemonsqueezy.com/v1/licenses';
 const STORAGE_KEY = 'mathpaster_license';
 const REVALIDATE_MS = 7 * 24 * 60 * 60 * 1000;
+// SHA-256 of a private developer master key. Only the hash ships, so the key
+// can't be recovered from the source. A matching key activates Pro locally
+// (no API call) and is never re-validated.
+const MASTER_KEY_HASH = '001e746d658fa9fd244758e54a6149aac3b7074e374e538cff91f18e902416f7';
+
+async function sha256Hex(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 export function isPro() { return !!(state.license && state.license.pro); }
 
@@ -60,6 +69,12 @@ async function licensePost(action, params) {
 }
 
 export async function activateLicense(key) {
+  if ((await sha256Hex(key)) === MASTER_KEY_HASH) {
+    state.license = { key, instanceId: null, storeId: null, pro: true, master: true, lastValidated: Date.now() };
+    await writeStored(state.license);
+    notifyChange();
+    return state.license;
+  }
   const data = await licensePost('activate', { license_key: key, instance_name: 'MathPaster' });
   if (!data.activated) throw new Error(data.error || 'That license key could not be activated.');
   if (EXPECTED_STORE_ID && data.meta && data.meta.store_id !== EXPECTED_STORE_ID) {
@@ -90,7 +105,7 @@ export async function deactivateLicense() {
 
 async function revalidate() {
   const lic = state.license;
-  if (!lic || !lic.key) return;
+  if (!lic || !lic.key || lic.master) return;
   try {
     const params = { license_key: lic.key };
     if (lic.instanceId) params.instance_id = lic.instanceId;
