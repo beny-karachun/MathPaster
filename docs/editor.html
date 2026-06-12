@@ -378,6 +378,46 @@
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
     }
 
+    .cat-tab { display: inline-flex; align-items: center; gap: 8px; }
+
+    .cat-tab .cat-tab-edit {
+      opacity: 0;
+      font-size: 0.85em;
+      line-height: 1;
+      transition: opacity 0.15s ease, color 0.15s ease;
+      color: inherit;
+    }
+    .cat-tab:hover .cat-tab-edit,
+    .cat-tab.active .cat-tab-edit { opacity: 0.65; }
+    .cat-tab .cat-tab-edit:hover { opacity: 1; }
+
+    .new-tab-chip {
+      border-style: dashed;
+      border-color: hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.5);
+      color: hsl(var(--primary-hue, 250), var(--primary-sat, 80%), calc(var(--primary-light, 65%) + 15%));
+    }
+    .new-tab-chip:hover {
+      background: hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.12);
+      border-color: hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.8);
+    }
+
+    .pro-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      line-height: 1;
+      padding: 3px 6px;
+      border-radius: 6px;
+      color: #fff;
+      background: linear-gradient(135deg,
+        hsl(var(--primary-hue, 250), var(--primary-sat, 80%), calc(var(--primary-light, 65%) - 5%)) 0%,
+        hsl(calc(var(--primary-hue, 250) + 20), var(--primary-sat, 80%), calc(var(--primary-light, 65%) - 10%)) 100%);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      vertical-align: middle;
+    }
+    h2 .pro-badge { font-size: 10px; margin-left: 6px; }
+
     /* ── Palette Container ── */
     #palette-container {
       flex: 1 1 auto;
@@ -858,6 +898,164 @@
     .setting-group input[type="range"]::-webkit-slider-thumb:hover {
       transform: scale(1.2);
     }
+
+    /* ── Custom Tab Editor Modal ── */
+    #tab-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 100000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    #tab-overlay.visible { opacity: 1; pointer-events: auto; }
+
+    #tab-panel {
+      background: rgba(17, 18, 39, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      width: 440px;
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      transform: scale(0.96);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #tab-overlay.visible #tab-panel { transform: scale(1); }
+
+    .tab-text-input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 11px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(0, 0, 0, 0.25);
+      color: #fff;
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .tab-text-input::placeholder { color: #6b7280; }
+    .tab-text-input:focus {
+      border-color: hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.6);
+      box-shadow: 0 0 0 3px hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.12);
+    }
+
+    .setting-group label code {
+      background: rgba(0, 0, 0, 0.35);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.92em;
+      color: hsl(var(--primary-hue, 250), var(--primary-sat, 80%), calc(var(--primary-light, 65%) + 18%));
+    }
+
+    .tab-add-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+    #tab-mf {
+      flex: 1 1 auto;
+      min-width: 0;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 20px;
+      color: #fff;
+      --caret-color: hsl(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%));
+    }
+    #tab-mf:focus-within {
+      border-color: hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.6);
+      box-shadow: 0 0 0 3px hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.12);
+    }
+    #tab-add-btn { flex: 0 0 auto; padding: 8px 18px; }
+    #tab-mf::part(menu-toggle),
+    #tab-mf::part(virtual-keyboard-toggle) { display: none; }
+
+    .tab-symbol-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      min-height: 56px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      align-content: flex-start;
+    }
+    .tab-symbol-empty {
+      color: #6b7280;
+      font-size: 13px;
+      align-self: center;
+      width: 100%;
+      text-align: center;
+    }
+    .tab-symbol-chip {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 48px;
+      height: 48px;
+      padding: 0 12px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 20px;
+    }
+    .tab-symbol-face { display: inline-flex; align-items: center; }
+    .tab-symbol-remove {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: none;
+      background: #ef4444;
+      color: #fff;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      transition: transform 0.12s ease, background 0.12s ease;
+    }
+    .tab-symbol-remove:hover { transform: scale(1.15); background: #dc2626; }
+
+    .tab-error {
+      color: #f87171;
+      font-size: 13px;
+      min-height: 16px;
+    }
+    .tab-editor-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 4px;
+    }
+    .tab-editor-actions #tab-delete-btn {
+      color: #f87171;
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    .tab-editor-actions #tab-delete-btn:hover { background: rgba(239, 68, 68, 0.16); }
+    .tab-editor-actions #tab-save-btn { margin-left: auto; }
+
     /* ── Keyboard Window ── */
     #keyboard-window {
       position: absolute;
@@ -1232,6 +1430,41 @@
         </details>
 
         <button class="btn secondary" id="reset-settings-btn" style="margin-top:10px;">Reset to Defaults</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-overlay">
+    <div id="tab-panel">
+      <div class="settings-header">
+        <h2 id="tab-editor-title">New Custom Tab <span class="pro-badge">PRO</span></h2>
+        <button class="header-btn" id="close-tab-editor-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
+      </div>
+      <div class="settings-body">
+        <div class="setting-group">
+          <label for="tab-name-input">Tab name</label>
+          <input type="text" id="tab-name-input" class="tab-text-input" placeholder="e.g. My Symbols" maxlength="24" autocomplete="off" spellcheck="false">
+        </div>
+
+        <div class="setting-group">
+          <label>Add a symbol — type a <code>\</code> command (e.g. <code>\frac</code>, <code>\alpha</code>)</label>
+          <div class="tab-add-row">
+            <math-field id="tab-mf" math-virtual-keyboard-policy="manual"></math-field>
+            <button class="btn primary" id="tab-add-btn">Add</button>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label>Symbols in this tab</label>
+          <div id="tab-symbol-list" class="tab-symbol-list"></div>
+        </div>
+
+        <div id="tab-error" class="tab-error"></div>
+
+        <div class="tab-editor-actions">
+          <button class="btn secondary" id="tab-delete-btn">Delete Tab</button>
+          <button class="btn primary" id="tab-save-btn">Save Tab</button>
+        </div>
       </div>
     </div>
   </div>

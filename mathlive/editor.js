@@ -237,16 +237,61 @@ const PALETTE_DATA = {
   ]
 };
 
+/* ── Custom tabs (Premium) ── */
+const CUSTOM_TABS_KEY = "mathpaster_custom_tabs";
+
+// Single chokepoint for the premium gate. A real licensing check slots in here later.
+// TODO: wire to licensing — return the user's entitlement instead of always true.
+function hasPremium() { return true; }
+
+let customTabs = loadCustomTabs();
+
+function loadCustomTabs() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(CUSTOM_TABS_KEY));
+    if (Array.isArray(saved)) return saved;
+  } catch (e) {}
+  return [];
+}
+
+function saveCustomTabs() {
+  try { localStorage.setItem(CUSTOM_TABS_KEY, JSON.stringify(customTabs)); } catch (e) {}
+}
+
+// Resolve the symbol list for a tab key (built-in category name OR custom tab id).
+function getCategoryItems(key) {
+  const custom = customTabs.find(t => t.id === key);
+  if (custom) return custom.symbols;
+  return PALETTE_DATA[key] || [];
+}
+
+// Turn a raw LaTeX command (with placeholders) into clean markup for a button face.
+function renderSymbolFace(latex) {
+  const preview = String(latex || "").replace(/#(\?|@|\d+)/g, "\\placeholder{}");
+  try {
+    const ML = window.MathLive || (window.MathfieldElement && window.MathfieldElement);
+    if (ML && typeof ML.convertLatexToMarkup === "function") {
+      const markup = ML.convertLatexToMarkup(preview);
+      if (markup) return markup;
+    }
+  } catch (e) {}
+  // Fallback: show the raw command text.
+  const span = document.createElement("span");
+  span.textContent = latex;
+  return span.outerHTML;
+}
+
 /* ── Populate palette & tabs ── */
 const categoryTabs = document.getElementById("category-tabs");
 
 function renderPalette(categoryName) {
   palette.innerHTML = "";
-  const items = PALETTE_DATA[categoryName] || [];
+  const isCustom = customTabs.some(t => t.id === categoryName);
+  const items = getCategoryItems(categoryName);
   for (const item of items) {
     const btn = document.createElement("button");
     btn.className = "pal-btn";
-    btn.innerHTML = item.label;
+    btn.innerHTML = isCustom ? renderSymbolFace(item.latex) : item.label;
     btn.title = item.latex;
     btn.addEventListener("mousedown", e => e.preventDefault()); // don't steal focus
     btn.addEventListener("click", e => {
@@ -266,21 +311,219 @@ function renderPalette(categoryName) {
 
 let activeCategory = Object.keys(PALETTE_DATA)[0];
 
-for (const cat of Object.keys(PALETTE_DATA)) {
-  const tab = document.createElement("button");
-  tab.className = "cat-tab" + (cat === activeCategory ? " active" : "");
-  tab.textContent = cat;
-  tab.addEventListener("mousedown", e => e.preventDefault()); // don't steal focus
-  tab.addEventListener("click", () => {
-    document.querySelectorAll(".cat-tab").forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-    renderPalette(cat);
-  });
-  categoryTabs.appendChild(tab);
+// Build the category tab bar from built-in categories + user custom tabs, plus a "New Tab" chip.
+function renderTabs() {
+  categoryTabs.innerHTML = "";
+
+  const addTab = (label, key, opts = {}) => {
+    const tab = document.createElement("button");
+    tab.className = "cat-tab" + (key === activeCategory ? " active" : "");
+    if (opts.custom) tab.classList.add("custom-tab");
+    tab.dataset.key = key;
+    tab.addEventListener("mousedown", e => e.preventDefault()); // don't steal focus
+
+    const labelSpan = document.createElement("span");
+    labelSpan.className = "cat-tab-label";
+    labelSpan.textContent = label;
+    tab.appendChild(labelSpan);
+
+    if (opts.custom) {
+      const edit = document.createElement("span");
+      edit.className = "cat-tab-edit";
+      edit.title = "Edit tab";
+      edit.textContent = "✎";
+      edit.addEventListener("mousedown", e => e.preventDefault());
+      edit.addEventListener("click", e => {
+        e.preventDefault();
+        e.stopPropagation();
+        openTabEditor(key);
+      });
+      tab.appendChild(edit);
+    }
+
+    tab.addEventListener("click", () => {
+      activeCategory = key;
+      document.querySelectorAll(".cat-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      renderPalette(key);
+    });
+    categoryTabs.appendChild(tab);
+  };
+
+  for (const cat of Object.keys(PALETTE_DATA)) addTab(cat, cat);
+  for (const t of customTabs) addTab(t.name, t.id, { custom: true });
+
+  // "New Tab" chip (premium)
+  const newChip = document.createElement("button");
+  newChip.className = "cat-tab new-tab-chip";
+  newChip.title = "Create a custom tab";
+  newChip.innerHTML = '<span class="cat-tab-label">+ New Tab</span><span class="pro-badge">PRO</span>';
+  newChip.addEventListener("mousedown", e => e.preventDefault());
+  newChip.addEventListener("click", () => openTabEditor(null));
+  categoryTabs.appendChild(newChip);
 }
+
+renderTabs();
 
 // Initial render
 renderPalette(activeCategory);
+
+/* ── Custom-tab editor modal ── */
+let editingTabId = null;          // null while creating a new tab
+let workingSymbols = [];          // [{ latex }] being assembled in the modal
+let tabMf = null;
+let tabMfConfigured = false;
+
+const tabOverlay     = document.getElementById("tab-overlay");
+const tabNameInput   = document.getElementById("tab-name-input");
+const tabSymbolList  = document.getElementById("tab-symbol-list");
+const tabEditorTitle = document.getElementById("tab-editor-title");
+const tabDeleteBtn   = document.getElementById("tab-delete-btn");
+const tabError       = document.getElementById("tab-error");
+
+function configureTabMf() {
+  tabMf = document.getElementById("tab-mf");
+  if (!tabMf || tabMfConfigured) return;
+  try {
+    tabMf.mathVirtualKeyboardPolicy = "manual";
+    tabMf.setAttribute("math-virtual-keyboard-policy", "manual");
+    if (tabMf.setOptions) tabMf.setOptions({ inlineShortcuts: defaultShortcuts || {}, mathModeSpace: "\\:" });
+    else { tabMf.inlineShortcuts = defaultShortcuts || {}; tabMf.mathModeSpace = "\\:"; }
+  } catch (e) {}
+
+  // Enter in the mini field commits a suggestion (handled globally) or adds the symbol.
+  tabMf.addEventListener("keydown", e => {
+    if (e.key !== "Enter" || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    const popover = document.getElementById("mathlive-suggestion-popover");
+    if (popover && popover.classList.contains("is-visible")) return; // let the global handler commit it
+    e.preventDefault();
+    e.stopPropagation();
+    addWorkingSymbol();
+  });
+  tabMfConfigured = true;
+}
+
+function renderWorkingSymbols() {
+  tabSymbolList.innerHTML = "";
+  if (!workingSymbols.length) {
+    const empty = document.createElement("div");
+    empty.className = "tab-symbol-empty";
+    empty.textContent = "No symbols yet — type a command above and press Add.";
+    tabSymbolList.appendChild(empty);
+    return;
+  }
+  workingSymbols.forEach((sym, idx) => {
+    const chip = document.createElement("div");
+    chip.className = "tab-symbol-chip";
+    chip.title = sym.latex;
+
+    const face = document.createElement("span");
+    face.className = "tab-symbol-face";
+    face.innerHTML = renderSymbolFace(sym.latex);
+    chip.appendChild(face);
+
+    const rm = document.createElement("button");
+    rm.className = "tab-symbol-remove";
+    rm.title = "Remove";
+    rm.textContent = "×";
+    rm.addEventListener("mousedown", e => e.preventDefault());
+    rm.addEventListener("click", e => {
+      e.preventDefault();
+      e.stopPropagation();
+      workingSymbols.splice(idx, 1);
+      renderWorkingSymbols();
+    });
+    chip.appendChild(rm);
+
+    tabSymbolList.appendChild(chip);
+  });
+}
+
+function addWorkingSymbol() {
+  if (!tabMf) return;
+  // If an autocomplete suggestion is open, commit it first so the typed command is captured.
+  const popover = document.getElementById("mathlive-suggestion-popover");
+  if (popover && popover.classList.contains("is-visible")) {
+    const cur = popover.querySelector(".ML__popover__current");
+    if (cur) cur.click();
+  }
+  const latex = (tabMf.value || "").trim();
+  if (!latex) { if (tabError) tabError.textContent = "Type a \\command, then Add."; return; }
+  workingSymbols.push({ latex });
+  tabMf.value = "";
+  if (tabError) tabError.textContent = "";
+  renderWorkingSymbols();
+  window.focus();
+  try { tabMf.focus(); } catch (e) {}
+}
+
+function openTabEditor(id) {
+  if (!hasPremium()) return; // future paywall gate
+  configureTabMf();
+  editingTabId = id;
+  if (tabError) tabError.textContent = "";
+
+  if (id) {
+    const tab = customTabs.find(t => t.id === id);
+    tabNameInput.value = tab ? tab.name : "";
+    workingSymbols = tab ? tab.symbols.map(s => ({ latex: s.latex })) : [];
+    tabEditorTitle.textContent = "Edit Tab";
+    tabDeleteBtn.style.display = "";
+  } else {
+    tabNameInput.value = "";
+    workingSymbols = [];
+    tabEditorTitle.textContent = "New Custom Tab";
+    tabDeleteBtn.style.display = "none";
+  }
+
+  if (tabMf) tabMf.value = "";
+  renderWorkingSymbols();
+  tabOverlay.classList.add("visible");
+  setTimeout(() => { try { tabNameInput.focus(); } catch (e) {} }, 50);
+}
+
+function closeTabEditor() {
+  tabOverlay.classList.remove("visible");
+}
+
+function saveTab() {
+  const name = (tabNameInput.value || "").trim();
+  if (!name) { if (tabError) tabError.textContent = "Please name your tab."; return; }
+  if (!workingSymbols.length) { if (tabError) tabError.textContent = "Add at least one symbol."; return; }
+
+  let id = editingTabId;
+  if (id) {
+    const tab = customTabs.find(t => t.id === id);
+    if (tab) { tab.name = name; tab.symbols = workingSymbols.map(s => ({ latex: s.latex })); }
+  } else {
+    id = "t_" + Date.now();
+    customTabs.push({ id, name, symbols: workingSymbols.map(s => ({ latex: s.latex })) });
+  }
+  saveCustomTabs();
+  activeCategory = id;
+  renderTabs();
+  renderPalette(id);
+  closeTabEditor();
+}
+
+function deleteTab() {
+  if (!editingTabId) { closeTabEditor(); return; }
+  customTabs = customTabs.filter(t => t.id !== editingTabId);
+  saveCustomTabs();
+  if (activeCategory === editingTabId) activeCategory = Object.keys(PALETTE_DATA)[0];
+  renderTabs();
+  renderPalette(activeCategory);
+  closeTabEditor();
+}
+
+document.getElementById("tab-add-btn").addEventListener("mousedown", e => e.preventDefault());
+document.getElementById("tab-add-btn").addEventListener("click", e => { e.preventDefault(); addWorkingSymbol(); });
+document.getElementById("tab-save-btn").addEventListener("mousedown", e => e.preventDefault());
+document.getElementById("tab-save-btn").addEventListener("click", e => { e.preventDefault(); saveTab(); });
+tabDeleteBtn.addEventListener("mousedown", e => e.preventDefault());
+tabDeleteBtn.addEventListener("click", e => { e.preventDefault(); deleteTab(); });
+document.getElementById("close-tab-editor-btn").addEventListener("click", closeTabEditor);
+tabNameInput.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); if (tabMf) tabMf.focus(); } });
 
 /* ── Mode toggle ── */
 const modeSwitch = document.getElementById("mode-switch");
@@ -435,6 +678,11 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
     e.preventDefault();
     e.stopPropagation();
+    // Close an open modal first; only close the whole editor if none are open.
+    const tabOv = document.getElementById("tab-overlay");
+    const setOv = document.getElementById("settings-overlay");
+    if (tabOv && tabOv.classList.contains("visible")) { tabOv.classList.remove("visible"); return; }
+    if (setOv && setOv.classList.contains("visible")) { setOv.classList.remove("visible"); return; }
     window.parent.postMessage({ mathpaster: "close" }, "*");
     return;
   }
@@ -632,8 +880,9 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("mousedown", e => {
   if (
-    !e.target.closest("#editor-window") && 
-    !e.target.closest("#settings-panel") && 
+    !e.target.closest("#editor-window") &&
+    !e.target.closest("#settings-panel") &&
+    !e.target.closest("#tab-overlay") &&
     !e.target.closest("#matrix-selector") &&
     !e.target.closest("#keyboard-window") &&
     !e.target.closest("mathlive-virtual-keyboard") &&
@@ -642,6 +891,11 @@ document.addEventListener("mousedown", e => {
   ) {
     window.parent.postMessage({ mathpaster: "close" }, "*");
   }
+});
+
+// Click on the modal backdrop (outside the panel) closes just the modal.
+tabOverlay.addEventListener("mousedown", e => {
+  if (e.target === tabOverlay) closeTabEditor();
 });
 
 buildMatrixSelectorUI();
