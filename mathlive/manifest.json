@@ -32,7 +32,8 @@
     {
       "resources": [
         "editor.html",
-        "editor.js",
+        "editor.css",
+        "src/*",
         "lib/*",
         "lib/fonts/*"
       ],
