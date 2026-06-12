@@ -842,6 +842,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-shrink: 0;
     }
 
     .settings-header h2 {
@@ -857,6 +858,17 @@
       display: flex;
       flex-direction: column;
       gap: 16px;
+      /* flex:1 + min-height:0 lets this region actually shrink and scroll within
+         the capped-height panel instead of overflowing/clipping the bottom. */
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    /* Keep each settings group at its natural height so the body overflows and
+       scrolls — otherwise flex shrinks the open <details> (overflow:hidden) and
+       clips its content (e.g. the bottom theme swatches). */
+    .settings-body > * {
+      flex-shrink: 0;
     }
 
     .settings-body::-webkit-scrollbar {
