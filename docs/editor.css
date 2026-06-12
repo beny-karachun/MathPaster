@@ -31,6 +31,89 @@
       padding-bottom: 0;
     }
 
+    /* ─────────────────────────────────────────────────────────────
+       LIGHT MODE — shared by every `mode:'light'` theme preset.
+       `body.theme-light <sel>` out-specifies the dark rules below, and
+       accent colours (from #dynamic-theme, often !important) stay vivid.
+       The editor-window background is already light (preset bg HSL).
+       ───────────────────────────────────────────────────────────── */
+    body.theme-light {
+      color-scheme: light;
+      color: #353c4a;
+    }
+
+    /* Strong text (titles, math, inputs, headings) */
+    body.theme-light #title,
+    body.theme-light math-field,
+    body.theme-light #mf,
+    body.theme-light #latex-code,
+    body.theme-light .settings-header h2,
+    body.theme-light #tab-editor-title,
+    body.theme-light .settings-body summary,
+    body.theme-light .setting-group label,
+    body.theme-light .tab-text-input,
+    body.theme-light #tab-mf,
+    body.theme-light .tab-symbol-chip,
+    body.theme-light .swatch-name { color: #1f2533 !important; }
+
+    /* Secondary text (buttons, tabs, hints) */
+    body.theme-light .header-btn,
+    body.theme-light .rate-btn,
+    body.theme-light .cat-tab:not(.active),
+    body.theme-light .hint,
+    body.theme-light .mode-label { color: #5a6373; }
+
+    /* Subtle raised surfaces + borders (were white-on-dark overlays) */
+    body.theme-light #mf-wrap,
+    body.theme-light .pal-btn,
+    body.theme-light .cat-tab:not(.active),
+    body.theme-light .header-btn,
+    body.theme-light .rate-btn,
+    body.theme-light .tab-text-input,
+    body.theme-light #tab-mf,
+    body.theme-light .tab-symbol-chip,
+    body.theme-light .theme-swatch,
+    body.theme-light .settings-body details,
+    body.theme-light kbd,
+    body.theme-light .hint kbd {
+      background: rgba(0, 0, 0, 0.04);
+      border-color: rgba(0, 0, 0, 0.12);
+    }
+    body.theme-light .pal-btn:hover,
+    body.theme-light .cat-tab:not(.active):hover,
+    body.theme-light .theme-swatch:hover {
+      background: rgba(0, 0, 0, 0.07);
+      border-color: rgba(0, 0, 0, 0.2);
+    }
+
+    /* Insets (latex bar, symbol tray) */
+    body.theme-light #latex-preview,
+    body.theme-light .tab-symbol-list { background: rgba(0, 0, 0, 0.035); }
+
+    /* Glass panels → light glass */
+    body.theme-light #settings-panel,
+    body.theme-light #tab-panel,
+    body.theme-light #keyboard-window {
+      background: rgba(255, 255, 255, 0.86);
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    /* Dividers */
+    body.theme-light #header,
+    body.theme-light .settings-header,
+    body.theme-light #footer,
+    body.theme-light .settings-body details[open] summary { border-color: rgba(0, 0, 0, 0.08); }
+
+    /* Unchecked toggle track */
+    body.theme-light .switch .slider {
+      background-color: rgba(0, 0, 0, 0.1);
+      border-color: rgba(0, 0, 0, 0.15);
+    }
+
+    /* Scrollbars */
+    body.theme-light ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); }
+    body.theme-light ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.32); }
+
     /* ── Panel ── */
     #editor-window {
       pointer-events: auto;
@@ -888,6 +971,71 @@
 
     .setting-group input[type="range"]::-webkit-slider-thumb:hover {
       transform: scale(1.2);
+    }
+
+    /* ── Theme preset picker ── */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
+      gap: 10px;
+    }
+
+    .theme-swatch {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+      padding: 6px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.02);
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    }
+
+    .theme-swatch:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .theme-swatch.selected {
+      border-color: hsl(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%));
+      box-shadow: 0 0 0 1px hsl(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%)),
+        0 4px 14px hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.3);
+    }
+
+    .swatch-preview {
+      position: relative;
+      height: 38px;
+      border-radius: 7px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      overflow: hidden;
+      display: block;
+    }
+
+    .swatch-dot {
+      position: absolute;
+      left: 8px;
+      bottom: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .swatch-name {
+      font-size: 11px;
+      font-weight: 600;
+      color: #cbd5e1;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .theme-swatch.selected .swatch-name {
+      color: hsl(var(--primary-hue, 250), var(--primary-sat, 80%), calc(var(--primary-light, 65%) + 18%));
     }
 
     /* ── Custom Tab Editor Modal ── */

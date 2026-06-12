@@ -1,6 +1,29 @@
 import { state } from './state.js';
 import { editorWindow } from './dom.js';
 
+/* ── Theme presets (curated; replaces raw HSL customization) ── */
+// 10 hand-tuned themes (6 dark + 4 light). Each drives the accent (primary) and the
+// editor-window background (bg); `mode:'light'` additionally toggles body.theme-light.
+const THEME_PRESETS = [
+  // Dark
+  { id: 'indigo-night',   name: 'Indigo Night', mode: 'dark',  primary: { h: 250, s: 80, l: 65 }, bg: { h: 236, s: 30, l: 12 } },
+  { id: 'anthropic',      name: 'Anthropic',    mode: 'dark',  primary: { h: 16,  s: 60, l: 60 }, bg: { h: 25,  s: 12, l: 11 } },
+  { id: 'emerald',        name: 'Emerald',      mode: 'dark',  primary: { h: 158, s: 64, l: 46 }, bg: { h: 200, s: 18, l: 10 } },
+  { id: 'crimson',        name: 'Crimson',      mode: 'dark',  primary: { h: 350, s: 72, l: 60 }, bg: { h: 345, s: 18, l: 10 } },
+  { id: 'amber',          name: 'Amber',        mode: 'dark',  primary: { h: 38,  s: 92, l: 58 }, bg: { h: 30,  s: 14, l: 10 } },
+  { id: 'teal',           name: 'Teal',         mode: 'dark',  primary: { h: 187, s: 72, l: 50 }, bg: { h: 200, s: 28, l: 10 } },
+  // Light
+  { id: 'anthropic-light',name: 'Anthropic Light', mode: 'light', primary: { h: 16,  s: 55, l: 50 }, bg: { h: 40,  s: 30, l: 96 } },
+  { id: 'daylight',       name: 'Daylight',     mode: 'light', primary: { h: 245, s: 68, l: 58 }, bg: { h: 230, s: 30, l: 97 } },
+  { id: 'mint',           name: 'Mint',         mode: 'light', primary: { h: 160, s: 55, l: 40 }, bg: { h: 150, s: 25, l: 97 } },
+  { id: 'sandstone',      name: 'Sandstone',    mode: 'light', primary: { h: 28,  s: 52, l: 48 }, bg: { h: 36,  s: 30, l: 95 } },
+];
+const DEFAULT_PRESET = 'indigo-night';
+
+function resolvePreset(id) {
+  return THEME_PRESETS.find(p => p.id === id) || THEME_PRESETS[0];
+}
+
 /* ── Settings Logic ── */
 const defaultSettings = {
   popupWidth: 760,
@@ -18,12 +41,7 @@ const defaultSettings = {
   actionBtnPaddingY: 12,
   actionBtnFontSize: 16,
   actionBtnRoundness: 14,
-  primaryHue: 250,
-  primarySat: 80,
-  primaryLight: 65,
-  bgHue: 236,
-  bgSat: 30,
-  bgLight: 12,
+  themePreset: DEFAULT_PRESET,
   showLatexBar: false,
   blurBackground: false
 };
@@ -31,6 +49,13 @@ const defaultSettings = {
 state.currentSettings = { ...defaultSettings };
 
 export function applySettings(settings) {
+  // Resolve the chosen preset into accent (primary*) + background (bg*) HSL,
+  // and switch the whole UI to light mode when the preset calls for it.
+  const preset = resolvePreset(settings.themePreset);
+  const primaryHue = preset.primary.h, primarySat = preset.primary.s, primaryLight = preset.primary.l;
+  const bgHue = preset.bg.h, bgSat = preset.bg.s, bgLight = preset.bg.l;
+  document.body.classList.toggle('theme-light', preset.mode === 'light');
+
   let scaleFactor = Math.min((window.innerWidth * 0.94) / settings.popupWidth, (window.innerHeight * 0.90) / settings.popupHeight);
   
   if (window.innerWidth <= 600 && window.frameElement) {
@@ -48,17 +73,17 @@ export function applySettings(settings) {
   
   styleEl.innerHTML = `
     :root {
-      --primary-hue: ${settings.primaryHue};
-      --primary-sat: ${settings.primarySat}%;
-      --primary-light: ${settings.primaryLight}%;
+      --primary-hue: ${primaryHue};
+      --primary-sat: ${primarySat}%;
+      --primary-light: ${primaryLight}%;
     }
     #editor-window {
       width: ${settings.popupWidth}px !important;
       height: ${settings.popupHeight}px !important;
       background: linear-gradient(145deg, 
-        hsl(${settings.bgHue}, ${settings.bgSat}%, ${settings.bgLight + 6}%) 0%, 
-        hsl(${settings.bgHue}, ${settings.bgSat}%, ${settings.bgLight}%) 50%, 
-        hsl(${settings.bgHue}, ${settings.bgSat}%, ${Math.max(0, settings.bgLight - 5)}%) 100%) !important;
+        hsl(${bgHue}, ${bgSat}%, ${bgLight + 6}%) 0%, 
+        hsl(${bgHue}, ${bgSat}%, ${bgLight}%) 50%, 
+        hsl(${bgHue}, ${bgSat}%, ${Math.max(0, bgLight - 5)}%) 100%) !important;
     }
     #latex-preview { display: ${settings.showLatexBar ? 'flex' : 'none'} !important; }
     #body { gap: ${settings.gapSize}px !important; }
@@ -116,66 +141,66 @@ export function applySettings(settings) {
     }
 
     .cat-tab.active {
-      background: linear-gradient(135deg, hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.8) 0%, hsla(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 10)}%, 0.8) 100%) !important;
-      border-color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight + 10}%) !important;
-      box-shadow: 0 0 24px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 5)}%, 0.5), inset 0 2px 4px rgba(255,255,255,0.3) !important;
+      background: linear-gradient(135deg, hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.8) 0%, hsla(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 10)}%, 0.8) 100%) !important;
+      border-color: hsl(${primaryHue}, ${primarySat}%, ${primaryLight + 10}%) !important;
+      box-shadow: 0 0 24px hsla(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 5)}%, 0.5), inset 0 2px 4px rgba(255,255,255,0.3) !important;
     }
     
     .btn.primary {
-      background: linear-gradient(135deg, hsl(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 10)}%) 0%, hsl(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 20)}%) 100%) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 10)}%, 0.5) !important;
+      background: linear-gradient(135deg, hsl(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 10)}%) 0%, hsl(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 20)}%) 100%) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px hsla(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 10)}%, 0.5) !important;
     }
     .btn.primary:hover {
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 20px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 10)}%, 0.6) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 20px hsla(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 10)}%, 0.6) !important;
     }
     
     .btn.secondary {
-      color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${Math.min(100, settings.primaryLight + 20)}%) !important;
-      background: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.1) !important;
-      border-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.3) !important;
+      color: hsl(${primaryHue}, ${primarySat}%, ${Math.min(100, primaryLight + 20)}%) !important;
+      background: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.1) !important;
+      border-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.3) !important;
     }
     
     .icon {
-      background: linear-gradient(135deg, hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.15) 0%, hsla(${settings.primaryHue}, ${settings.primarySat}%, ${Math.max(0, settings.primaryLight - 10)}%, 0.15) 100%) !important;
-      border-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.3) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.2) !important;
+      background: linear-gradient(135deg, hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.15) 0%, hsla(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 10)}%, 0.15) 100%) !important;
+      border-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.3) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.2) !important;
     }
     
     #latex-preview {
-      border-left-color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%) !important;
+      border-left-color: hsl(${primaryHue}, ${primarySat}%, ${primaryLight}%) !important;
     }
     
     .matrix-selector-btn {
-      background: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.1) !important;
-      border-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.3) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.2) !important;
+      background: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.1) !important;
+      border-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.3) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.2) !important;
     }
-    .icon svg { stroke: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${Math.min(100, settings.primaryLight + 15)}%) !important; }
+    .icon svg { stroke: hsl(${primaryHue}, ${primarySat}%, ${Math.min(100, primaryLight + 15)}%) !important; }
     
     #mf-wrap:focus-within {
-      border-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.5) !important;
-      box-shadow: 0 0 0 3px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.12), 0 4px 16px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.08) !important;
+      border-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.5) !important;
+      box-shadow: 0 0 0 3px hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.12), 0 4px 16px hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.08) !important;
     }
     .matrix-cell.highlight {
-      background: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.6) !important;
-      border-color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%) !important;
+      background: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.6) !important;
+      border-color: hsl(${primaryHue}, ${primarySat}%, ${primaryLight}%) !important;
     }
     .switch input:checked + .slider {
-      background-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.2) !important;
-      border-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.4) !important;
+      background-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.2) !important;
+      border-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.4) !important;
     }
     .switch input:checked + .slider:before {
-      background-color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%) !important;
+      background-color: hsl(${primaryHue}, ${primarySat}%, ${primaryLight}%) !important;
     }
     .mode-label.active {
-      color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${Math.min(100, settings.primaryLight + 20)}%) !important;
-      text-shadow: 0 0 8px hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.3) !important;
+      color: hsl(${primaryHue}, ${primarySat}%, ${Math.min(100, primaryLight + 20)}%) !important;
+      text-shadow: 0 0 8px hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.3) !important;
     }
     math-field, #mf {
-      --caret-color: hsl(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%) !important;
-      --selection-background-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.3) !important;
-      --contains-highlight-background-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.12) !important;
-      --smart-fence-color: hsla(${settings.primaryHue}, ${settings.primarySat}%, ${settings.primaryLight}%, 0.5) !important;
+      --caret-color: hsl(${primaryHue}, ${primarySat}%, ${primaryLight}%) !important;
+      --selection-background-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.3) !important;
+      --contains-highlight-background-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.12) !important;
+      --smart-fence-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.5) !important;
     }
   `;
   
@@ -205,7 +230,39 @@ export function loadSettings() {
 
 export const settingsKeys = Object.keys(defaultSettings);
 
+/* ── Theme preset picker ── */
+const themePresetsEl = document.getElementById('theme-presets');
+
+function renderThemePresets() {
+  if (!themePresetsEl) return;
+  themePresetsEl.innerHTML = "";
+  for (const p of THEME_PRESETS) {
+    const btn = document.createElement('button');
+    btn.className = 'theme-swatch' + (p.id === state.currentSettings.themePreset ? ' selected' : '');
+    btn.dataset.preset = p.id;
+    btn.title = p.name;
+    const bg = `hsl(${p.bg.h}, ${p.bg.s}%, ${p.bg.l}%)`;
+    const bgEdge = `hsl(${p.bg.h}, ${p.bg.s}%, ${Math.max(0, p.bg.l - 5)}%)`;
+    const accent = `hsl(${p.primary.h}, ${p.primary.s}%, ${p.primary.l}%)`;
+    btn.innerHTML =
+      `<span class="swatch-preview" style="background:linear-gradient(145deg, ${bg}, ${bgEdge})">` +
+        `<span class="swatch-dot" style="background:${accent}"></span>` +
+      `</span>` +
+      `<span class="swatch-name">${p.name}</span>`;
+    btn.addEventListener('mousedown', e => e.preventDefault()); // don't steal focus
+    btn.addEventListener('click', () => {
+      state.currentSettings.themePreset = p.id;
+      applySettings(state.currentSettings);
+      themePresetsEl.querySelectorAll('.theme-swatch').forEach(s =>
+        s.classList.toggle('selected', s.dataset.preset === p.id));
+    });
+    themePresetsEl.appendChild(btn);
+  }
+}
+renderThemePresets();
+
 document.getElementById('settings-btn').addEventListener('click', () => {
+  renderThemePresets();
   settingsKeys.forEach(k => {
     const input = document.getElementById('set-' + k);
     const valDisp = document.getElementById('val-' + k);
@@ -283,6 +340,7 @@ document.getElementById('reset-settings-btn').addEventListener('click', () => {
       }
     }
   });
+  renderThemePresets();
   applySettings(state.currentSettings);
 });
 

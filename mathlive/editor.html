@@ -126,7 +126,7 @@
         <button class="header-btn" id="close-settings-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
       </div>
       <div class="settings-body">
-        <details name="settings-group" open>
+        <details name="settings-group">
           <summary>General & Window</summary>
           <div class="details-content">
             <div class="setting-group">
@@ -210,32 +210,12 @@
           </div>
         </details>
 
-        <details name="settings-group">
-          <summary>Theme Colors</summary>
+        <details name="settings-group" open>
+          <summary>Theme</summary>
           <div class="details-content">
             <div class="setting-group">
-              <label>Theme Accent Hue <span id="val-primaryHue"></span></label>
-              <input type="range" id="set-primaryHue" min="0" max="360" step="5">
-            </div>
-            <div class="setting-group">
-              <label>Theme Accent Saturation (%) <span id="val-primarySat"></span></label>
-              <input type="range" id="set-primarySat" min="0" max="100" step="5">
-            </div>
-            <div class="setting-group">
-              <label>Theme Accent Lightness (%) <span id="val-primaryLight"></span></label>
-              <input type="range" id="set-primaryLight" min="0" max="100" step="5">
-            </div>
-            <div class="setting-group">
-              <label>Background Hue <span id="val-bgHue"></span></label>
-              <input type="range" id="set-bgHue" min="0" max="360" step="5">
-            </div>
-            <div class="setting-group">
-              <label>Background Saturation (%) <span id="val-bgSat"></span></label>
-              <input type="range" id="set-bgSat" min="0" max="100" step="5">
-            </div>
-            <div class="setting-group">
-              <label>Background Lightness (%) <span id="val-bgLight"></span></label>
-              <input type="range" id="set-bgLight" min="0" max="100" step="2">
+              <label>Color theme</label>
+              <div id="theme-presets" class="preset-grid"></div>
             </div>
           </div>
         </details>
