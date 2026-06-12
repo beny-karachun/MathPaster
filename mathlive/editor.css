@@ -378,6 +378,10 @@
     .cat-tab.active .cat-tab-edit { opacity: 0.65; }
     .cat-tab .cat-tab-edit:hover { opacity: 1; }
 
+    /* Drag-to-reorder */
+    .cat-tab[draggable="true"] { cursor: grab; }
+    .cat-tab.dragging { opacity: 0.45; cursor: grabbing; }
+
     .new-tab-chip {
       border-style: dashed;
       border-color: hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.5);
@@ -1132,6 +1136,12 @@
       --keycap-shift-font-size: calc(var(--kbd-keycap-height, 34px) * 0.324) !important;
       --keycap-glyph-size: calc(var(--kbd-keycap-height, 34px) * 0.412) !important;
       --keyboard-background: #16172b !important;
+    }
+
+    /* Autocomplete suggestion list must float above the custom-tab modal (z-index 100000) */
+    #mathlive-suggestion-popover,
+    .ML__popover {
+      z-index: 2147483000 !important;
     }
 
     #mathlive-suggestion-popover,

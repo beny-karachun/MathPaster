@@ -78,49 +78,124 @@ export function renderPalette(categoryName) {
 
 state.activeCategory = Object.keys(PALETTE_DATA)[0];
 
-// Build the category tab bar from built-in categories + user custom tabs, plus a "New Tab" chip.
+/* ── Tab ordering (drag-to-reorder, persisted) ── */
+const TAB_ORDER_KEY = "mathpaster_tab_order";
+
+function loadTabOrder() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(TAB_ORDER_KEY));
+    if (Array.isArray(saved)) return saved;
+  } catch (e) {}
+  return [];
+}
+
+function saveTabOrder(order) {
+  try { localStorage.setItem(TAB_ORDER_KEY, JSON.stringify(order)); } catch (e) {}
+}
+
+// Built-in category names followed by custom tab ids, in their natural order.
+function allTabKeys() {
+  return [...Object.keys(PALETTE_DATA), ...state.customTabs.map(t => t.id)];
+}
+
+// The saved order, with stale keys dropped and any newly-added keys appended.
+function getOrderedKeys() {
+  const all = allTabKeys();
+  const order = loadTabOrder().filter(k => all.includes(k));
+  for (const k of all) if (!order.includes(k)) order.push(k);
+  return order;
+}
+
+function labelForKey(key) {
+  const custom = state.customTabs.find(t => t.id === key);
+  return custom ? custom.name : key;
+}
+
+/* ── Drag-to-reorder ── */
+let draggedTab = null;
+
+function getDragAfterElement(x) {
+  const els = [...categoryTabs.querySelectorAll('.cat-tab[draggable="true"]:not(.dragging)')];
+  let closest = { offset: -Infinity, element: null };
+  for (const el of els) {
+    const box = el.getBoundingClientRect();
+    const offset = x - box.left - box.width / 2;
+    if (offset < 0 && offset > closest.offset) closest = { offset, element: el };
+  }
+  return closest.element;
+}
+
+categoryTabs.addEventListener("dragover", e => {
+  if (!draggedTab) return;
+  e.preventDefault();
+  const after = getDragAfterElement(e.clientX);
+  if (after == null) categoryTabs.appendChild(draggedTab);
+  else categoryTabs.insertBefore(draggedTab, after);
+});
+categoryTabs.addEventListener("drop", e => { if (draggedTab) e.preventDefault(); });
+
+function persistOrderFromDOM() {
+  const order = [...categoryTabs.querySelectorAll('.cat-tab[data-key]')].map(t => t.dataset.key);
+  saveTabOrder(order);
+}
+
+function addTab(label, key, opts = {}) {
+  const tab = document.createElement("button");
+  tab.className = "cat-tab" + (key === state.activeCategory ? " active" : "");
+  if (opts.custom) tab.classList.add("custom-tab");
+  tab.dataset.key = key;
+  tab.draggable = true;
+
+  const labelSpan = document.createElement("span");
+  labelSpan.className = "cat-tab-label";
+  labelSpan.textContent = label;
+  tab.appendChild(labelSpan);
+
+  if (opts.custom) {
+    const edit = document.createElement("span");
+    edit.className = "cat-tab-edit";
+    edit.title = "Edit tab";
+    edit.textContent = "✎";
+    edit.addEventListener("mousedown", e => e.preventDefault());
+    edit.addEventListener("click", e => {
+      e.preventDefault();
+      e.stopPropagation();
+      openTabEditor(key);
+    });
+    tab.appendChild(edit);
+  }
+
+  tab.addEventListener("dragstart", e => {
+    draggedTab = tab;
+    tab.classList.add("dragging");
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = "move";
+      try { e.dataTransfer.setData("text/plain", key); } catch (_) {}
+    }
+  });
+  tab.addEventListener("dragend", () => {
+    tab.classList.remove("dragging");
+    draggedTab = null;
+    persistOrderFromDOM();
+  });
+
+  tab.addEventListener("click", () => {
+    state.activeCategory = key;
+    document.querySelectorAll(".cat-tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    renderPalette(key);
+    // Tabs are draggable (no mousedown-preventDefault), so keep the math field focused.
+    if (state.mfReady) { window.focus(); mf.focus(); }
+  });
+
+  categoryTabs.appendChild(tab);
+}
+
+// Build the category tab bar: a leftmost "New Tab" chip, then the (reorderable) tabs.
 export function renderTabs() {
   categoryTabs.innerHTML = "";
 
-  const addTab = (label, key, opts = {}) => {
-    const tab = document.createElement("button");
-    tab.className = "cat-tab" + (key === state.activeCategory ? " active" : "");
-    if (opts.custom) tab.classList.add("custom-tab");
-    tab.dataset.key = key;
-    tab.addEventListener("mousedown", e => e.preventDefault()); // don't steal focus
-
-    const labelSpan = document.createElement("span");
-    labelSpan.className = "cat-tab-label";
-    labelSpan.textContent = label;
-    tab.appendChild(labelSpan);
-
-    if (opts.custom) {
-      const edit = document.createElement("span");
-      edit.className = "cat-tab-edit";
-      edit.title = "Edit tab";
-      edit.textContent = "✎";
-      edit.addEventListener("mousedown", e => e.preventDefault());
-      edit.addEventListener("click", e => {
-        e.preventDefault();
-        e.stopPropagation();
-        openTabEditor(key);
-      });
-      tab.appendChild(edit);
-    }
-
-    tab.addEventListener("click", () => {
-      state.activeCategory = key;
-      document.querySelectorAll(".cat-tab").forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
-      renderPalette(key);
-    });
-    categoryTabs.appendChild(tab);
-  };
-
-  for (const cat of Object.keys(PALETTE_DATA)) addTab(cat, cat);
-  for (const t of state.customTabs) addTab(t.name, t.id, { custom: true });
-
-  // "New Tab" chip (premium)
+  // "New Tab" chip (premium) — leftmost, fixed (not reorderable).
   const newChip = document.createElement("button");
   newChip.className = "cat-tab new-tab-chip";
   newChip.title = "Create a custom tab";
@@ -128,4 +203,8 @@ export function renderTabs() {
   newChip.addEventListener("mousedown", e => e.preventDefault());
   newChip.addEventListener("click", () => openTabEditor(null));
   categoryTabs.appendChild(newChip);
+
+  for (const key of getOrderedKeys()) {
+    addTab(labelForKey(key), key, { custom: state.customTabs.some(t => t.id === key) });
+  }
 }
