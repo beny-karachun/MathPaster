@@ -8,6 +8,7 @@ import { initMathField } from './mathfield.js';
 import { renderTabs, renderPalette } from './palette.js';
 import { buildMatrixSelectorUI } from './matrix.js';
 import { loadSettings, loadPosition, clampPositionToBounds } from './settings.js';
+import { loadLicense } from './license.js';
 
 // Side-effect modules: register their DOM event listeners on import.
 import './tab-editor.js';
@@ -29,3 +30,6 @@ buildMatrixSelectorUI();
 loadSettings();
 loadPosition();
 clampPositionToBounds();
+
+// 5. Pro license (async; gates re-check on the license-changed event)
+loadLicense();

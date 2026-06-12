@@ -16,6 +16,9 @@ export const state = {
 
   currentSettings: null,
 
+  // Pro license cache ({key, instanceId, pro, lastValidated}) — set in license.js
+  license: null,
+
   // Editor-window position offsets (relative to centered default)
   currentX: 0,
   currentY: 0,

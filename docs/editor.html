@@ -220,7 +220,44 @@
           </div>
         </details>
 
+        <details name="settings-group" id="pro-settings-group">
+          <summary>MathPaster Pro</summary>
+          <div class="details-content">
+            <div class="setting-group">
+              <div id="license-status" class="license-status">Free plan</div>
+              <div class="license-row" id="license-input-row">
+                <input type="text" id="license-key-input" class="tab-text-input" placeholder="Paste your license key" autocomplete="off" spellcheck="false">
+                <button class="btn primary" id="license-activate-btn">Activate</button>
+              </div>
+              <div id="license-msg" class="tab-error license-msg"></div>
+              <a id="license-buy-link" class="license-buy-link" href="#" target="_blank" rel="noopener">Get MathPaster Pro →</a>
+              <button class="btn secondary" id="license-deactivate-btn" style="display:none;">Deactivate on this device</button>
+            </div>
+          </div>
+        </details>
+
         <button class="btn secondary" id="reset-settings-btn" style="margin-top:10px;">Reset to Defaults</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pro-overlay">
+    <div id="pro-panel">
+      <div class="settings-header">
+        <h2>MathPaster <span class="pro-badge">PRO</span></h2>
+        <button class="header-btn" id="close-pro-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
+      </div>
+      <div class="settings-body">
+        <p id="pro-modal-feature" class="pro-feature-line"></p>
+        <ul class="pro-perks">
+          <li>Custom symbol tabs — build palettes from any <code>\</code> command</li>
+          <li>All 10 color themes, light &amp; dark</li>
+          <li>One-time purchase · lifetime updates</li>
+        </ul>
+        <div class="tab-editor-actions">
+          <button class="btn secondary" id="pro-have-key-btn">I have a license key</button>
+          <button class="btn primary" id="pro-buy-btn">Get Pro</button>
+        </div>
       </div>
     </div>
   </div>

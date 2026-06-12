@@ -1,6 +1,7 @@
 import { state } from './state.js';
 import { PALETTE_DATA } from './palette-data.js';
 import { hasPremium, renderSymbolFace, saveCustomTabs, renderTabs, renderPalette } from './palette.js';
+import { openUpgradeModal } from './license.js';
 
 /* ── Custom-tab editor modal ── */
 let editingTabId = null;          // null while creating a new tab
@@ -103,7 +104,7 @@ function addWorkingSymbol() {
 }
 
 export function openTabEditor(id) {
-  if (!hasPremium()) return; // future paywall gate
+  if (!hasPremium()) { openUpgradeModal("Editing custom tabs is part of MathPaster Pro."); return; }
   configureTabMf();
   editingTabId = id;
   if (tabError) tabError.textContent = "";

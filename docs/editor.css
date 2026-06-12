@@ -110,6 +110,7 @@
     /* Glass panels → light glass */
     body.theme-light #settings-panel,
     body.theme-light #tab-panel,
+    body.theme-light #pro-panel,
     body.theme-light #keyboard-window {
       background: rgba(255, 255, 255, 0.92) !important;
       border-color: rgba(15, 23, 42, 0.1) !important;
@@ -130,6 +131,15 @@
     body.theme-light .switch .slider:before {
       background-color: #ffffff !important;
       box-shadow: 0 1px 3px rgba(15, 23, 42, 0.3) !important;
+    }
+
+    /* Pro / licensing bits */
+    body.theme-light .license-status { color: #5b6678; }
+    body.theme-light .pro-feature-line { color: #3a4254; }
+    body.theme-light .pro-perks { color: #5b6678; }
+    body.theme-light .swatch-lock {
+      background: rgba(15, 23, 42, 0.55);
+      border-color: rgba(255, 255, 255, 0.3);
     }
 
     /* Inline code chips (e.g. the \frac / \alpha hints) */
@@ -1076,6 +1086,103 @@
 
     .theme-swatch.selected .swatch-name {
       color: hsl(var(--primary-hue, 250), var(--primary-sat, 80%), calc(var(--primary-light, 65%) + 18%));
+    }
+
+    .theme-swatch.locked { opacity: 0.75; }
+    .theme-swatch.locked:hover { opacity: 1; }
+    .swatch-lock {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 4px;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    /* ── MathPaster Pro (license + upgrade modal) ── */
+    .license-status {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 10px;
+    }
+    .license-status.pro {
+      color: hsl(var(--primary-hue, 250), var(--primary-sat, 80%), calc(var(--primary-light, 65%) + 15%));
+    }
+    .license-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+      margin-bottom: 8px;
+    }
+    .license-row .tab-text-input { flex: 1 1 auto; min-width: 0; }
+    .license-row .btn { flex-shrink: 0; }
+    .license-msg.ok { color: #34d399; }
+    .license-buy-link {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      margin-top: 2px;
+      color: hsl(var(--primary-hue, 250), var(--primary-sat, 80%), calc(var(--primary-light, 65%) + 15%));
+    }
+    .license-buy-link:hover { text-decoration: underline; }
+    #license-deactivate-btn { margin-top: 10px; }
+
+    #pro-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 100001;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    #pro-overlay.visible { opacity: 1; pointer-events: auto; }
+
+    #pro-panel {
+      background: rgba(17, 18, 39, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      width: 400px;
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      display: flex;
+      flex-direction: column;
+      transform: scale(0.96);
+      transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #pro-overlay.visible #pro-panel { transform: scale(1); }
+
+    .pro-feature-line {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      color: #cbd5e1;
+    }
+    .pro-perks {
+      margin: 0 0 16px 0;
+      padding: 0 0 0 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13px;
+      color: #94a3b8;
+    }
+    .pro-perks li::marker {
+      color: hsl(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%));
     }
 
     /* ── Custom Tab Editor Modal ── */

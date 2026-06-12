@@ -3,13 +3,14 @@ import { mf, palette } from './dom.js';
 import { PALETTE_DATA } from './palette-data.js';
 import { openTabEditor } from './tab-editor.js';
 import { showMatrixSelector } from './matrix.js';
+import { isPro, openUpgradeModal } from './license.js';
 
 /* ── Custom tabs (Premium) ── */
 const CUSTOM_TABS_KEY = "mathpaster_custom_tabs";
 
-// Single chokepoint for the premium gate. A real licensing check slots in here later.
-// TODO: wire to licensing — return the user's entitlement instead of always true.
-export function hasPremium() { return true; }
+// Single chokepoint for the premium gate (backed by the Lemon Squeezy license).
+// Tabs created before a license lapse stay usable; only creating/editing is gated.
+export function hasPremium() { return isPro(); }
 
 state.customTabs = loadCustomTabs();
 
@@ -201,7 +202,13 @@ export function renderTabs() {
   newChip.title = "Create a custom tab";
   newChip.innerHTML = '<span class="cat-tab-label">+ New Tab</span><span class="pro-badge">PRO</span>';
   newChip.addEventListener("mousedown", e => e.preventDefault());
-  newChip.addEventListener("click", () => openTabEditor(null));
+  newChip.addEventListener("click", () => {
+    if (!hasPremium()) {
+      openUpgradeModal("Custom tabs let you build your own symbol palettes with any \\command.");
+      return;
+    }
+    openTabEditor(null);
+  });
   categoryTabs.appendChild(newChip);
 
   for (const key of getOrderedKeys()) {

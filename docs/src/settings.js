@@ -1,5 +1,6 @@
 import { state } from './state.js';
 import { editorWindow } from './dom.js';
+import { isPro, openUpgradeModal } from './license.js';
 
 /* ── Theme presets (curated; replaces raw HSL customization) ── */
 // 10 hand-tuned themes (6 dark + 4 light). Each drives the accent (primary) and the
@@ -19,6 +20,8 @@ const THEME_PRESETS = [
   { id: 'sandstone',      name: 'Sandstone',    mode: 'light', primary: { h: 28,  s: 52, l: 48 }, bg: { h: 36,  s: 30, l: 95 } },
 ];
 const DEFAULT_PRESET = 'indigo-night';
+// One dark + one light theme stay free; the rest are part of Pro.
+const FREE_PRESETS = new Set(['indigo-night', 'daylight']);
 
 function resolvePreset(id) {
   return THEME_PRESETS.find(p => p.id === id) || THEME_PRESETS[0];
@@ -237,20 +240,28 @@ function renderThemePresets() {
   if (!themePresetsEl) return;
   themePresetsEl.innerHTML = "";
   for (const p of THEME_PRESETS) {
+    const locked = !FREE_PRESETS.has(p.id) && !isPro();
     const btn = document.createElement('button');
-    btn.className = 'theme-swatch' + (p.id === state.currentSettings.themePreset ? ' selected' : '');
+    btn.className = 'theme-swatch'
+      + (p.id === state.currentSettings.themePreset ? ' selected' : '')
+      + (locked ? ' locked' : '');
     btn.dataset.preset = p.id;
-    btn.title = p.name;
+    btn.title = p.name + (locked ? ' (Pro)' : '');
     const bg = `hsl(${p.bg.h}, ${p.bg.s}%, ${p.bg.l}%)`;
     const bgEdge = `hsl(${p.bg.h}, ${p.bg.s}%, ${Math.max(0, p.bg.l - 5)}%)`;
     const accent = `hsl(${p.primary.h}, ${p.primary.s}%, ${p.primary.l}%)`;
     btn.innerHTML =
       `<span class="swatch-preview" style="background:linear-gradient(145deg, ${bg}, ${bgEdge})">` +
         `<span class="swatch-dot" style="background:${accent}"></span>` +
+        (locked ? `<span class="swatch-lock">PRO</span>` : ``) +
       `</span>` +
       `<span class="swatch-name">${p.name}</span>`;
     btn.addEventListener('mousedown', e => e.preventDefault()); // don't steal focus
     btn.addEventListener('click', () => {
+      if (locked) {
+        openUpgradeModal(`The “${p.name}” theme is part of MathPaster Pro.`);
+        return;
+      }
       state.currentSettings.themePreset = p.id;
       applySettings(state.currentSettings);
       themePresetsEl.querySelectorAll('.theme-swatch').forEach(s =>
@@ -260,6 +271,8 @@ function renderThemePresets() {
   }
 }
 renderThemePresets();
+// Unlock/lock swatches live when a license is activated or removed.
+document.addEventListener('mathpaster:license-changed', renderThemePresets);
 
 document.getElementById('settings-btn').addEventListener('click', () => {
   renderThemePresets();
