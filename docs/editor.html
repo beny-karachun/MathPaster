@@ -334,8 +334,15 @@
       </div>
       <div class="settings-body">
         <div id="snippets-pro">
+          <div id="snippet-tabs" class="snippet-tabs"></div>
+          <div id="snippet-tab-form" class="tab-add-row" style="display:none;margin-bottom:12px;">
+            <input type="text" id="snippet-tab-name" class="tab-text-input" placeholder="Tab name" maxlength="24" autocomplete="off" spellcheck="false">
+            <button class="btn primary snip-tab-btn" id="snippet-tab-save">Add</button>
+            <button class="btn secondary snip-tab-btn" id="snippet-tab-delete" style="display:none;">Delete</button>
+            <button class="btn secondary snip-tab-btn" id="snippet-tab-cancel">Cancel</button>
+          </div>
           <div class="setting-group">
-            <label for="snippet-name-input">Save current expression</label>
+            <label id="snippet-save-label" for="snippet-name-input">Save current expression</label>
             <div class="tab-add-row">
               <input type="text" id="snippet-name-input" class="tab-text-input" placeholder="Name (optional)" maxlength="40" autocomplete="off" spellcheck="false">
               <button class="btn primary" id="snippet-save-btn">Save</button>
@@ -346,13 +353,18 @@
         </div>
 
         <div id="snippets-teaser">
+          <div class="snippet-tabs snippets-teaser-preview" aria-hidden="true">
+            <span class="snip-tab active"><span class="snip-tab-label">Calculus</span></span>
+            <span class="snip-tab"><span class="snip-tab-label">Algebra</span></span>
+            <span class="snip-tab new-tab">+ New tab</span>
+          </div>
           <div class="entry-list snippets-teaser-preview" aria-hidden="true">
             <div class="entry-row"><div class="entry-main"><span class="entry-name">Quadratic formula</span><div class="entry-face">x = (-b ± √(b²-4ac)) / 2a</div></div></div>
             <div class="entry-row"><div class="entry-main"><span class="entry-name">Euler's identity</span><div class="entry-face">e^(iπ) + 1 = 0</div></div></div>
             <div class="entry-row"><div class="entry-main"><span class="entry-name">Integral</span><div class="entry-face">∫ f(x) dx</div></div></div>
           </div>
           <div class="snippets-teaser-cta">
-            <p class="pro-feature-line">Save the expressions you reuse most and drop them back into the editor in one click.</p>
+            <p class="pro-feature-line">Save the expressions you reuse most, organise them into your own tabs, and drop them back into the editor in one click.</p>
             <button class="btn primary" id="snippets-getpro-btn">Get Pro</button>
           </div>
         </div>
