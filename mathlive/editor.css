@@ -523,6 +523,7 @@
       opacity: 0;
       font-size: 0.85em;
       line-height: 1;
+      cursor: pointer;
       transition: opacity 0.15s ease, color 0.15s ease;
       color: inherit;
     }
@@ -530,8 +531,8 @@
     .cat-tab.active .cat-tab-edit { opacity: 0.65; }
     .cat-tab .cat-tab-edit:hover { opacity: 1; }
 
-    /* Drag-to-reorder */
-    .cat-tab[draggable="true"] { cursor: grab; }
+    /* Drag-to-reorder: tabs are click-to-select at rest (pointer), and only show
+       the grabbing hand while an actual drag is in progress. */
     .cat-tab.dragging { opacity: 0.45; cursor: grabbing; }
 
     .new-tab-chip {
