@@ -74,8 +74,12 @@ document.addEventListener("keydown", e => {
     // Close an open modal first; only close the whole editor if none are open.
     const tabOv = document.getElementById("tab-overlay");
     const setOv = document.getElementById("settings-overlay");
+    const histOv = document.getElementById("history-overlay");
+    const snipOv = document.getElementById("snippets-overlay");
     if (tabOv && tabOv.classList.contains("visible")) { tabOv.classList.remove("visible"); return; }
     if (setOv && setOv.classList.contains("visible")) { setOv.classList.remove("visible"); return; }
+    if (histOv && histOv.classList.contains("visible")) { histOv.classList.remove("visible"); return; }
+    if (snipOv && snipOv.classList.contains("visible")) { snipOv.classList.remove("visible"); return; }
     window.parent.postMessage({ mathpaster: "close" }, "*");
     return;
   }
@@ -177,6 +181,8 @@ document.addEventListener("mousedown", e => {
     !e.target.closest("#editor-window") &&
     !e.target.closest("#settings-panel") &&
     !e.target.closest("#tab-overlay") &&
+    !e.target.closest("#history-overlay") &&
+    !e.target.closest("#snippets-overlay") &&
     !e.target.closest("#matrix-selector") &&
     !e.target.closest("#keyboard-window") &&
     !e.target.closest("mathlive-virtual-keyboard") &&

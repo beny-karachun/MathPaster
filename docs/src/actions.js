@@ -2,6 +2,7 @@ import { state } from './state.js';
 import { mf, latexEl } from './dom.js';
 import { updatePreview } from './mathfield.js';
 import { recordUse } from './review.js';
+import { recordHistory } from './history.js';
 
 /* ── Mode toggle ── */
 const modeSwitch = document.getElementById("mode-switch");
@@ -59,6 +60,21 @@ document.getElementById("close-btn").addEventListener("click", () => {
   window.parent.postMessage({ mathpaster: "close" }, "*");
 });
 
+/* ── Load a saved expression back into the editor ──
+ * Shared re-entry point for the history & snippets panels: restore the insert
+ * mode, set the math field, refresh the preview, and re-focus the field.
+ */
+export function loadExpression(latex, mode) {
+  if (mode === "inline" || mode === "block") updateModeUI(mode);
+  mf.value = latex || "";
+  updatePreview();
+  if (state.mfReady) {
+    window.focus();
+    mf.focus();
+    try { mf.executeCommand("moveToMathFieldEnd"); } catch (_) {}
+  }
+}
+
 /* ── Insert ── */
 export function doInsert() {
   const raw = (mf.value || "").trim();
@@ -66,6 +82,7 @@ export function doInsert() {
   const wrap = state.insertMode === "block" ? `$$${raw}$$` : `$${raw}$`;
   localStorage.removeItem("mathpaster_draft");
   recordUse();
+  recordHistory(raw, state.insertMode);
   window.parent.postMessage({ mathpaster: "insert", latex: wrap }, "*");
 }
 document.getElementById("insert-btn").addEventListener("mousedown", e => e.preventDefault());

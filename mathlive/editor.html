@@ -35,6 +35,21 @@
         <a href="https://chromewebstore.google.com/detail/mathpaster/gpfikddlkclmegpdjoaflmbndcnddleg" target="_blank" rel="noopener noreferrer" class="rate-btn" id="rate-us-btn" title="Rate MathPaster on Chrome Web Store">
           <span class="rate-text">Rate us</span> ⭐
         </a>
+        <button class="header-btn" id="history-btn" title="Insert history">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v5h5"></path>
+            <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path>
+            <path d="M12 7v5l4 2"></path>
+          </svg>
+        </button>
+        <button class="header-btn header-btn-pro" id="snippets-btn" title="Snippets (Pro)">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span class="pro-badge header-pro-badge">PRO</span>
+        </button>
         <button class="header-btn" id="settings-btn" title="Settings">
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
             stroke-linecap="round" stroke-linejoin="round">
@@ -296,6 +311,53 @@
       </div>
     </div>
   </div>
+  </div>
+
+  <div id="history-overlay">
+    <div id="history-panel">
+      <div class="settings-header">
+        <h2>Insert History</h2>
+        <button class="header-btn" id="close-history-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
+      </div>
+      <div class="settings-body">
+        <div id="history-list" class="entry-list"></div>
+        <button class="btn secondary" id="history-clear-btn" style="margin-top:10px;">Clear history</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="snippets-overlay">
+    <div id="snippets-panel">
+      <div class="settings-header">
+        <h2>Snippets <span class="pro-badge">PRO</span></h2>
+        <button class="header-btn" id="close-snippets-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
+      </div>
+      <div class="settings-body">
+        <div id="snippets-pro">
+          <div class="setting-group">
+            <label for="snippet-name-input">Save current expression</label>
+            <div class="tab-add-row">
+              <input type="text" id="snippet-name-input" class="tab-text-input" placeholder="Name (optional)" maxlength="40" autocomplete="off" spellcheck="false">
+              <button class="btn primary" id="snippet-save-btn">Save</button>
+            </div>
+          </div>
+          <div id="snippet-error" class="tab-error"></div>
+          <div id="snippets-list" class="entry-list"></div>
+        </div>
+
+        <div id="snippets-teaser">
+          <div class="entry-list snippets-teaser-preview" aria-hidden="true">
+            <div class="entry-row"><div class="entry-main"><span class="entry-name">Quadratic formula</span><div class="entry-face">x = (-b ± √(b²-4ac)) / 2a</div></div></div>
+            <div class="entry-row"><div class="entry-main"><span class="entry-name">Euler's identity</span><div class="entry-face">e^(iπ) + 1 = 0</div></div></div>
+            <div class="entry-row"><div class="entry-main"><span class="entry-name">Integral</span><div class="entry-face">∫ f(x) dx</div></div></div>
+          </div>
+          <div class="snippets-teaser-cta">
+            <p class="pro-feature-line">Save the expressions you reuse most and drop them back into the editor in one click.</p>
+            <button class="btn primary" id="snippets-getpro-btn">Get Pro</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Separate movable, resizable virtual keyboard tab -->

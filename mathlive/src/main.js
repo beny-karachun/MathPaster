@@ -14,6 +14,8 @@ import { maybeShowRateBanner } from './review.js';
 // Side-effect modules: register their DOM event listeners on import.
 import './tab-editor.js';
 import './actions.js';
+import './history.js';
+import './snippets.js';
 import './shortcuts.js';
 import './drag-resize.js';
 
