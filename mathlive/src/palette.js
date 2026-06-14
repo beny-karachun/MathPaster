@@ -107,6 +107,13 @@ function getOrderedKeys() {
   return order;
 }
 
+// Pin a tab to the front of the order (leftmost, just after the New Tab chip).
+// Used when a custom tab is created so it appears on the left, not the far right.
+export function moveTabToFront(key) {
+  const order = getOrderedKeys().filter(k => k !== key);
+  saveTabOrder([key, ...order]);
+}
+
 function labelForKey(key) {
   const custom = state.customTabs.find(t => t.id === key);
   return custom ? custom.name : key;

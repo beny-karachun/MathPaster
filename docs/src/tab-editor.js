@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { PALETTE_DATA } from './palette-data.js';
-import { hasPremium, renderSymbolFace, saveCustomTabs, renderTabs, renderPalette } from './palette.js';
+import { hasPremium, renderSymbolFace, saveCustomTabs, renderTabs, renderPalette, moveTabToFront } from './palette.js';
 import { openUpgradeModal } from './license.js';
 
 /* ── Custom-tab editor modal ── */
@@ -154,6 +154,7 @@ function saveTab() {
   } else {
     id = "t_" + Date.now();
     state.customTabs.push({ id, name, symbols: workingSymbols.map(s => ({ latex: s.latex })) });
+    moveTabToFront(id); // show new tabs on the left, right after the New Tab chip
   }
   saveCustomTabs();
   state.activeCategory = id;
