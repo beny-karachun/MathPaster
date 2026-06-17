@@ -1,0 +1,82 @@
+MathPaster License
+Copyright (c) 2026 Beny Karachun. All rights reserved.
+
+MathPaster is source-available software, not open-source software. The source
+code in this repository is published so that anyone may read, audit, and verify
+how MathPaster works — in particular its privacy claims (that it runs locally and
+does not collect or transmit user data). Making the source readable does not place
+it in the public domain or grant the rights that an open-source license would.
+
+1. DEFINITIONS
+
+   "Software" means the MathPaster source code, assets, and documentation in this
+   repository authored by the copyright holder, excluding the Third-Party
+   Components listed in Section 5.
+
+   "You" means the individual or entity exercising rights under this License.
+
+2. PERMISSIONS GRANTED
+
+   Subject to the restrictions below, You are granted a worldwide,
+   royalty-free, non-exclusive, non-transferable, revocable license to:
+
+   (a) view, read, and inspect the Software for the purposes of personal study,
+       security review, and verification of its behavior; and
+
+   (b) install and use the official MathPaster browser extension, as distributed
+       through official channels (e.g. the Chrome Web Store, Microsoft Edge
+       Add-ons), for Your own personal or internal use.
+
+3. RESTRICTIONS
+
+   Except as expressly permitted above, You may NOT:
+
+   (a) copy, redistribute, republish, host, mirror, or sublicense the Software,
+       in whole or in part, in source or compiled form;
+
+   (b) modify the Software or create derivative works from it for the purpose of
+       distribution, publication, or public use;
+
+   (c) sell, rent, lease, monetize, or offer the Software (or any derivative) as
+       a product or service, whether or not for a fee;
+
+   (d) remove, disable, bypass, or circumvent any license verification, payment,
+       or feature-gating mechanism, including any controlling access to
+       MathPaster Pro features; or
+
+   (e) use the "MathPaster" name, logo, or other branding except to refer
+       accurately to this software.
+
+4. RESERVATION OF RIGHTS
+
+   All rights not expressly granted in this License are reserved by the copyright
+   holder. No rights are granted by implication, estoppel, or otherwise.
+
+5. THIRD-PARTY COMPONENTS
+
+   MathPaster bundles third-party software that is licensed separately and is NOT
+   covered by this License. Such components remain governed by their own licenses,
+   and nothing here restricts rights you may have under those licenses:
+
+   - MathLive (https://cortexjs.io/mathlive/) — MIT License.
+     Files include lib/mathlive.min.js and lib/mathlive-static.css.
+   - KaTeX fonts (https://katex.org/) — MIT License.
+     Files under lib/fonts/.
+
+6. DISCLAIMER OF WARRANTY
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT.
+
+7. LIMITATION OF LIABILITY
+
+   IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES, OR
+   OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
+   FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+   IN THE SOFTWARE.
+
+8. CONTACT
+
+   For licensing inquiries, including permissions beyond the scope of this
+   License, contact: beny7375@gmail.com

@@ -55,3 +55,11 @@ into the active input box.
 ## Support
 
 Bug reports and feature requests: [GitHub issues](https://github.com/beny-karachun/MathPaster/issues)
+
+## License
+
+MathPaster is **source-available, not open-source**. The code is published so
+anyone can audit it and verify the privacy claims, but all rights are reserved —
+see [LICENSE](LICENSE) for what's permitted. Bundled third-party components
+([MathLive](https://cortexjs.io/mathlive/), KaTeX fonts) remain under their own
+MIT licenses.
