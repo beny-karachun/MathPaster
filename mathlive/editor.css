@@ -1376,8 +1376,8 @@
     }
     .entry-face {
       font-size: 20px;
-      max-height: 32px;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: visible;
       white-space: nowrap;
       text-overflow: ellipsis;
     }
