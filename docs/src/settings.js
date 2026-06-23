@@ -3,21 +3,27 @@ import { editorWindow } from './dom.js';
 import { isPro, openUpgradeModal } from './license.js';
 
 /* ── Theme presets (curated; replaces raw HSL customization) ── */
-// 10 hand-tuned themes (6 dark + 4 light). Each drives the accent (primary) and the
-// editor-window background (bg); `mode:'light'` additionally toggles body.theme-light.
+// 13 hand-tuned themes (8 dark + 5 light). Each preset is a vaporwave-inspired
+// DUAL-TONE accent: `primary` is the lead accent and `accent2` is its gradient
+// partner — together they recolour every accent surface (active tabs, icon, focus
+// glow, caret, primary button…) via a 135° gradient. `bg` sets the editor-window
+// base; `mode:'light'` additionally toggles body.theme-light.
 const THEME_PRESETS = [
-  // Dark
-  { id: 'indigo-night',   name: 'Indigo Night', mode: 'dark',  primary: { h: 250, s: 80, l: 65 }, bg: { h: 236, s: 30, l: 12 } },
-  { id: 'anthropic',      name: 'Anthropic',    mode: 'dark',  primary: { h: 16,  s: 60, l: 60 }, bg: { h: 25,  s: 12, l: 11 } },
-  { id: 'emerald',        name: 'Emerald',      mode: 'dark',  primary: { h: 158, s: 64, l: 46 }, bg: { h: 200, s: 18, l: 10 } },
-  { id: 'crimson',        name: 'Crimson',      mode: 'dark',  primary: { h: 350, s: 72, l: 60 }, bg: { h: 345, s: 18, l: 10 } },
-  { id: 'amber',          name: 'Amber',        mode: 'dark',  primary: { h: 38,  s: 92, l: 58 }, bg: { h: 30,  s: 14, l: 10 } },
-  { id: 'teal',           name: 'Teal',         mode: 'dark',  primary: { h: 187, s: 72, l: 50 }, bg: { h: 200, s: 28, l: 10 } },
-  // Light
-  { id: 'anthropic-light',name: 'Anthropic Light', mode: 'light', primary: { h: 16,  s: 55, l: 50 }, bg: { h: 40,  s: 30, l: 96 } },
-  { id: 'daylight',       name: 'Daylight',     mode: 'light', primary: { h: 245, s: 68, l: 58 }, bg: { h: 230, s: 30, l: 97 } },
-  { id: 'mint',           name: 'Mint',         mode: 'light', primary: { h: 160, s: 55, l: 40 }, bg: { h: 150, s: 25, l: 97 } },
-  { id: 'sandstone',      name: 'Sandstone',    mode: 'light', primary: { h: 28,  s: 52, l: 48 }, bg: { h: 36,  s: 30, l: 95 } },
+  // ── Dark ──
+  { id: 'indigo-night',   name: 'Indigo Night', mode: 'dark',  primary: { h: 252, s: 85, l: 68 }, accent2: { h: 292, s: 82, l: 66 }, bg: { h: 244, s: 34, l: 11 } },
+  { id: 'anthropic',      name: 'Anthropic',    mode: 'dark',  primary: { h: 16,  s: 70, l: 62 }, accent2: { h: 34,  s: 74, l: 60 }, bg: { h: 24,  s: 14, l: 10 } },
+  { id: 'emerald',        name: 'Emerald',      mode: 'dark',  primary: { h: 158, s: 66, l: 50 }, accent2: { h: 182, s: 72, l: 54 }, bg: { h: 190, s: 22, l: 9  } },
+  { id: 'crimson',        name: 'Crimson',      mode: 'dark',  primary: { h: 344, s: 80, l: 64 }, accent2: { h: 8,   s: 80, l: 62 }, bg: { h: 344, s: 22, l: 9  } },
+  { id: 'amber',          name: 'Amber',        mode: 'dark',  primary: { h: 40,  s: 95, l: 60 }, accent2: { h: 22,  s: 90, l: 58 }, bg: { h: 28,  s: 16, l: 9  } },
+  { id: 'teal',           name: 'Teal',         mode: 'dark',  primary: { h: 186, s: 78, l: 54 }, accent2: { h: 204, s: 82, l: 60 }, bg: { h: 198, s: 30, l: 9  } },
+  { id: 'vaporwave',      name: 'Vaporwave',    mode: 'dark',  primary: { h: 322, s: 92, l: 72 }, accent2: { h: 190, s: 90, l: 66 }, bg: { h: 268, s: 42, l: 12 } },
+  { id: 'synthwave',      name: 'Synthwave',    mode: 'dark',  primary: { h: 286, s: 90, l: 72 }, accent2: { h: 212, s: 92, l: 64 }, bg: { h: 260, s: 44, l: 10 } },
+  // ── Light ──
+  { id: 'anthropic-light',name: 'Anthropic Light', mode: 'light', primary: { h: 16,  s: 62, l: 52 }, accent2: { h: 32,  s: 66, l: 52 }, bg: { h: 40,  s: 32, l: 96 } },
+  { id: 'daylight',       name: 'Daylight',     mode: 'light', primary: { h: 248, s: 74, l: 60 }, accent2: { h: 286, s: 72, l: 62 }, bg: { h: 230, s: 34, l: 97 } },
+  { id: 'mint',           name: 'Mint',         mode: 'light', primary: { h: 160, s: 58, l: 42 }, accent2: { h: 184, s: 62, l: 44 }, bg: { h: 154, s: 30, l: 97 } },
+  { id: 'sandstone',      name: 'Sandstone',    mode: 'light', primary: { h: 26,  s: 60, l: 50 }, accent2: { h: 40,  s: 66, l: 50 }, bg: { h: 36,  s: 34, l: 95 } },
+  { id: 'cotton-candy',   name: 'Cotton Candy', mode: 'light', primary: { h: 324, s: 80, l: 62 }, accent2: { h: 200, s: 80, l: 60 }, bg: { h: 300, s: 48, l: 97 } },
 ];
 const DEFAULT_PRESET = 'indigo-night';
 // One dark + one light theme stay free; the rest are part of Pro.
@@ -56,8 +62,15 @@ export function applySettings(settings) {
   // and switch the whole UI to light mode when the preset calls for it.
   const preset = resolvePreset(settings.themePreset);
   const primaryHue = preset.primary.h, primarySat = preset.primary.s, primaryLight = preset.primary.l;
+  const accent2 = preset.accent2 || preset.primary; // dual-tone partner (legacy fallback)
+  const a2Hue = accent2.h, a2Sat = accent2.s, a2Light = accent2.l;
   const bgHue = preset.bg.h, bgSat = preset.bg.s, bgLight = preset.bg.l;
-  document.body.classList.toggle('theme-light', preset.mode === 'light');
+  const isLight = preset.mode === 'light';
+  // Soft accent glows bleeding into the window corners — kept gentle on light themes
+  // so text/glass panels stay readable.
+  const glowA = isLight ? 0.10 : 0.16;
+  const glowB = isLight ? 0.07 : 0.11;
+  document.body.classList.toggle('theme-light', isLight);
 
   let scaleFactor = Math.min((window.innerWidth * 0.94) / settings.popupWidth, (window.innerHeight * 0.90) / settings.popupHeight);
   
@@ -79,14 +92,20 @@ export function applySettings(settings) {
       --primary-hue: ${primaryHue};
       --primary-sat: ${primarySat}%;
       --primary-light: ${primaryLight}%;
+      --accent2-hue: ${a2Hue};
+      --accent2-sat: ${a2Sat}%;
+      --accent2-light: ${a2Light}%;
     }
     #editor-window {
       width: ${settings.popupWidth}px !important;
       height: ${settings.popupHeight}px !important;
-      background: linear-gradient(145deg, 
-        hsl(${bgHue}, ${bgSat}%, ${bgLight + 6}%) 0%, 
-        hsl(${bgHue}, ${bgSat}%, ${bgLight}%) 50%, 
-        hsl(${bgHue}, ${bgSat}%, ${Math.max(0, bgLight - 5)}%) 100%) !important;
+      background:
+        radial-gradient(135% 95% at 8% -12%, hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, ${glowA}) 0%, transparent 55%),
+        radial-gradient(125% 95% at 112% 112%, hsla(${a2Hue}, ${a2Sat}%, ${a2Light}%, ${glowB}) 0%, transparent 55%),
+        linear-gradient(155deg,
+          hsl(${bgHue}, ${bgSat}%, ${bgLight + 7}%) 0%,
+          hsl(${bgHue}, ${bgSat}%, ${bgLight}%) 55%,
+          hsl(${bgHue}, ${bgSat}%, ${Math.max(0, bgLight - 5)}%) 100%) !important;
     }
     #latex-preview { display: ${settings.showLatexBar ? 'flex' : 'none'} !important; }
     #body { gap: ${settings.gapSize}px !important; }
@@ -247,12 +266,20 @@ function renderThemePresets() {
       + (locked ? ' locked' : '');
     btn.dataset.preset = p.id;
     btn.title = p.name + (locked ? ' (Pro)' : '');
+    const a2 = p.accent2 || p.primary;
     const bg = `hsl(${p.bg.h}, ${p.bg.s}%, ${p.bg.l}%)`;
     const bgEdge = `hsl(${p.bg.h}, ${p.bg.s}%, ${Math.max(0, p.bg.l - 5)}%)`;
     const accent = `hsl(${p.primary.h}, ${p.primary.s}%, ${p.primary.l}%)`;
+    const accentB = `hsl(${a2.h}, ${a2.s}%, ${a2.l}%)`;
+    const accentGrad = `linear-gradient(135deg, ${accent} 0%, ${accentB} 100%)`;
+    // Preview shows the real window backdrop (with a faint accent glow) plus a
+    // pill that reveals the dual-tone accent gradient the theme paints the UI with.
+    const previewBg =
+      `radial-gradient(120% 110% at 12% -10%, ${accent}33 0%, transparent 60%), ` +
+      `linear-gradient(150deg, ${bg}, ${bgEdge})`;
     btn.innerHTML =
-      `<span class="swatch-preview" style="background:linear-gradient(145deg, ${bg}, ${bgEdge})">` +
-        `<span class="swatch-dot" style="background:${accent}"></span>` +
+      `<span class="swatch-preview" style="background:${previewBg}">` +
+        `<span class="swatch-dot" style="background:${accentGrad}"></span>` +
         (locked ? `<span class="swatch-lock">PRO</span>` : ``) +
       `</span>` +
       `<span class="swatch-name">${p.name}</span>`;
