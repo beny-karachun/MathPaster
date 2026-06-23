@@ -201,6 +201,21 @@ if (deactivateBtn) {
   });
 }
 
+/* ── Open the Lemon Squeezy checkout ──
+ * The editor runs inside an injected iframe where window.open('_blank') is
+ * blocked by the popup blocker/sandbox. A synthetic anchor click to a new tab
+ * is allowed (same mechanism as the working "Get MathPaster Pro →" link), so
+ * route every "Get Pro" button through this helper. */
+export function openCheckout() {
+  const a = document.createElement('a');
+  a.href = CHECKOUT_URL;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
 /* ── Upgrade modal ── */
 const proOverlay = document.getElementById('pro-overlay');
 
@@ -219,7 +234,7 @@ if (proBuyBtn) {
   proBuyBtn.addEventListener('mousedown', e => e.preventDefault());
   proBuyBtn.addEventListener('click', e => {
     e.preventDefault();
-    window.open(CHECKOUT_URL, '_blank', 'noopener');
+    openCheckout();
   });
 }
 

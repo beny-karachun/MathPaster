@@ -1,7 +1,7 @@
 import { mf } from './dom.js';
 import { state } from './state.js';
 import { loadExpression } from './actions.js';
-import { isPro, openUpgradeModal } from './license.js';
+import { isPro, openCheckout } from './license.js';
 import { renderEntryList } from './entry-list.js';
 
 /* ── Snippets (Pro) ──
@@ -238,8 +238,7 @@ if (teaserBtn) {
   teaserBtn.addEventListener("mousedown", e => e.preventDefault());
   teaserBtn.addEventListener("click", e => {
     e.preventDefault();
-    closePanel();
-    openUpgradeModal("Snippets let you save and organise your favorite expressions into tabs.");
+    openCheckout();
   });
 }
 
