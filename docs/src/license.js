@@ -10,9 +10,9 @@ import { state } from './state.js';
  */
 export const CHECKOUT_URL = 'https://mathpaster.lemonsqueezy.com/checkout/buy/116cec85-efb3-4029-b9ee-63fbc0c089cd';
 // Numeric store id as reported by the activation response (meta.store_id).
-// null = accept keys from any store; set after the first (test) purchase to
-// reject keys bought from unrelated Lemon Squeezy stores.
-const EXPECTED_STORE_ID = null;
+// null = accept keys from any store; set to the MathPaster store id so keys
+// bought from unrelated Lemon Squeezy stores are rejected.
+const EXPECTED_STORE_ID = 405445;
 const API_BASE = 'https://api.lemonsqueezy.com/v1/licenses';
 const STORAGE_KEY = 'mathpaster_license';
 const REVALIDATE_MS = 7 * 24 * 60 * 60 * 1000;
