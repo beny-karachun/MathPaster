@@ -1,7 +1,7 @@
 import { mf } from './dom.js';
 import { state } from './state.js';
 import { loadExpression } from './actions.js';
-import { isPro, openCheckout } from './license.js';
+import { isPro, wireCheckoutLink } from './license.js';
 import { renderEntryList } from './entry-list.js';
 
 /* ── Snippets (Pro) ──
@@ -233,14 +233,8 @@ if (tabNameInput) {
   });
 }
 
-const teaserBtn = document.getElementById("snippets-getpro-btn");
-if (teaserBtn) {
-  teaserBtn.addEventListener("mousedown", e => e.preventDefault());
-  teaserBtn.addEventListener("click", e => {
-    e.preventDefault();
-    openCheckout();
-  });
-}
+// "Get Pro" in the snippets teaser is a real anchor — just point it at checkout.
+wireCheckoutLink(document.getElementById("snippets-getpro-btn"));
 
 if (overlay) overlay.addEventListener("mousedown", e => { if (e.target === overlay) closePanel(); });
 

@@ -727,6 +727,8 @@
       transition: all 0.15s ease;
       white-space: nowrap;
       flex-shrink: 0;
+      text-decoration: none; /* anchors styled as buttons (e.g. Get Pro) */
+      box-sizing: border-box;
     }
 
     .btn.secondary {

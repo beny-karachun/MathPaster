@@ -202,18 +202,13 @@ if (deactivateBtn) {
 }
 
 /* ── Open the Lemon Squeezy checkout ──
- * The editor runs inside an injected iframe where window.open('_blank') is
- * blocked by the popup blocker/sandbox. A synthetic anchor click to a new tab
- * is allowed (same mechanism as the working "Get MathPaster Pro →" link), so
- * route every "Get Pro" button through this helper. */
-export function openCheckout() {
-  const a = document.createElement('a');
-  a.href = CHECKOUT_URL;
-  a.target = '_blank';
-  a.rel = 'noopener';
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
+ * Programmatic tab-opening (window.open / synthetic anchor clicks / chrome.tabs)
+ * is blocked inconsistently inside the editor's cross-origin iframe. The only
+ * mechanism that reliably works is a *real* <a target="_blank"> the user clicks
+ * directly — the same as the "Get MathPaster Pro →" link. So every "Get Pro"
+ * button is a real anchor; this helper just points it at the checkout. */
+export function wireCheckoutLink(el) {
+  if (el) el.href = CHECKOUT_URL;
 }
 
 /* ── Upgrade modal ── */
@@ -229,14 +224,8 @@ function closeUpgradeModal() {
   if (proOverlay) proOverlay.classList.remove('visible');
 }
 
-const proBuyBtn = document.getElementById('pro-buy-btn');
-if (proBuyBtn) {
-  proBuyBtn.addEventListener('mousedown', e => e.preventDefault());
-  proBuyBtn.addEventListener('click', e => {
-    e.preventDefault();
-    openCheckout();
-  });
-}
+// "Get Pro" in the upgrade modal is a real anchor — just point it at checkout.
+wireCheckoutLink(document.getElementById('pro-buy-btn'));
 
 const proHaveKeyBtn = document.getElementById('pro-have-key-btn');
 if (proHaveKeyBtn) {
