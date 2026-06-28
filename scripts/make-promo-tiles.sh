@@ -92,21 +92,26 @@ should_write() {
 
 report() { echo "  wrote: ${1#"$ROOT"/}  ($("$IM" identify -format '%wx%h' "$1"))"; }
 
-# Round the corners of a square icon to its display size (≈25% squircle).
+# Round an image's corners to TRANSPARENT corners.  $1=in $2=out $3=radius(px)
+# `-alpha set` is essential: the source PNGs (icon, screenshots) have no alpha
+# channel, and without it DstIn writes opaque black into the corners.
+round_corners() {
+  "$IM" "$1" -alpha set \
+    \( +clone -alpha transparent -fill white \
+       -draw "roundrectangle 0,0,%[fx:w-1],%[fx:h-1],$3,$3" \) \
+    -compose DstIn -composite -background none "$2"
+}
+
+# Round the corners of a square icon to a display size (≈25% squircle).
 # $1=in  $2=out  $3=size(px)  $4=corner radius(px)
 round_icon() {
-  "$IM" "$1" -resize "${3}x${3}" \
-    \( +clone -alpha transparent -background none \
-       -fill white -draw "roundrectangle 0,0,%[fx:w-1],%[fx:h-1],$4,$4" \) \
-    -compose DstIn -composite "$2"
+  "$IM" "$1" -resize "${3}x${3}" "$TMP/_icon_resized.png"
+  round_corners "$TMP/_icon_resized.png" "$2" "$4"
 }
 
 # Round an image's corners and add a soft drop shadow.  $1=in $2=out $3=radius
 round_and_shadow() {
-  "$IM" "$1" \
-    \( +clone -alpha transparent -background none \
-       -fill white -draw "roundrectangle 0,0,%[fx:w-1],%[fx:h-1],$3,$3" \) \
-    -compose DstIn -composite "$TMP/rounded.png"
+  round_corners "$1" "$TMP/rounded.png" "$3"
   "$IM" "$TMP/rounded.png" \
     \( +clone -background black -shadow 55x18+0+12 \) \
     +swap -background none -layers merge +repage "$2"
