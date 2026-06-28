@@ -2,7 +2,7 @@
 //
 // Every entry below was validated against the bundled MathLive 0.103.0 by rendering
 // it through convertLatexToMarkup and confirming it produces no ML__error markup.
-// 453 symbols across 14 categories. Do NOT hand-add unicode-math
+// 454 symbols across 14 categories. Do NOT hand-add unicode-math
 // exotica (e.g. \\varhexagon, \\smiley) — MathLive doesn't define them and they render
 // as red error boxes. Regenerate via: node scripts/build-symbol-catalog.mjs
 //
@@ -148,7 +148,7 @@ export const SYMBOL_CATALOG = {
     { latex: "\\tfrac{#0}{#1}", name: "inline text fraction" },
     { latex: "\\sqrt{#0}", name: "square root radical" },
     { latex: "\\sqrt[#0]{#1}", name: "nth root radical cube" },
-    { latex: "\\binom{#0}{#1}", name: "binomial coefficient choose combination" },
+    { latex: "\\binom{#0}{#1}", name: "binomial coefficient choose combination pascal" },
     { latex: "#0^{#1}", name: "power superscript exponent" },
     { latex: "#0_{#1}", name: "subscript index" },
     { latex: "#0_{#1}^{#2}", name: "subscript superscript" },
@@ -206,6 +206,7 @@ export const SYMBOL_CATALOG = {
     { latex: "s^{2}", name: "sample variance s squared" },
     { latex: "\\chi^{2}", name: "chi squared" },
     { latex: "#0!", name: "factorial" },
+    { latex: "\\binom{#0}{#1}", name: "binomial coefficient choose combination n k" },
     { latex: "\\operatorname{SE}", name: "standard error" },
     { latex: "\\operatorname{SD}", name: "standard deviation" },
   ],

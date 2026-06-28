@@ -41,7 +41,7 @@
     ["\\tfrac{#0}{#1}","inline text fraction"],
     ["\\sqrt{#0}","square root radical"],
     ["\\sqrt[#0]{#1}","nth root radical cube"],
-    ["\\binom{#0}{#1}","binomial coefficient choose combination"],
+    ["\\binom{#0}{#1}","binomial coefficient choose combination pascal"],
     ["#0^{#1}","power superscript exponent"],
     ["#0_{#1}","subscript index"],
     ["#0_{#1}^{#2}","subscript superscript"],
@@ -72,6 +72,7 @@
     ["s^{2}","sample variance s squared"],
     ["\\chi^{2}","chi squared"],
     ["#0!","factorial"],
+    ["\\binom{#0}{#1}","binomial coefficient choose combination n k"],
     ["\\operatorname{SE}","standard error"],
     ["\\operatorname{SD}","standard deviation"]
   ],
