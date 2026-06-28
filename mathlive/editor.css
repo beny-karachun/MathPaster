@@ -224,6 +224,18 @@
       animation: popIn 0.28s cubic-bezier(.34, 1.56, .64, 1) forwards;
     }
 
+    /* Holds all window content at the design size; #dynamic-theme injects its
+       width/height (= popupWidth/popupHeight) and transform: scale(zoom), so the
+       whole UI scales as one piece when the window is corner-dragged. */
+    #editor-scale {
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      transform-origin: top left;
+    }
+
     @keyframes popIn {
       0% {
         transform: translateY(30px) scale(0.97);

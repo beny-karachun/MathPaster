@@ -73,7 +73,14 @@ export function applySettings(settings) {
   document.body.classList.toggle('theme-light', isLight);
 
   let scaleFactor = Math.min((window.innerWidth * 0.94) / settings.popupWidth, (window.innerHeight * 0.90) / settings.popupHeight);
-  
+
+  // Uniform zoom from corner-drag resize: the window renders at the zoomed size and the
+  // content (laid out at the design size) is scaled to fill it — so everything shrinks
+  // or grows together and always fits.
+  const zoom = (state.zoom && isFinite(state.zoom) && state.zoom > 0) ? state.zoom : 1;
+  const renderW = settings.popupWidth * zoom;
+  const renderH = settings.popupHeight * zoom;
+
   if (window.innerWidth <= 600 && window.frameElement) {
     scaleFactor = (window.innerWidth * 0.94) / settings.popupWidth;
     const scaledHeight = settings.popupHeight * scaleFactor;
@@ -96,9 +103,14 @@ export function applySettings(settings) {
       --accent2-sat: ${a2Sat}%;
       --accent2-light: ${a2Light}%;
     }
-    #editor-window {
+    #editor-scale {
       width: ${settings.popupWidth}px !important;
       height: ${settings.popupHeight}px !important;
+      transform: scale(${zoom}) !important;
+    }
+    #editor-window {
+      width: ${renderW}px !important;
+      height: ${renderH}px !important;
       background:
         radial-gradient(135% 95% at 8% -12%, hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, ${glowA}) 0%, transparent 55%),
         radial-gradient(125% 95% at 112% 112%, hsla(${a2Hue}, ${a2Sat}%, ${a2Light}%, ${glowB}) 0%, transparent 55%),
@@ -144,6 +156,9 @@ export function applySettings(settings) {
         margin: 0 !important;
         background: transparent !important;
       }
+      /* On mobile the whole window scales to fit; the inner zoom stays neutral so
+         we don't double-scale. */
+      #editor-scale { transform: none !important; }
       #editor-window {
         width: ${settings.popupWidth}px !important;
         height: ${settings.popupHeight}px !important;
@@ -246,6 +261,10 @@ export function loadSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem('mathpaster_settings'));
     if (saved) state.currentSettings = { ...defaultSettings, ...saved };
+  } catch (e) {}
+  try {
+    const z = parseFloat(localStorage.getItem('mathpaster_zoom'));
+    if (z && isFinite(z) && z > 0) state.zoom = z;
   } catch (e) {}
   applySettings(state.currentSettings);
 }
@@ -368,6 +387,8 @@ document.getElementById('close-settings-btn').addEventListener('click', () => {
 
 document.getElementById('reset-settings-btn').addEventListener('click', () => {
   state.currentSettings = { ...defaultSettings };
+  state.zoom = 1;
+  try { localStorage.removeItem('mathpaster_zoom'); } catch (e) {}
   settingsKeys.forEach(k => {
     const input = document.getElementById('set-' + k);
     const valDisp = document.getElementById('val-' + k);
@@ -402,9 +423,11 @@ export function loadPosition() {
 }
 
 export function clampPositionToBounds() {
-  const width = state.currentSettings.popupWidth;
-  const height = state.currentSettings.popupHeight;
-  
+  // Use the rendered (zoomed) size, since that's the window's actual on-screen footprint.
+  const zoom = (state.zoom && isFinite(state.zoom) && state.zoom > 0) ? state.zoom : 1;
+  const width = state.currentSettings.popupWidth * zoom;
+  const height = state.currentSettings.popupHeight * zoom;
+
   const maxXOffset = Math.max(0, (window.innerWidth - width) / 2);
   state.currentX = Math.max(-maxXOffset, Math.min(state.currentX, maxXOffset));
   state.baseX = state.currentX;

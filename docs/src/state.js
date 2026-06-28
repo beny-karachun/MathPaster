@@ -28,4 +28,8 @@ export const state = {
   currentY: 0,
   baseX: 0,
   baseY: 0,
+
+  // Uniform UI zoom from corner-drag resize (1 = design size). The window renders at
+  // popupWidth*zoom × popupHeight*zoom; #editor-scale scales the content to match.
+  zoom: 1,
 };

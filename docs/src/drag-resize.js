@@ -1,6 +1,6 @@
 import { state } from './state.js';
 import { editorWindow } from './dom.js';
-import { applySettings, clampPositionToBounds, settingsKeys } from './settings.js';
+import { applySettings, clampPositionToBounds } from './settings.js';
 
 /* ── Dragging & Resizing logic ── */
 const header = document.getElementById("header");
@@ -10,8 +10,8 @@ let resizeHandleType = null;
 
 let startX, startY;
 let startMouseX, startMouseY;
-let startWidth, startHeight;
 let startBaseX, startBaseY;
+let startZoom;
 
 // Header drag setup
 header.style.cursor = "grab";
@@ -30,8 +30,7 @@ document.querySelectorAll(".resize-handle").forEach(handle => {
     e.stopPropagation();
     isResizing = true;
     resizeHandleType = handle.dataset.handle;
-    startWidth = state.currentSettings.popupWidth;
-    startHeight = state.currentSettings.popupHeight;
+    startZoom = state.zoom || 1;
     startMouseX = e.clientX;
     startMouseY = e.clientY;
     startBaseX = state.baseX;
@@ -166,10 +165,11 @@ document.addEventListener("mousemove", e => {
     const dy = e.clientY - startY;
     let proposedX = state.baseX + dx;
     let proposedY = state.baseY + dy;
-    
-    const width = state.currentSettings.popupWidth;
-    const height = state.currentSettings.popupHeight;
-    
+
+    const zoom = state.zoom || 1;
+    const width = state.currentSettings.popupWidth * zoom;
+    const height = state.currentSettings.popupHeight * zoom;
+
     const maxXOffset = Math.max(0, (window.innerWidth - width) / 2);
     proposedX = Math.max(-maxXOffset, Math.min(proposedX, maxXOffset));
     
@@ -186,70 +186,40 @@ document.addEventListener("mousemove", e => {
   } else if (isResizing) {
     const dx = e.clientX - startMouseX;
     const dy = e.clientY - startMouseY;
-    
-    let newWidth = startWidth;
-    let newHeight = startHeight;
-    
-    if (resizeHandleType === "tl" || resizeHandleType === "bl") {
-      newWidth = startWidth - dx;
-    } else if (resizeHandleType === "tr" || resizeHandleType === "br") {
-      newWidth = startWidth + dx;
-    }
-    
-    if (resizeHandleType === "tl" || resizeHandleType === "tr") {
-      newHeight = startHeight - dy;
-    } else if (resizeHandleType === "bl" || resizeHandleType === "br") {
-      newHeight = startHeight + dy;
-    }
-    
-    const minWidth = 400;
-    const minHeight = 300;
-    if (newWidth < minWidth) newWidth = minWidth;
-    if (newHeight < minHeight) newHeight = minHeight;
-    
-    const startLeft = (window.innerWidth - startWidth) / 2 + startBaseX;
-    const startRight = startLeft + startWidth;
-    
-    const defaultYBottom = 0.025 * window.innerHeight;
-    const T_default = window.innerHeight - startHeight - defaultYBottom;
-    const startTop = T_default + startBaseY;
-    const startBottom = startTop + startHeight;
-    
-    if (resizeHandleType === "tr" || resizeHandleType === "br") {
-      newWidth = Math.min(newWidth, Math.max(minWidth, window.innerWidth - startLeft));
-    } else {
-      newWidth = Math.min(newWidth, Math.max(minWidth, startRight));
-    }
-    
-    if (resizeHandleType === "tl" || resizeHandleType === "tr") {
-      newHeight = Math.min(newHeight, Math.max(minHeight, startBottom));
-    } else {
-      newHeight = Math.min(newHeight, Math.max(minHeight, window.innerHeight - startTop));
-    }
-    
-    if (newWidth > 1600) newWidth = 1600;
-    if (newHeight > 1200) newHeight = 1200;
-    
-    const dw = newWidth - startWidth;
-    let newBaseX = startBaseX;
-    if (resizeHandleType === "tr" || resizeHandleType === "br") {
-      newBaseX = startBaseX + dw / 2;
-    } else {
-      newBaseX = startBaseX - dw / 2;
-    }
-    
-    let newBaseY = startBaseY;
-    if (resizeHandleType === "bl" || resizeHandleType === "br") {
-      newBaseY = startBaseY + (newHeight - startHeight);
-    }
-    
+
+    const designW = state.currentSettings.popupWidth;
+    const designH = state.currentSettings.popupHeight;
+
+    // Outward sign of the grabbed corner: +1 means dragging that way enlarges the box.
+    const sx = (resizeHandleType === "tr" || resizeHandleType === "br") ? 1 : -1;
+    const sy = (resizeHandleType === "bl" || resizeHandleType === "br") ? 1 : -1;
+
+    // Aspect-locked uniform zoom: the least-squares scale change that best matches the
+    // dragged corner's motion, so width and height always scale together (pure zoom).
+    const deltaZoom = (sx * dx * designW + sy * dy * designH) / (designW * designW + designH * designH);
+    let newZoom = startZoom + deltaZoom;
+
+    // Clamp: rendered size stays within sane bounds and never larger than the viewport.
+    const minZoom = Math.max(380 / designW, 300 / designH);
+    let maxZoom = Math.min(1600 / designW, 1200 / designH,
+                           (window.innerWidth * 0.98) / designW,
+                           (window.innerHeight * 0.95) / designH);
+    if (maxZoom < minZoom) maxZoom = minZoom;
+    newZoom = Math.max(minZoom, Math.min(newZoom, maxZoom));
+
+    // Keep the corner opposite the grabbed one anchored: compensate the flex
+    // re-centering in X and the bottom-anchored layout in Y.
+    const dwR = (designW * newZoom) - (designW * startZoom);
+    const dhR = (designH * newZoom) - (designH * startZoom);
+    const newBaseX = (sx > 0) ? startBaseX + dwR / 2 : startBaseX - dwR / 2;
+    const newBaseY = (sy > 0) ? startBaseY + dhR : startBaseY;
+
     state.currentX = newBaseX;
     state.currentY = newBaseY;
     editorWindow.style.left = `${state.currentX}px`;
     editorWindow.style.top = `${state.currentY}px`;
-    
-    state.currentSettings.popupWidth = newWidth;
-    state.currentSettings.popupHeight = newHeight;
+
+    state.zoom = newZoom;
     applySettings(state.currentSettings);
   } else if (kbdDragging) {
     const dx = e.clientX - kbdStartX;
@@ -327,17 +297,8 @@ document.addEventListener("mouseup", () => {
     state.baseY = state.currentY;
     localStorage.setItem("mathpaster_pos_x", state.baseX);
     localStorage.setItem("mathpaster_pos_y", state.baseY);
-    
-    localStorage.setItem('mathpaster_settings', JSON.stringify(state.currentSettings));
-    
-    settingsKeys.forEach(k => {
-      const input = document.getElementById('set-' + k);
-      const valDisp = document.getElementById('val-' + k);
-      if (input && (k === 'popupWidth' || k === 'popupHeight')) {
-        input.value = state.currentSettings[k];
-        if (valDisp) valDisp.textContent = state.currentSettings[k];
-      }
-    });
+    // Corner-drag changes the uniform zoom (not the design width/height), so persist that.
+    localStorage.setItem("mathpaster_zoom", state.zoom);
   } else if (kbdDragging) {
     kbdDragging = false;
     kbdHeader.style.cursor = "grab";
@@ -360,6 +321,15 @@ window.addEventListener("resize", () => {
   if (window.innerWidth <= 600) {
     applySettings(state.currentSettings);
   } else {
+    // If the viewport shrank below the rendered window, zoom out so it still fits.
+    const designW = state.currentSettings.popupWidth;
+    const designH = state.currentSettings.popupHeight;
+    const maxZoom = Math.min((window.innerWidth * 0.98) / designW, (window.innerHeight * 0.95) / designH);
+    if ((state.zoom || 1) > maxZoom) {
+      state.zoom = Math.max(0.3, maxZoom);
+      localStorage.setItem("mathpaster_zoom", state.zoom);
+      applySettings(state.currentSettings);
+    }
     clampPositionToBounds();
     if (kbdWindow.style.display !== "none") {
       clampKeyboardPosition();
