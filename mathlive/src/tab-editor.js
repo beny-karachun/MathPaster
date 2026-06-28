@@ -1,12 +1,13 @@
 import { state } from './state.js';
-import { PALETTE_DATA } from './palette-data.js';
 import { SYMBOL_CATALOG } from './symbol-catalog.js';
-import { hasPremium, renderSymbolFace, saveCustomTabs, renderTabs, renderPalette, moveTabToFront } from './palette.js';
+import { hasPremium, renderSymbolFace, saveCustomTabs, renderTabs, renderPalette, moveTabToFront,
+         isBuiltinKey, getEditableSymbols, saveDefaultOverride, removeDefaultTab, firstVisibleKey } from './palette.js';
 import { openUpgradeModal } from './license.js';
 
-/* ── Custom-tab editor modal ── */
-let editingTabId = null;          // null while creating a new tab
-let workingSymbols = [];          // [{ latex }] being assembled in the modal
+/* ── Tab editor modal (custom tabs + editing/removing built-in tabs) ── */
+let editingKey = null;            // null while creating a new tab; else custom id OR built-in key
+let editingIsBuiltin = false;     // true when editing one of the shipped default tabs
+let workingSymbols = [];          // [{ latex } | { matrixType, label }] being assembled
 let tabMf = null;
 let tabMfConfigured = false;
 
@@ -63,11 +64,12 @@ function renderWorkingSymbols() {
   workingSymbols.forEach((sym, idx) => {
     const chip = document.createElement("div");
     chip.className = "tab-symbol-chip";
-    chip.title = sym.latex;
+    chip.title = sym.matrixType ? (sym.label || sym.matrixType) : sym.latex;
 
     const face = document.createElement("span");
     face.className = "tab-symbol-face";
-    face.innerHTML = renderSymbolFace(sym.latex);
+    // Matrix inserters carry no LaTeX (they pop the size picker), so show their glyph label.
+    face.innerHTML = sym.matrixType ? (sym.label || "▦") : renderSymbolFace(sym.latex);
     chip.appendChild(face);
 
     const rm = document.createElement("button");
@@ -250,23 +252,35 @@ if (symbolSearch) {
   symbolSearch.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); } });
 }
 
-export function openTabEditor(id) {
-  if (!hasPremium()) { openUpgradeModal("Editing custom tabs is part of MathPaster Pro."); return; }
+export function openTabEditor(key) {
+  if (!hasPremium()) { openUpgradeModal("Editing tabs is part of MathPaster Pro."); return; }
   configureTabMf();
-  editingTabId = id;
+  editingKey = key;
+  editingIsBuiltin = key != null && isBuiltinKey(key);
   if (tabError) tabError.textContent = "";
 
-  if (id) {
-    const tab = state.customTabs.find(t => t.id === id);
-    tabNameInput.value = tab ? tab.name : "";
-    workingSymbols = tab ? tab.symbols.map(s => ({ latex: s.latex })) : [];
-    tabEditorTitle.textContent = "Edit Tab";
-    tabDeleteBtn.style.display = "";
-  } else {
+  if (key == null) {
+    // Creating a brand-new custom tab.
     tabNameInput.value = "";
     workingSymbols = [];
     tabEditorTitle.textContent = "New Custom Tab";
     tabDeleteBtn.style.display = "none";
+  } else if (editingIsBuiltin) {
+    // Editing a shipped default tab (add/remove symbols, or remove the tab entirely).
+    const ov = state.defaultOverrides[key];
+    tabNameInput.value = ov && ov.name ? ov.name : key;
+    workingSymbols = getEditableSymbols(key);
+    tabEditorTitle.textContent = "Edit Tab";
+    tabDeleteBtn.style.display = "";
+    tabDeleteBtn.textContent = "Remove Tab";
+  } else {
+    // Editing an existing custom tab.
+    const tab = state.customTabs.find(t => t.id === key);
+    tabNameInput.value = tab ? tab.name : "";
+    workingSymbols = tab ? tab.symbols.map(s => ({ latex: s.latex })) : [];
+    tabEditorTitle.textContent = "Edit Tab";
+    tabDeleteBtn.style.display = "";
+    tabDeleteBtn.textContent = "Delete Tab";
   }
 
   if (tabMf) tabMf.value = "";
@@ -290,32 +304,48 @@ function closeTabEditor() {
   tabOverlay.classList.remove("visible");
 }
 
+// Working symbols may be latex symbols or matrix inserters; preserve whichever each is.
+function snapshotSymbols() {
+  return workingSymbols.map(s => s.matrixType ? { matrixType: s.matrixType, label: s.label } : { latex: s.latex });
+}
+
 function saveTab() {
   const name = (tabNameInput.value || "").trim();
   if (!name) { if (tabError) tabError.textContent = "Please name your tab."; return; }
-  if (!workingSymbols.length) { if (tabError) tabError.textContent = "Add at least one symbol."; return; }
+  if (!workingSymbols.length) { if (tabError) tabError.textContent = "Add at least one symbol, or use Remove Tab to delete it."; return; }
 
-  let id = editingTabId;
-  if (id) {
-    const tab = state.customTabs.find(t => t.id === id);
-    if (tab) { tab.name = name; tab.symbols = workingSymbols.map(s => ({ latex: s.latex })); }
+  let activeKey;
+  if (editingIsBuiltin) {
+    // Persist the edit as an override on top of the shipped default tab.
+    saveDefaultOverride(editingKey, name, snapshotSymbols());
+    activeKey = editingKey;
+  } else if (editingKey) {
+    const tab = state.customTabs.find(t => t.id === editingKey);
+    if (tab) { tab.name = name; tab.symbols = snapshotSymbols(); }
+    saveCustomTabs();
+    activeKey = editingKey;
   } else {
-    id = "t_" + Date.now();
-    state.customTabs.push({ id, name, symbols: workingSymbols.map(s => ({ latex: s.latex })) });
+    const id = "t_" + Date.now();
+    state.customTabs.push({ id, name, symbols: snapshotSymbols() });
+    saveCustomTabs();
     moveTabToFront(id); // show new tabs on the left, right after the New Tab chip
+    activeKey = id;
   }
-  saveCustomTabs();
-  state.activeCategory = id;
+  state.activeCategory = activeKey;
   renderTabs();
-  renderPalette(id);
+  renderPalette(activeKey);
   closeTabEditor();
 }
 
 function deleteTab() {
-  if (!editingTabId) { closeTabEditor(); return; }
-  state.customTabs = state.customTabs.filter(t => t.id !== editingTabId);
-  saveCustomTabs();
-  if (state.activeCategory === editingTabId) state.activeCategory = Object.keys(PALETTE_DATA)[0];
+  if (editingKey == null) { closeTabEditor(); return; }
+  if (editingIsBuiltin) {
+    removeDefaultTab(editingKey);          // hide the built-in tab + drop its override
+  } else {
+    state.customTabs = state.customTabs.filter(t => t.id !== editingKey);
+    saveCustomTabs();
+  }
+  if (state.activeCategory === editingKey) state.activeCategory = firstVisibleKey();
   renderTabs();
   renderPalette(state.activeCategory);
   closeTabEditor();

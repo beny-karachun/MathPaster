@@ -235,6 +235,21 @@
           </div>
         </details>
 
+        <details name="settings-group">
+          <summary>Tabs</summary>
+          <div class="details-content">
+            <p class="settings-note">Pro users can edit any tab — add or remove symbols, or remove a default tab entirely — with the <span class="settings-pencil">✎</span> on each tab. Reset clears every change and restores the original tabs.</p>
+            <button class="btn secondary" id="reset-tabs-btn">Reset tabs to default</button>
+            <div id="reset-tabs-confirm" class="reset-confirm" hidden>
+              <span class="reset-confirm-text">Remove all custom tabs and restore the defaults?</span>
+              <div class="reset-confirm-actions">
+                <button class="btn secondary" id="reset-tabs-cancel">Cancel</button>
+                <button class="btn secondary reset-confirm-danger" id="reset-tabs-yes">Reset tabs</button>
+              </div>
+            </div>
+          </div>
+        </details>
+
         <details name="settings-group" id="pro-settings-group">
           <summary>MathPaster Pro</summary>
           <div class="details-content">

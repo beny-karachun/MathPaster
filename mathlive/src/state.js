@@ -12,6 +12,10 @@ export const state = {
   defaultShortcuts: null,
 
   customTabs: [],
+  // Per-builtin-tab edits (Pro): { [builtinKey]: { name, symbols } }  → set in palette.js
+  defaultOverrides: {},
+  // Built-in tabs the user removed (Pro): [builtinKey, ...]            → set in palette.js
+  hiddenDefaults: [],
   activeCategory: null,
 
   currentSettings: null,
