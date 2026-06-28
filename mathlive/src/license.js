@@ -233,12 +233,22 @@ if (proHaveKeyBtn) {
   proHaveKeyBtn.addEventListener('click', e => {
     e.preventDefault();
     closeUpgradeModal();
-    // Jump straight to the license input inside the settings panel.
+    // Open the settings panel and jump straight to the license input.
     const proGroup = document.getElementById('pro-settings-group');
     if (proGroup) proGroup.open = true;
     const overlay = document.getElementById('settings-overlay');
     if (overlay) overlay.classList.add('visible');
-    if (keyInputEl) requestAnimationFrame(() => { try { keyInputEl.focus(); } catch (err) {} });
+    // Wait for the panel to paint and the <details> to expand before scrolling
+    // the license field into view — a double rAF lets layout settle so the
+    // scroll lands on the field instead of the still-collapsed panel.
+    if (keyInputEl) {
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        try {
+          keyInputEl.scrollIntoView({ block: 'center', behavior: 'smooth' });
+          keyInputEl.focus({ preventScroll: true });
+        } catch (err) {}
+      }));
+    }
   });
 }
 

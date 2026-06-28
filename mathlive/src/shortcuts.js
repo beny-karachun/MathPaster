@@ -180,6 +180,7 @@ document.addEventListener("mousedown", e => {
   if (
     !e.target.closest("#editor-window") &&
     !e.target.closest("#settings-panel") &&
+    !e.target.closest("#pro-overlay") &&
     !e.target.closest("#tab-overlay") &&
     !e.target.closest("#history-overlay") &&
     !e.target.closest("#snippets-overlay") &&
