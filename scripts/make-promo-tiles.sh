@@ -141,6 +141,7 @@ gen_marquee() {
 
 # ── 2. SMALL TILE 440x280 ──────────────────────────────────────────────────────
 gen_small() {
+  round_icon "$ICON" "$TMP/icon-sm.png" 88 22
   "$IM" -size 440x280 -define gradient:angle=135 "gradient:${GRAD_FROM}-${GRAD_TO}" \
     \( -size 440x280 xc:black -fill "$ACCENT" \
        -draw "circle 330,60 330,200" -blur 0x90 \) \
