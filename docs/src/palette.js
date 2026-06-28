@@ -33,9 +33,16 @@ export function getCategoryItems(key) {
   return PALETTE_DATA[key] || [];
 }
 
+// Empty placeholder slots render invisibly in static markup, which makes templated
+// symbols (\frac{}{}, \int_{}^{}) look blank. Swap them for a faint visible box on the
+// *face* only — the inserted LaTeX still uses real \placeholder{} slots.
+const FACE_PLACEHOLDER = "\\textcolor{#9499b7}{\\square}";
+
 // Turn a raw LaTeX command (with placeholders) into clean markup for a button face.
 export function renderSymbolFace(latex) {
-  const preview = String(latex || "").replace(/#(\?|@|\d+)/g, "\\placeholder{}");
+  const preview = String(latex || "")
+    .replace(/#(\?|@|\d+)/g, "\\placeholder{}")              // #0/#?/#@ → placeholder
+    .replace(/\\placeholder(\[[^\]]*\])?\{\}/g, FACE_PLACEHOLDER); // empty slots → visible box
   try {
     const ML = window.MathLive || (window.MathfieldElement && window.MathfieldElement);
     if (ML && typeof ML.convertLatexToMarkup === "function") {

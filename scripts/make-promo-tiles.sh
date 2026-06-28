@@ -49,7 +49,7 @@ HEADLINE="Type math AI chatbots actually understand"
 # the screenshot. Keep each row short.
 SUBLINE_1="Write & paste flawless LaTeX into"
 SUBLINE_2="ChatGPT · Claude · Gemini or any chatbot"
-SMALL_TAGLINE="Easiest way to type math to AI"
+SMALL_TAGLINE="Get math into any AI, instantly"
 
 # ── Brand tokens (from the extension's popup.css) ──────────────────────────────
 GRAD_FROM="#2b2860"   # deep indigo
@@ -92,6 +92,15 @@ should_write() {
 
 report() { echo "  wrote: ${1#"$ROOT"/}  ($("$IM" identify -format '%wx%h' "$1"))"; }
 
+# Round the corners of a square icon to its display size (≈25% squircle).
+# $1=in  $2=out  $3=size(px)  $4=corner radius(px)
+round_icon() {
+  "$IM" "$1" -resize "${3}x${3}" \
+    \( +clone -alpha transparent -background none \
+       -fill white -draw "roundrectangle 0,0,%[fx:w-1],%[fx:h-1],$4,$4" \) \
+    -compose DstIn -composite "$2"
+}
+
 # Round an image's corners and add a soft drop shadow.  $1=in $2=out $3=radius
 round_and_shadow() {
   "$IM" "$1" \
@@ -116,11 +125,12 @@ gen_marquee() {
   # round corners, drop shadow.
   "$IM" "$SRC" -resize 600x "$TMP/shot-fit.png"
   round_and_shadow "$TMP/shot-fit.png" "$TMP/shot.png" 22
+  round_icon "$ICON" "$TMP/icon-marquee.png" 128 32
 
   # Compose: background ← screenshot (right) ← icon + text (left).
   "$IM" "$TMP/marquee-bg.png" \
     "$TMP/shot.png" -gravity East -geometry +50+0 -compose Over -composite \
-    "$ICON" -gravity NorthWest -geometry +90+116 -compose Over -composite \
+    "$TMP/icon-marquee.png" -gravity NorthWest -geometry +90+116 -compose Over -composite \
     "${FONT_ARG[@]}" -gravity NorthWest \
     -fill "$TITLE_FG"   -pointsize 60 -annotate +90+296 "MathPaster" \
     -fill "$TAGLINE_FG" -pointsize 28 -annotate +92+348 "$HEADLINE" \
@@ -135,7 +145,7 @@ gen_small() {
     \( -size 440x280 xc:black -fill "$ACCENT" \
        -draw "circle 330,60 330,200" -blur 0x90 \) \
     -compose Screen -composite \
-    \( "$ICON" -resize 88x88 \) -gravity North -geometry +0+50 -compose Over -composite \
+    "$TMP/icon-sm.png" -gravity North -geometry +0+50 -compose Over -composite \
     "${FONT_ARG[@]}" -gravity North \
     -fill "$TITLE_FG"   -pointsize 38 -annotate +0+172 "MathPaster" \
     -fill "$TAGLINE_FG" -pointsize 19 -annotate +0+218 "$SMALL_TAGLINE" \
