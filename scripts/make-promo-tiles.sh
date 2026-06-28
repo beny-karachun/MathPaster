@@ -49,7 +49,7 @@ HEADLINE="Type math AI chatbots actually understand"
 # the screenshot. Keep each row short.
 SUBLINE_1="Write & paste flawless LaTeX into"
 SUBLINE_2="ChatGPT · Claude · Gemini or any chatbot"
-SMALL_TAGLINE="Easy math for AI chatbots"
+SMALL_TAGLINE="Easiest way to type math to AI"
 
 # ── Brand tokens (from the extension's popup.css) ──────────────────────────────
 GRAD_FROM="#2b2860"   # deep indigo
@@ -135,10 +135,10 @@ gen_small() {
     \( -size 440x280 xc:black -fill "$ACCENT" \
        -draw "circle 330,60 330,200" -blur 0x90 \) \
     -compose Screen -composite \
-    \( "$ICON" -resize 92x92 \) -gravity North -geometry +0+44 -compose Over -composite \
+    \( "$ICON" -resize 88x88 \) -gravity North -geometry +0+50 -compose Over -composite \
     "${FONT_ARG[@]}" -gravity North \
-    -fill "$TITLE_FG"   -pointsize 40 -annotate +0+150 "MathPaster" \
-    -fill "$TAGLINE_FG" -pointsize 19 -annotate +0+205 "$SMALL_TAGLINE" \
+    -fill "$TITLE_FG"   -pointsize 38 -annotate +0+172 "MathPaster" \
+    -fill "$TAGLINE_FG" -pointsize 19 -annotate +0+218 "$SMALL_TAGLINE" \
     "$OUT_SMALL"
 }
 
