@@ -298,6 +298,18 @@
         </div>
 
         <div class="setting-group">
+          <button type="button" class="btn secondary symbol-browse-toggle" id="tab-browse-toggle" aria-expanded="false" aria-controls="tab-symbol-picker">
+            <span>＋ Browse symbols</span><span class="browse-caret" aria-hidden="true">▾</span>
+          </button>
+          <div id="tab-symbol-picker" class="symbol-picker" hidden>
+            <input type="text" id="symbol-search" class="tab-text-input symbol-search" placeholder="Search symbols…" autocomplete="off" spellcheck="false">
+            <div id="symbol-cat-nav" class="symbol-cat-nav"></div>
+            <div id="symbol-grid" class="symbol-grid"></div>
+            <div id="symbol-noresults" class="symbol-noresults" hidden>No symbols match your search.</div>
+          </div>
+        </div>
+
+        <div class="setting-group">
           <label>Symbols in this tab</label>
           <div id="tab-symbol-list" class="tab-symbol-list"></div>
         </div>

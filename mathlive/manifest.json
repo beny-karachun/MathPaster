@@ -3,6 +3,10 @@
   "name": "MathPaster - Easy Math for AI Chatbots",
   "version": "1.3.2",
   "description": "Visually write math and insert flawless LaTeX into AI chatbots like ChatGPT, Claude, and Gemini with a beautiful WYSIWYG editor.",
+  "homepage_url": "https://mathpaster.com",
+  "author": {
+    "email": "beny7375@gmail.com"
+  },
   "permissions": ["activeTab", "scripting", "storage"],
   "icons": {
     "16": "icons/icon16.png",

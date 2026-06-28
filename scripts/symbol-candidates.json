@@ -1,0 +1,71 @@
+{
+  "Greek": [
+    "alpha","beta","gamma","delta","epsilon",["\\varepsilon","varepsilon epsilon"],"zeta","eta","theta",["\\vartheta","vartheta theta"],"iota","kappa",["\\varkappa","varkappa kappa"],"lambda","mu","nu","xi","omicron","pi",["\\varpi","varpi pi"],"rho",["\\varrho","varrho rho"],"sigma",["\\varsigma","varsigma sigma"],"tau","upsilon","phi",["\\varphi","varphi phi"],"chi","psi","omega","digamma",
+    "Gamma","Delta","Theta","Lambda","Xi","Pi","Sigma","Upsilon","Phi","Psi","Omega"
+  ],
+  "Operators": [
+    "pm","mp","times","div","divideontimes","cdot","ast","star","circ","bullet","bigcirc",
+    "oplus","ominus","otimes","oslash","odot","circledast","circledcirc","circleddash",
+    "dagger","ddagger","amalg","wr","dotplus","intercal",
+    "sqcap","sqcup","uplus","setminus","smallsetminus",
+    "wedge","vee","land","lor","barwedge","veebar","curlywedge","curlyvee",
+    "boxtimes","boxplus","boxminus","boxdot","leftthreetimes","rightthreetimes","ltimes","rtimes","gtrdot","lessdot"
+  ],
+  "Big operators": [
+    ["\\sum","sum sigma"],["\\prod","prod product"],"coprod",["\\int","int integral"],"iint","iiint","oint",
+    "bigcap","bigcup","bigsqcup","bigvee","bigwedge","bigoplus","bigotimes","bigodot","biguplus"
+  ],
+  "Relations": [
+    "leq","geq","neq","equiv","approx","approxeq","cong","simeq","sim","backsim","propto","asymp","doteq",
+    "ll","gg","lll","ggg","leqslant","geqslant","leqq","geqq","lesssim","gtrsim","lessgtr","gtrless",
+    "lessapprox","gtrapprox","subset","supset","subseteq","supseteq","subsetneq","supsetneq",
+    "sqsubset","sqsupset","sqsubseteq","sqsupseteq","in","ni","notin",
+    "vdash","dashv","vDash","Vdash","models","perp","mid","parallel","shortmid",
+    "prec","succ","preceq","succeq","precsim","succsim","precapprox","succapprox",
+    "bowtie","smile","frown","doteqdot","risingdotseq","fallingdotseq","eqcirc","circeq","triangleq","between","pitchfork"
+  ],
+  "Negated": [
+    "neq","notin","nleq","ngeq","nless","ngtr","nmid","nparallel","nsubseteq","nsupseteq",
+    "nsim","ncong","nprec","nsucc","npreceq","nsucceq","nvdash","nvDash","nVdash",
+    "nleftarrow","nrightarrow","nleftrightarrow","subsetneqq","supsetneqq","lneq","gneq"
+  ],
+  "Arrows": [
+    "leftarrow","rightarrow","leftrightarrow","Leftarrow","Rightarrow","Leftrightarrow",
+    "longleftarrow","longrightarrow","longleftrightarrow","Longleftarrow","Longrightarrow","Longleftrightarrow",
+    ["\\mapsto","mapsto maps to"],"longmapsto",["\\to","to rightarrow"],["\\gets","gets leftarrow"],
+    "hookleftarrow","hookrightarrow","leftharpoonup","leftharpoondown","rightharpoonup","rightharpoondown",
+    "rightleftharpoons","leftrightharpoons","uparrow","downarrow","updownarrow","Uparrow","Downarrow","Updownarrow",
+    "nearrow","searrow","swarrow","nwarrow","leftleftarrows","rightrightarrows","leftrightarrows","rightleftarrows",
+    "upuparrows","downdownarrows","twoheadleftarrow","twoheadrightarrow","leftarrowtail","rightarrowtail",
+    "looparrowleft","looparrowright","curvearrowleft","curvearrowright","circlearrowleft","circlearrowright",
+    "Lsh","Rsh","multimap","rightsquigarrow","leftrightsquigarrow","dashrightarrow","dashleftarrow"
+  ],
+  "Sets & Logic": [
+    "emptyset","varnothing","infty","aleph","beth","gimel","daleth","complement",
+    "forall","exists","nexists","neg","lnot","top","bot","therefore","because",
+    "partial","nabla","hbar","hslash","ell","wp","Re","Im","imath","jmath",
+    "cup","cap",["\\mathbb{R}","R reals real numbers blackboard"],["\\mathbb{Z}","Z integers blackboard"],
+    ["\\mathbb{N}","N naturals natural numbers blackboard"],["\\mathbb{Q}","Q rationals blackboard"],
+    ["\\mathbb{C}","C complex blackboard"],["\\mathbb{H}","H quaternions blackboard"],["\\mathbb{P}","P primes blackboard"]
+  ],
+  "Delimiters": [
+    "langle","rangle","lceil","rceil","lfloor","rfloor","lbrace","rbrace","lbrack","rbrack",
+    "lvert","rvert","lVert","rVert","vert","Vert","llbracket","rrbracket","ulcorner","urcorner","backslash"
+  ],
+  "Geometry & Misc": [
+    "angle","measuredangle","sphericalangle","triangle","triangleleft","triangleright",
+    "bigtriangleup","bigtriangledown","square","blacksquare","blacktriangle","blacktriangledown",
+    "blacktriangleleft","blacktriangleright","bigstar","star","lozenge","blacklozenge",
+    "diamond","Diamond","diamondsuit","heartsuit","clubsuit","spadesuit",
+    "flat","natural","sharp","maltese","checkmark","dag","ddag","circledR","circledS","surd",
+    "prime","backprime","cdots","ldots","vdots","ddots","colon"
+  ],
+  "Decorations": [
+    ["\\hat{#0}","hat"],["\\bar{#0}","bar"],["\\vec{#0}","vec vector arrow"],["\\dot{#0}","dot"],["\\ddot{#0}","ddot"],
+    ["\\tilde{#0}","tilde"],["\\widehat{#0}","widehat hat"],["\\widetilde{#0}","widetilde tilde"],
+    ["\\overline{#0}","overline bar"],["\\underline{#0}","underline"],["\\overrightarrow{#0}","overrightarrow vector"],
+    ["\\overleftarrow{#0}","overleftarrow"],["\\boldsymbol{#0}","boldsymbol bold"],["\\mathbf{#0}","mathbf bold"],
+    ["\\mathbb{#0}","mathbb blackboard"],["\\mathcal{#0}","mathcal calligraphic"],["\\mathfrak{#0}","mathfrak fraktur"],
+    ["\\mathrm{#0}","mathrm roman upright"]
+  ]
+}

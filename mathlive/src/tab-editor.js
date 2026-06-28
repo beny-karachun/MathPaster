@@ -1,5 +1,6 @@
 import { state } from './state.js';
 import { PALETTE_DATA } from './palette-data.js';
+import { SYMBOL_CATALOG } from './symbol-catalog.js';
 import { hasPremium, renderSymbolFace, saveCustomTabs, renderTabs, renderPalette, moveTabToFront } from './palette.js';
 import { openUpgradeModal } from './license.js';
 
@@ -56,6 +57,7 @@ function renderWorkingSymbols() {
     empty.className = "tab-symbol-empty";
     empty.textContent = "No symbols yet — type a command above and press Add.";
     tabSymbolList.appendChild(empty);
+    refreshPickerSelection();
     return;
   }
   workingSymbols.forEach((sym, idx) => {
@@ -83,6 +85,7 @@ function renderWorkingSymbols() {
 
     tabSymbolList.appendChild(chip);
   });
+  refreshPickerSelection();
 }
 
 function addWorkingSymbol() {
