@@ -106,6 +106,150 @@ function addWorkingSymbol() {
   try { tabMf.focus(); } catch (e) {}
 }
 
+/* ── "Browse symbols" picker — categorized, render-safe catalog ── */
+const browseToggle   = document.getElementById("tab-browse-toggle");
+const symbolPicker   = document.getElementById("tab-symbol-picker");
+const symbolSearch   = document.getElementById("symbol-search");
+const symbolCatNav   = document.getElementById("symbol-cat-nav");
+const symbolGrid     = document.getElementById("symbol-grid");
+const symbolNoResults= document.getElementById("symbol-noresults");
+
+let pickerBuilt = false;
+let pickerCat = "All";
+const pickerCells = [];      // { el, latex, name }
+const pickerSections = [];   // { el, cat, cells:[...] }
+
+// Build the grid + category nav once (lazily, on first open). 374 faces is a one-time cost.
+function buildSymbolPicker() {
+  if (pickerBuilt || !symbolGrid) return;
+  const cats = Object.keys(SYMBOL_CATALOG);
+
+  symbolCatNav.innerHTML = "";
+  ["All", ...cats].forEach(cat => {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "symbol-cat-chip" + (cat === pickerCat ? " active" : "");
+    chip.textContent = cat;
+    chip.addEventListener("mousedown", e => e.preventDefault());
+    chip.addEventListener("click", e => {
+      e.preventDefault();
+      pickerCat = cat;
+      symbolCatNav.querySelectorAll(".symbol-cat-chip").forEach(c => c.classList.toggle("active", c.textContent === cat));
+      applyPickerFilter();
+      symbolGrid.scrollTop = 0;
+    });
+    symbolCatNav.appendChild(chip);
+  });
+
+  symbolGrid.innerHTML = "";
+  for (const cat of cats) {
+    const section = document.createElement("div");
+    section.className = "symbol-section";
+
+    const title = document.createElement("div");
+    title.className = "symbol-section-title";
+    title.textContent = cat;
+    section.appendChild(title);
+
+    const cellsWrap = document.createElement("div");
+    cellsWrap.className = "symbol-section-cells";
+
+    const cells = [];
+    for (const sym of SYMBOL_CATALOG[cat]) {
+      const cell = document.createElement("button");
+      cell.type = "button";
+      cell.className = "symbol-cell";
+      cell.title = sym.latex;
+      cell.innerHTML = renderSymbolFace(sym.latex);
+      cell.addEventListener("mousedown", e => e.preventDefault()); // never steal focus from the modal
+      cell.addEventListener("click", e => { e.preventDefault(); toggleSymbol(sym.latex); });
+      cellsWrap.appendChild(cell);
+      const rec = { el: cell, latex: sym.latex, name: (sym.name || "").toLowerCase() };
+      cells.push(rec);
+      pickerCells.push(rec);
+    }
+    section.appendChild(cellsWrap);
+    symbolGrid.appendChild(section);
+    pickerSections.push({ el: section, cat, cells });
+  }
+
+  pickerBuilt = true;
+  refreshPickerSelection();
+}
+
+// Add the symbol if absent, remove all copies if already present (toggle membership).
+function toggleSymbol(latex) {
+  const present = workingSymbols.some(s => s.latex === latex);
+  if (present) workingSymbols = workingSymbols.filter(s => s.latex !== latex);
+  else workingSymbols.push({ latex });
+  if (tabError) tabError.textContent = "";
+  renderWorkingSymbols();   // also calls refreshPickerSelection()
+}
+
+// Mark grid cells whose symbol is already in the working set.
+function refreshPickerSelection() {
+  if (!pickerBuilt) return;
+  const chosen = new Set(workingSymbols.map(s => s.latex));
+  for (const c of pickerCells) c.el.classList.toggle("selected", chosen.has(c.latex));
+}
+
+// Show/hide cells + sections per the active category and search query.
+function applyPickerFilter() {
+  if (!pickerBuilt) return;
+  const q = (symbolSearch.value || "").trim().toLowerCase();
+  let anyVisible = false;
+  for (const sec of pickerSections) {
+    const catOk = pickerCat === "All" || sec.cat === pickerCat;
+    let secVisible = false;
+    for (const c of sec.cells) {
+      const hit = catOk && (!q || c.name.includes(q) || c.latex.toLowerCase().includes(q));
+      c.el.hidden = !hit;
+      if (hit) secVisible = true;
+    }
+    sec.el.hidden = !secVisible;
+    if (secVisible) anyVisible = true;
+  }
+  if (symbolNoResults) symbolNoResults.hidden = anyVisible;
+}
+
+function openSymbolPicker() {
+  buildSymbolPicker();
+  symbolPicker.hidden = false;
+  browseToggle.setAttribute("aria-expanded", "true");
+  browseToggle.classList.add("open");
+  applyPickerFilter();
+  requestAnimationFrame(() => { try { symbolSearch.focus(); } catch (e) {} });
+}
+
+function closeSymbolPicker() {
+  if (!symbolPicker) return;
+  symbolPicker.hidden = true;
+  if (browseToggle) { browseToggle.setAttribute("aria-expanded", "false"); browseToggle.classList.remove("open"); }
+}
+
+// Collapse + clear the picker back to its default state (called when the editor opens).
+function resetSymbolPicker() {
+  if (symbolSearch) symbolSearch.value = "";
+  pickerCat = "All";
+  if (pickerBuilt) {
+    symbolCatNav.querySelectorAll(".symbol-cat-chip").forEach(c => c.classList.toggle("active", c.textContent === "All"));
+    applyPickerFilter();
+  }
+  closeSymbolPicker();
+}
+
+if (browseToggle) {
+  browseToggle.addEventListener("mousedown", e => e.preventDefault());
+  browseToggle.addEventListener("click", e => {
+    e.preventDefault();
+    if (symbolPicker.hidden) openSymbolPicker(); else closeSymbolPicker();
+  });
+}
+if (symbolSearch) {
+  symbolSearch.addEventListener("input", applyPickerFilter);
+  symbolSearch.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); e.stopPropagation(); } });
+}
+
 export function openTabEditor(id) {
   if (!hasPremium()) { openUpgradeModal("Editing custom tabs is part of MathPaster Pro."); return; }
   configureTabMf();
@@ -127,6 +271,7 @@ export function openTabEditor(id) {
 
   if (tabMf) tabMf.value = "";
   renderWorkingSymbols();
+  resetSymbolPicker();
   tabOverlay.classList.add("visible");
   // Focus the name field on open — immediately and on the next frame for reliability —
   // but never steal focus once the user has clicked into the modal (e.g. the math input).
