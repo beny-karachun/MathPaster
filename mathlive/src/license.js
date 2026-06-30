@@ -26,6 +26,13 @@ async function sha256Hex(text) {
   return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// MathPaster Pro is unlocked on the public web demo (mathpaster.com) so visitors
+// can try every Pro feature; the paid extension stays gated behind a real key.
+// Extension pages run at chrome-extension://, the demo at http(s)://, so the
+// protocol tells them apart. This lives in the shared source (synced to docs/)
+// but only ever grants Pro outside the extension — see loadLicense().
+const IS_WEB_DEMO = location.protocol !== 'chrome-extension:';
+
 export function isPro() { return !!(state.license && state.license.pro); }
 
 /* ── Storage (chrome.storage.sync with localStorage fallback) ── */
@@ -123,6 +130,12 @@ async function revalidate() {
 }
 
 export async function loadLicense() {
+  if (IS_WEB_DEMO) {
+    // Always-on Pro for the public demo — granted locally, never stored or revalidated.
+    state.license = { key: 'web-demo', pro: true, master: true, lastValidated: Date.now() };
+    notifyChange();
+    return;
+  }
   state.license = await readStored();
   notifyChange();
   if (isPro() && Date.now() - (state.license.lastValidated || 0) > REVALIDATE_MS) revalidate();
