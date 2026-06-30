@@ -162,6 +162,7 @@ export function applySettings(settings) {
       #editor-window {
         width: ${settings.popupWidth}px !important;
         height: ${settings.popupHeight}px !important;
+        flex-shrink: 0 !important;
         max-width: none !important;
         max-height: none !important;
         transform-origin: top center !important;
@@ -423,6 +424,18 @@ export function loadPosition() {
 }
 
 export function clampPositionToBounds() {
+  // On mobile the window is laid out by flex + transform:scale() (see the
+  // max-width:600px block in applySettings), not by drag offsets. The offset math
+  // below assumes the viewport is taller/wider than the window, which is false when
+  // the full-size window is scaled down to fit a phone — it would shove the window
+  // off-screen. So pin the offset to 0 and let the mobile CSS center it.
+  if (window.innerWidth <= 600 && window.frameElement) {
+    state.currentX = state.currentY = state.baseX = state.baseY = 0;
+    editorWindow.style.left = '0px';
+    editorWindow.style.top = '0px';
+    return;
+  }
+
   // Use the rendered (zoomed) size, since that's the window's actual on-screen footprint.
   const zoom = (state.zoom && isFinite(state.zoom) && state.zoom > 0) ? state.zoom : 1;
   const width = state.currentSettings.popupWidth * zoom;
