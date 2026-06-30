@@ -1,6 +1,23 @@
 import { state } from './state.js';
 import { mf, latexEl, loading } from './dom.js';
 
+/* ── Touch detection (mirrors how MathLive itself decides a device is touch) ── */
+const IS_TOUCH = (window.matchMedia && window.matchMedia('(pointer: coarse)').matches)
+  || ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+/* Open the device's native keyboard when the field is tapped on mobile.
+ * MathLive hard-codes inputmode="none" on its hidden keyboard sink so it can show
+ * its own math keyboard on touch devices. We run with policy:"manual" (no math
+ * keyboard), which left phones with no keyboard at all. Flipping the sink to
+ * inputmode="text" makes a tap summon the OS keyboard; input still flows through
+ * the sink so MathLive parsing / auto-symbols keep working. The sink lives in the
+ * field's shadow DOM and can be re-rendered, so we re-assert before each focus. */
+function enableNativeKeyboard() {
+  const root = mf && (mf.shadowRoot || mf);
+  const sink = root && root.querySelector('.ML__keyboard-sink');
+  if (sink && sink.getAttribute('inputmode') !== 'text') sink.setAttribute('inputmode', 'text');
+}
+
 /* ── Live preview & Caching ── */
 export function updatePreview() {
   const raw = mf.value || "";
@@ -57,6 +74,11 @@ export function initMathField() {
       loading.classList.add("hidden");
       mf.style.display = "block";
       mf.addEventListener("input", updatePreview);
+      if (IS_TOUCH) {
+        enableNativeKeyboard();
+        mf.addEventListener("pointerdown", enableNativeKeyboard, true);
+        mf.addEventListener("focusin", enableNativeKeyboard);
+      }
       window.parent.postMessage({ mathpaster: "ready" }, "*");
     }).catch(err => {
       loading.textContent = "Error defining math-field: " + err.message;
@@ -75,6 +97,9 @@ window.addEventListener("mousedown", () => {
 // Enforce focus when clicking anywhere inside the editor wrap or the empty space of the math field
 document.getElementById("mf-wrap").addEventListener("mousedown", (e) => {
   if (e.target === document.getElementById("mf-wrap") || e.target === mf) {
+    // On touch, let the native tap focus the field so the OS keyboard opens —
+    // preventDefault() + programmatic focus here would suppress the keyboard.
+    if (IS_TOUCH) return;
     e.preventDefault();
     if (state.mfReady && mf) {
       window.focus();
