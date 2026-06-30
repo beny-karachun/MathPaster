@@ -81,11 +81,16 @@ export function applySettings(settings) {
   const renderW = settings.popupWidth * zoom;
   const renderH = settings.popupHeight * zoom;
 
-  if (window.innerWidth <= 600 && window.frameElement) {
-    scaleFactor = (window.innerWidth * 0.94) / settings.popupWidth;
-    const scaledHeight = settings.popupHeight * scaleFactor;
-    window.frameElement.style.setProperty('height', (scaledHeight + 40) + 'px', 'important');
-  }
+  // ── Mobile layout ──
+  // On a phone the desktop layout (popupWidth ≈ 760) gets shrunk to ~0.39 to fit the
+  // screen, making every symbol ~8px and unreadable. Instead we lay the editor out at
+  // a much narrower "mobile design width" so the scale factor — and therefore every
+  // symbol/button — is far larger, and we let the window height be content-driven so
+  // the symbol palette is never clipped by a fixed height. The iframe is sized to the
+  // editor's natural height after the styles below are applied (see end of function).
+  const MOBILE = window.innerWidth <= 600 && window.frameElement;
+  const MDW = 470; // mobile design width (px) — narrow enough that symbols stay large
+  if (MOBILE) scaleFactor = (window.innerWidth * 0.94) / MDW;
 
   let styleEl = document.getElementById('dynamic-theme');
   if (!styleEl) {
@@ -156,12 +161,18 @@ export function applySettings(settings) {
         margin: 0 !important;
         background: transparent !important;
       }
-      /* On mobile the whole window scales to fit; the inner zoom stays neutral so
-         we don't double-scale. */
-      #editor-scale { transform: none !important; }
+      /* Lay the content out at the narrow mobile design width, in normal flow, with a
+         content-driven height — so the window grows to fit the full symbol palette
+         instead of clipping it. (Desktop keeps the absolute/fixed-height zoom layout.) */
+      #editor-scale {
+        position: static !important;
+        transform: none !important;
+        width: ${MDW}px !important;
+        height: auto !important;
+      }
       #editor-window {
-        width: ${settings.popupWidth}px !important;
-        height: ${settings.popupHeight}px !important;
+        width: ${MDW}px !important;
+        height: auto !important;
         flex-shrink: 0 !important;
         max-width: none !important;
         max-height: none !important;
@@ -173,6 +184,12 @@ export function applySettings(settings) {
         position: relative !important;
         margin: 0 !important;
       }
+      /* Let body & palette flow at their natural height rather than fighting over a
+         fixed window height (which previously squeezed the palette to a thin sliver). */
+      #body { flex: 0 0 auto !important; overflow: visible !important; }
+      #palette-container { flex: 0 0 auto !important; overflow: visible !important; }
+      /* The empty math-input box shouldn't dominate the screen on a phone. */
+      #mf, math-field { min-height: 60px !important; }
       #drag-hint {
         display: none !important;
       }
@@ -253,6 +270,14 @@ export function applySettings(settings) {
   if (inputLatex) inputLatex.checked = !!settings.showLatexBar;
   const inputBlur = document.getElementById("set-blurBackground");
   if (inputBlur) inputBlur.checked = !!settings.blurBackground;
+
+  // Size the iframe to the editor's natural (content) height on mobile. The styles
+  // above are now applied, so offsetHeight is the un-scaled layout height; multiply by
+  // scaleFactor to get the on-screen height, plus a little breathing room.
+  if (MOBILE) {
+    const naturalH = editorWindow.offsetHeight;
+    window.frameElement.style.setProperty('height', Math.round(naturalH * scaleFactor + 24) + 'px', 'important');
+  }
 
   window.parent.postMessage({ mathpaster: "update-blur", blur: settings.blurBackground }, "*");
   localStorage.setItem('mathpaster_settings', JSON.stringify(settings));
