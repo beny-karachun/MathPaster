@@ -8,7 +8,7 @@ import { state } from './state.js';
  * web demo. Validation is re-run silently once a week and FAILS OPEN — a
  * paying user never loses Pro because they're offline.
  */
-export const CHECKOUT_URL = 'https://mathpaster.lemonsqueezy.com/checkout/buy/75146b8b-9d35-4473-b3d2-7bf2be8753b5';
+export const CHECKOUT_URL = 'https://mathpaster.lemonsqueezy.com/checkout/buy/c4b9e824-6289-4913-b467-028670ec5c7f';
 // Numeric store id as reported by the activation response (meta.store_id).
 // null = accept keys from any store; set to the MathPaster store id so keys
 // bought from unrelated Lemon Squeezy stores are rejected.

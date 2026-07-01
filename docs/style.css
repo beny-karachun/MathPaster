@@ -657,6 +657,30 @@ footer {
     margin-bottom: 12px;
 }
 
+/* Free / Pro pills on feature card titles */
+.feat-tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    vertical-align: middle;
+    line-height: 1.4;
+}
+.feat-tag-pro {
+    color: var(--accent);
+    background: rgba(0, 229, 155, 0.12);
+    border: 1px solid rgba(0, 229, 155, 0.35);
+}
+.feat-tag-free {
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
 .card-text {
     color: var(--text-secondary);
     font-size: 0.9rem;
