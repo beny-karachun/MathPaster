@@ -178,29 +178,41 @@ nav {
 
 /* Honest "works with" compatibility signal under the hero CTAs */
 .hero-compat {
-    margin-top: 32px;
+    margin-top: 44px;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 12px;
-    flex-wrap: wrap;
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    color: var(--text-secondary);
 }
 
 .hero-compat-label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
     color: var(--accent);
-    letter-spacing: 1px;
-    font-size: 0.68rem;
-    border: 1px solid rgba(0, 229, 155, 0.25);
-    background: rgba(0, 229, 155, 0.06);
-    padding: 3px 8px;
-    border-radius: 4px;
-    white-space: nowrap;
 }
 
 .hero-compat-list {
-    opacity: 0.9;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px 22px;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.hero-compat-list span {
+    position: relative;
+}
+
+/* Thin, understated separators between platform names */
+.hero-compat-list span:not(:last-child)::after {
+    content: "·";
+    position: absolute;
+    right: -13px;
+    color: var(--card-border);
 }
 
 .btn {
@@ -943,6 +955,9 @@ kbd {
     }
     .hero-actions .btn {
         width: 100%;
+    }
+    .hero-compat {
+        margin-top: 32px;
     }
 
     /* Header: keep the nav on one comfortable row */
