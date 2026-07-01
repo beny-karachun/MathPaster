@@ -61,7 +61,7 @@ export const PALETTE_DATA = {
     { label: "∼", latex: "\\sim" },
     { label: "≈", latex: "\\approx" },
     { label: "∝", latex: "\\propto" },
-    { label: "binom", latex: "\\binom{#0}{#1}" },
+    { latex: "\\binom{#0}{#1}" },
   ],
   "Groups": [
     { label: "ℝ", latex: "\\mathbb{R}" },

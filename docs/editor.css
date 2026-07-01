@@ -660,6 +660,16 @@
       -webkit-user-select: none;
     }
 
+    /* MathLive/KaTeX markup inside a button forces its own text cursor and
+       selectable text — make it purely decorative so the button owns the
+       pointer cursor and every click. */
+    .pal-btn * {
+      cursor: pointer !important;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
     .pal-btn:hover {
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.04) 100%);
       border-color: rgba(255, 255, 255, 0.15);
