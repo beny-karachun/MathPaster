@@ -170,7 +170,6 @@
       "position:fixed", "inset:0", "z-index:2147483640",
       "display:flex", "align-items:flex-end", "justify-content:center",
       "background:rgba(0,0,0,0.45)",
-      "backdrop-filter:blur(6px)", "-webkit-backdrop-filter:blur(6px)",
       "opacity:0", "pointer-events:none",
       "transition:opacity .22s cubic-bezier(.4,0,.2,1)",
     ].join(";");
@@ -284,18 +283,6 @@
         if (iframe && e.data.width && e.data.height) {
           iframe.style.width = `min(${e.data.width}px, 95vw)`;
           iframe.style.height = `${e.data.height}px`;
-        }
-        break;
-
-      case "update-blur":
-        if (overlay) {
-          if (e.data.blur) {
-            overlay.style.backdropFilter = "blur(6px)";
-            overlay.style.webkitBackdropFilter = "blur(6px)";
-          } else {
-            overlay.style.backdropFilter = "none";
-            overlay.style.webkitBackdropFilter = "none";
-          }
         }
         break;
     }

@@ -51,8 +51,7 @@ const defaultSettings = {
   actionBtnFontSize: 16,
   actionBtnRoundness: 14,
   themePreset: DEFAULT_PRESET,
-  showLatexBar: false,
-  blurBackground: false
+  showLatexBar: false
 };
 
 state.currentSettings = { ...defaultSettings };
@@ -262,14 +261,10 @@ export function applySettings(settings) {
   // Update toggle state labels
   const labelLatex = document.getElementById("label-showLatexBar");
   if (labelLatex) labelLatex.classList.toggle("active", !!settings.showLatexBar);
-  const labelBlur = document.getElementById("label-blurBackground");
-  if (labelBlur) labelBlur.classList.toggle("active", !!settings.blurBackground);
   
   // Make sure the checkboxes match
   const inputLatex = document.getElementById("set-showLatexBar");
   if (inputLatex) inputLatex.checked = !!settings.showLatexBar;
-  const inputBlur = document.getElementById("set-blurBackground");
-  if (inputBlur) inputBlur.checked = !!settings.blurBackground;
 
   // Size the iframe to the editor's natural (content) height on mobile. The styles
   // above are now applied, so offsetHeight is the un-scaled layout height; multiply by
@@ -279,7 +274,6 @@ export function applySettings(settings) {
     window.frameElement.style.setProperty('height', Math.round(naturalH * scaleFactor + 24) + 'px', 'important');
   }
 
-  window.parent.postMessage({ mathpaster: "update-blur", blur: settings.blurBackground }, "*");
   localStorage.setItem('mathpaster_settings', JSON.stringify(settings));
 }
 
@@ -391,17 +385,6 @@ if (labelLatex) {
     if (input) {
       input.checked = !input.checked;
       state.currentSettings.showLatexBar = input.checked;
-      applySettings(state.currentSettings);
-    }
-  });
-}
-const labelBlur = document.getElementById("label-blurBackground");
-if (labelBlur) {
-  labelBlur.addEventListener("click", () => {
-    const input = document.getElementById("set-blurBackground");
-    if (input) {
-      input.checked = !input.checked;
-      state.currentSettings.blurBackground = input.checked;
       applySettings(state.currentSettings);
     }
   });
