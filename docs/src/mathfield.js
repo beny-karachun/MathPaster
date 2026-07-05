@@ -9,13 +9,73 @@ const IS_TOUCH = (window.matchMedia && window.matchMedia('(pointer: coarse)').ma
  * MathLive hard-codes inputmode="none" on its hidden keyboard sink so it can show
  * its own math keyboard on touch devices. We run with policy:"manual" (no math
  * keyboard), which left phones with no keyboard at all. Flipping the sink to
- * inputmode="text" makes a tap summon the OS keyboard; input still flows through
- * the sink so MathLive parsing / auto-symbols keep working. The sink lives in the
- * field's shadow DOM and can be re-rendered, so we re-assert before each focus. */
+ * inputmode="text" makes a tap summon the OS keyboard; typed text still flows through
+ * the sink so MathLive parses it. (Auto-symbols need the extra bridge below, because
+ * the OS keyboard commits characters without keydown.) The sink lives in the field's
+ * shadow DOM and can be re-rendered, so we re-assert before each focus. */
 function enableNativeKeyboard() {
   const root = mf && (mf.shadowRoot || mf);
   const sink = root && root.querySelector('.ML__keyboard-sink');
   if (sink && sink.getAttribute('inputmode') !== 'text') sink.setAttribute('inputmode', 'text');
+}
+
+/* Make auto-symbols (MathLive "inline shortcuts") work when characters arrive WITHOUT
+ * a keydown. MathLive only expands shortcuts from its keydown handler, so any input
+ * that commits via the IME path — phone keyboards, and Chrome on Linux/Wayland+IBus —
+ * types "alpha" literally instead of α. This bridges that gap: on a commit with no
+ * preceding keydown we look for a trailing shortcut key and expand it via the mathfield
+ * API. On a normal physical keyboard MathLive already handled it (keydown fired), so we
+ * stay dormant — no double expansion, no regression. Reading the LIVE inlineShortcuts
+ * option means this honours the Auto-Symbols toggle for free (it's {} when off). */
+function enableImeInlineShortcuts(mf) {
+  let sawKeydown = false;     // set on any physical keydown; cleared on the next task
+  let selfEditValue = null;   // value we just produced — ignore its async input echo
+  let composing = false;      // true between compositionstart/end (predictive keyboards)
+  let cachedMap = null, cachedKeys = [];
+
+  // Longest keys first so "sqrt" wins over any shorter suffix; cached by map identity
+  // (the toggle swaps in a new object, which transparently invalidates the cache).
+  const keysFor = (map) => {
+    if (map !== cachedMap) { cachedMap = map; cachedKeys = Object.keys(map).sort((a, b) => b.length - a.length); }
+    return cachedKeys;
+  };
+
+  const tryExpand = () => {
+    if (sawKeydown) return;                                 // physical keyboard: MathLive did it
+    const map = (mf.getOption ? mf.getOption('inlineShortcuts') : mf.inlineShortcuts) || {};
+    const keys = keysFor(map);
+    if (!keys.length) return;                               // Auto-Symbols off / nothing to match
+    const value = mf.value || '';
+    if (value === selfEditValue) return;                    // async echo of our own edit
+    const run = (value.match(/[A-Za-z]+$/) || [''])[0];     // trailing letters at the caret
+    if (!run) return;
+    // Longest shortcut that is a suffix of the run — but hold off if a longer key could
+    // still be reached by typing more (mimics MathLive's backtracking: "in" ≠ "int").
+    const key = keys.find(k => k.length <= run.length && run.endsWith(k)
+      && !keys.some(k2 => k2.length > k.length && k2.startsWith(run.slice(run.length - k.length))));
+    if (!key) return;
+    for (let i = 0; i < key.length; i++) mf.executeCommand('deleteBackward');
+    mf.insert(map[key], { format: 'latex' });
+    selfEditValue = mf.value;
+  };
+
+  // Listen on `window` (capture), not on `mf`: MathLive stops propagation of the
+  // keydowns it handles before they reach the shadow host, so a host listener misses
+  // them and we'd wrongly think there was no keydown. Also hold the guard for a beat
+  // after the last keydown — MathLive expands on keydown but fires its `input` echo a
+  // tick later, so a same-task reset would let us wake up and race its native expansion
+  // (e.g. eating the α in a physical "alphabeta"). A physical typing burst keeps
+  // resetting the timer, so we stay dormant throughout; on a keydown-less path
+  // (mobile / Wayland) the timer never arms and we're always active.
+  let kdTimer = null;
+  window.addEventListener('keydown', () => {
+    sawKeydown = true;
+    clearTimeout(kdTimer);
+    kdTimer = setTimeout(() => { sawKeydown = false; }, 150);
+  }, true);
+  mf.addEventListener('compositionstart', () => { composing = true; });
+  mf.addEventListener('compositionend', () => { composing = false; tryExpand(); });
+  mf.addEventListener('input', (e) => { if (composing || (e && e.isComposing)) return; tryExpand(); });
 }
 
 /* ── Live preview & Caching ── */
@@ -74,6 +134,9 @@ export function initMathField() {
       loading.classList.add("hidden");
       mf.style.display = "block";
       mf.addEventListener("input", updatePreview);
+      // Auto-symbols on keydown-less input paths (mobile OS keyboards, Chrome/Wayland+IBus).
+      // Always on — it self-disables on physical keyboards, so it's safe everywhere.
+      enableImeInlineShortcuts(mf);
       if (IS_TOUCH) {
         enableNativeKeyboard();
         mf.addEventListener("pointerdown", enableNativeKeyboard, true);
