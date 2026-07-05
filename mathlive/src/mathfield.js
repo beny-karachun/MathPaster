@@ -68,13 +68,21 @@ function enableImeInlineShortcuts(mf) {
   // resetting the timer, so we stay dormant throughout; on a keydown-less path
   // (mobile / Wayland) the timer never arms and we're always active.
   let kdTimer = null;
-  window.addEventListener('keydown', () => {
+  window.addEventListener('keydown', (e) => {
+    // Ignore IME/composition keydowns — the keyCode-229 "IME is processing" sentinel
+    // (key "Unidentified") that phone keyboards and Wayland/IBus fire for every character.
+    // MathLive does NOT expand from these, so counting them as a real keystroke would
+    // wrongly keep us dormant and auto-symbols would never expand on mobile — exactly the
+    // case this bridge exists to fix. Only a genuine character keydown stands us down.
+    if (e.isComposing || e.keyCode === 229 || e.key === 'Unidentified') return;
     sawKeydown = true;
     clearTimeout(kdTimer);
     kdTimer = setTimeout(() => { sawKeydown = false; }, 150);
   }, true);
   mf.addEventListener('compositionstart', () => { composing = true; });
-  mf.addEventListener('compositionend', () => { composing = false; tryExpand(); });
+  // Defer past MathLive's own compositionend handler, which commits the composed text
+  // into the field a tick later — read the settled value, not the pre-commit one.
+  mf.addEventListener('compositionend', () => { composing = false; setTimeout(tryExpand, 0); });
   mf.addEventListener('input', (e) => { if (composing || (e && e.isComposing)) return; tryExpand(); });
 }
 
