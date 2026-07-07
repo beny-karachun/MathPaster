@@ -11,21 +11,43 @@ const path = require("path");
 const R = __dirname;
 const RAW = path.join(R, "..", "recorder", "raw", "composite");
 const PUB = path.join(R, "public");
-const CLIPS = ["promo_overview", "promo_autocomplete", "promo_backslash"];
+const CLIPS = [
+  "promo_overview",
+  "promo_autocomplete",
+  "promo_backslash",
+  "promo_keyboard",
+  "promo_customtabs",
+  "promo_snippets",
+  "promo_history",
+  "promo_shortcuts",
+  "promo_customization",
+];
 
 fs.mkdirSync(path.join(PUB, "clips"), { recursive: true });
 
 const probeDur = (f) =>
   parseFloat(execFileSync("ffprobe", ["-v", "quiet", "-show_entries", "format=duration", "-of", "csv=p=0", f]).toString());
 
+/* Each raw clip carries ~1s of page-load dead air before the first caption —
+   cut it. NO retiming/resampling: the screencast is 25fps CFR, and the whole
+   composition runs at 25fps so every captured frame maps 1:1 (setpts/-r 30
+   resampling caused visible judder). Pace comes from the recorder itself.
+   Event timestamps just shift by the trim. */
+const TRIM_S = 1.0;
+
 const meta = { clips: [] };
 for (const name of CLIPS) {
   const webm = path.join(RAW, `${name}.webm`);
   const mp4 = path.join(PUB, "clips", `${name}.mp4`);
-  execFileSync("ffmpeg", ["-v", "error", "-y", "-i", webm, "-r", "30", "-c:v", "libx264", "-preset", "slow", "-crf", "14", "-pix_fmt", "yuv420p", mp4]);
+  execFileSync("ffmpeg", ["-v", "error", "-y", "-i", webm,
+    "-ss", String(TRIM_S), "-r", "25",
+    "-c:v", "libx264", "-preset", "slow", "-crf", "14", "-pix_fmt", "yuv420p", mp4]);
   const { events } = JSON.parse(fs.readFileSync(path.join(RAW, `${name}.json`)));
-  meta.clips.push({ name, durationSec: probeDur(mp4), events });
-  console.log(`✓ ${name} (${meta.clips.at(-1).durationSec.toFixed(1)}s, ${events.length} events)`);
+  const mapped = events
+    .map((e) => ({ ...e, t: Math.round(e.t - TRIM_S * 1000) }))
+    .filter((e) => e.t >= 0);
+  meta.clips.push({ name, durationSec: probeDur(mp4), events: mapped });
+  console.log(`✓ ${name} (${meta.clips.at(-1).durationSec.toFixed(1)}s, ${mapped.length} events)`);
 }
 
 fs.copyFileSync(path.join(R, "..", "..", "mathlive", "icons", "icon128.png"), path.join(PUB, "icon.png"));

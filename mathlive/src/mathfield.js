@@ -129,6 +129,13 @@ function enableImeInlineShortcuts(mf) {
 
   const onCommit = (data) => {
     if (data == null || data === '') { reset(); return; }
+    // Programmatic inserts (palette symbols, matrix templates, snippets/history
+    // loads) fire a single input event whose data is the WHOLE LaTeX string.
+    // Feeding that through the expander corrupts it (the "in" of \begin becomes
+    // \in, "&" becomes \&, and the deleteBackwards eat preceding content). Real
+    // IME commits are plain text — a multi-char run containing LaTeX structure
+    // chars can only be programmatic, so stand down and clear the buffer.
+    if (data.length > 1 && /[\\{}&]/.test(data)) { reset(); return; }
     for (const ch of data) feedChar(ch);
   };
 

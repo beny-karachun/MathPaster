@@ -299,6 +299,15 @@
       // compensate for body zoom (1440p composite mode) so the fake
       // cursor lands exactly where the real pointer is
       const z = parseFloat(getComputedStyle(document.body).zoom) || 1;
+      cursor.style.transition = "none";
+      cursor.style.transform = `translate(${x / z}px, ${y / z}px)`;
+    },
+    // Smooth glide: one CSS transition instead of N discrete teleports — the
+    // compositor animates the cursor every frame, so 25fps capture shows true
+    // per-frame motion. Curve matches the harness's ease() (easeInOutQuad).
+    glideCursor(x, y, ms) {
+      const z = parseFloat(getComputedStyle(document.body).zoom) || 1;
+      cursor.style.transition = `transform ${ms}ms cubic-bezier(0.45, 0, 0.55, 1)`;
       cursor.style.transform = `translate(${x / z}px, ${y / z}px)`;
     },
     clickPulse() {

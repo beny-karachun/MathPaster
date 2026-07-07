@@ -19,11 +19,13 @@ const COMPOSITE = !!process.env.COMPOSITE;
 const RAW = path.join(__dirname, COMPOSITE ? "raw/composite" : "raw");
 const VIEW = { width: 1920, height: 1080 };
 
-/* wait() is wall-clock; sleep()/hold() compress in composite mode to hit
-   the 60s budget (sleep also paces glide/drag interpolation steps). */
+/* wait() is wall-clock; sleep()/hold() compress in composite mode to keep the
+   showcase snappy (sleep also paces glide/drag interpolation steps). The speed
+   comes from HERE, at capture time — never from post-hoc setpts resampling,
+   which stutters against the 25fps screencast. */
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-const sleep = (ms) => wait(Math.round(ms * (COMPOSITE ? 0.8 : 1)));
-const hold = (ms) => wait(Math.round(ms * (COMPOSITE ? 0.5 : 1)));
+const sleep = (ms) => wait(Math.round(ms * (COMPOSITE ? 0.42 : 1)));
+const hold = (ms) => wait(Math.round(ms * (COMPOSITE ? 0.3 : 1)));
 const ease = (t) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t);
 
 /* ── event timeline (consumed by compose.js for typing SFX) ── */
@@ -32,7 +34,7 @@ let T0 = 0;
 const logEvent = (type) => EVENTS.push({ t: Date.now() - T0, type });
 
 async function typeMath(page, text, delay = 110) {
-  const d = Math.round(delay * (COMPOSITE ? 0.72 : 1));
+  const d = Math.round(delay * (COMPOSITE ? 0.45 : 1));
   for (const ch of text) {
     await page.keyboard.type(ch);
     logEvent("key");
@@ -51,18 +53,26 @@ async function setCursor(page, x, y) {
   await page.evaluate(([a, b]) => window.__stage.setCursor(a, b), [x, y]);
 }
 
+/* The visible cursor animates via ONE CSS transition (compositor-smooth, moves
+   every captured frame). The real Playwright mouse follows underneath at a few
+   coarse waypoints paced by absolute wall-clock targets, so CDP latency can't
+   stretch the glide or desync it from the CSS animation. */
 async function glide(page, x, y, ms = 650) {
-  const steps = Math.max(12, Math.round(ms / 25));
+  /* 0.7, not lower: at 25fps a sub-400ms flick moves >50px/frame and reads as
+     skipping — slightly longer glides keep per-frame displacement smooth. */
+  const dur = Math.round(ms * (COMPOSITE ? 0.7 : 1));
+  await page.evaluate(([a, b, d]) => window.__stage.glideCursor(a, b, d), [x, y, dur]);
+  const steps = 5;
   const sx = cx, sy = cy;
+  const t0 = Date.now();
   for (let i = 1; i <= steps; i++) {
     const t = ease(i / steps);
-    const nx = sx + (x - sx) * t;
-    const ny = sy + (y - sy) * t;
-    await page.mouse.move(nx, ny);
-    await setCursor(page, nx, ny);
-    await sleep(ms / steps);
+    await page.mouse.move(sx + (x - sx) * t, sy + (y - sy) * t);
+    const dt = t0 + (dur * i) / steps - Date.now();
+    if (dt > 0) await wait(dt);
   }
   cx = x; cy = y;
+  await wait(30); // let the CSS transition settle before any click
 }
 
 async function clickXY(page, x, y, ms = 650) {
@@ -81,24 +91,60 @@ async function clickEl(page, locator, ms = 650) {
   await clickXY(page, box.x + box.width / 2, box.y + box.height / 2, ms);
 }
 
-/* drag from current cursor position to (x, y) with the button held */
+/* drag from current cursor position to (x, y) with the button held.
+   Here the dragged UI follows the REAL mouse, so the cursor must stay glued to
+   it: keep per-step setCursor, but pace steps by absolute time at ~25/s so the
+   motion matches the capture rate instead of being stretched by CDP latency. */
 async function dragTo(page, x, y, ms = 900) {
   await page.mouse.down();
   await sleep(120);
-  const steps = Math.max(15, Math.round(ms / 25));
+  const dur = Math.round(ms * (COMPOSITE ? 0.7 : 1));
+  const steps = Math.max(10, Math.round(dur / 40));
   const sx = cx, sy = cy;
+  const t0 = Date.now();
   for (let i = 1; i <= steps; i++) {
     const t = ease(i / steps);
     const nx = sx + (x - sx) * t;
     const ny = sy + (y - sy) * t;
     await page.mouse.move(nx, ny);
     await setCursor(page, nx, ny);
-    await sleep(ms / steps);
+    const dt = t0 + (dur * i) / steps - Date.now();
+    if (dt > 0) await wait(dt);
   }
   await page.mouse.up();
   cx = x; cy = y;
   await sleep(150);
 }
+
+/* ── per-clip localStorage seeds (applied to the editor iframe before load) ──
+   `age` is ms-before-now; the init script converts it to an absolute ts so the
+   relative timestamps ("2m ago") look right at record time. */
+const MIN = 60e3, HOUR = 3600e3, DAY = 86400e3;
+const SEEDS = {
+  promo_history: {
+    history: [
+      { latex: "x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}", mode: "inline", age: 3 * MIN },
+      { latex: "\\frac{\\int_0^{\\pi}\\sin^2(t)\\:dt}{1+\\frac{1}{1+\\frac{1}{2}}}\\cdot\\begin{bmatrix}1 & 2\\\\ 3 & 4\\end{bmatrix}", mode: "inline", age: 21 * MIN },
+      { latex: "E=mc^2", mode: "inline", age: 2 * HOUR },
+      { latex: "\\oint\\vec{E}\\cdot d\\vec{A}=\\frac{Q}{\\varepsilon_0}", mode: "block", age: 5 * HOUR },
+      { latex: "A=\\pi r^2", mode: "inline", age: 26 * HOUR },
+    ],
+  },
+  promo_snippets: {
+    raw: {
+      mathpaster_snippet_tabs: [
+        { id: "st_default", name: "My Snippets" },
+        { id: "st_phys", name: "Physics" },
+      ],
+      mathpaster_snippet_active: "st_default",
+    },
+    snippets: [
+      { id: "s_1", latex: "i\\hbar\\frac{\\partial}{\\partial t}\\Psi=\\hat{H}\\Psi", mode: "inline", name: "Schrödinger equation", age: 2 * DAY, tabId: "st_phys" },
+      { id: "s_2", latex: "\\oint\\vec{E}\\cdot d\\vec{A}=\\frac{Q_{enc}}{\\varepsilon_0}", mode: "inline", name: "Gauss's law", age: 5 * DAY, tabId: "st_phys" },
+      { id: "s_3", latex: "F=G\\frac{m_1m_2}{r^2}", mode: "inline", name: "Newton's gravity", age: 6 * DAY, tabId: "st_phys" },
+    ],
+  },
+};
 
 const cap = (page, text) => page.evaluate((t) => window.__stage.setCaption(t), text);
 const hudKeys = (page, keys, hold = 1600) =>
@@ -162,11 +208,11 @@ async function overview(page) {
   await clickEl(page, f.locator(".pal-btn").first(), 600);
   await sleep(400);
   await clickEl(page, f.locator(".matrix-cell").nth(6), 700); // 2×2
-  await sleep(600);
+  await wait(900); // real time: typing into a half-inserted matrix garbles cells
   for (let i = 1; i <= 4; i++) {
     await typeMath(page, String(i), 0);
     if (i < 4) await pressKey(page, "Tab");
-    await sleep(140);
+    await wait(150);
   }
   await sleep(1000);
   await cap(page, "");
@@ -175,11 +221,11 @@ async function overview(page) {
   await clickEl(page, page.locator("#send-btn"), 800);
   await sleep(500);
   await cap(page, "Your AI gets it — instantly");
-  const replyDelay = COMPOSITE ? 18 : 28;
+  const replyDelay = COMPOSITE ? 9 : 28;
   await page.evaluate(([t, d]) => window.__stage.aiReply(t, d), [AI_REPLY, replyDelay]);
-  await wait(1300 + AI_REPLY.length * replyDelay + 400); // dots + typed-out reply (wall-clock)
+  await wait(1300 + AI_REPLY.length * replyDelay + 300); // dots + typed-out reply (wall-clock)
   await cap(page, "Works in any Chromium browser — on any site");
-  await hold(2400);
+  await hold(3200);
 }
 
 async function backslash(page) {
@@ -231,28 +277,21 @@ async function autocomplete(page) {
 
 async function keyboard(page) {
   const f = fl(page);
-  await cap(page, "Every symbol, one click away");
-  await sleep(1000);
-  await openEditor(page);
-  await clickEl(page, f.locator(".cat-tab", { hasText: "Calculus" }), 700);
-  await sleep(300);
-  await clickEl(page, f.locator(".pal-btn").first(), 600);
-  await sleep(900);
-  await page.keyboard.press("Control+a"); // clear the integral for the matrix demo
-  await page.keyboard.press("Delete");
   await cap(page, "Matrices? Just pick a size.");
+  await sleep(900);
+  await openEditor(page);
   await clickEl(page, f.locator(".cat-tab", { hasText: "Linear Algebra" }), 700);
   await sleep(300);
   await clickEl(page, f.locator(".pal-btn").first(), 600);
-  await sleep(500);
+  await wait(300); // real time: size-picker pops before we aim at a cell
   /* matrix size picker: 5x5 grid, choose 3x3 (row-major index 12) */
   await clickEl(page, f.locator(".matrix-cell").nth(12), 800);
-  await sleep(800);
+  await wait(900); // real time: typing into a half-inserted matrix garbles cells
   /* fill the matrix — Tab hops between placeholders */
   for (let i = 1; i <= 9; i++) {
-    await page.keyboard.type(String(i));
-    if (i < 9) await page.keyboard.press("Tab");
-    await sleep(130);
+    await typeMath(page, String(i), 0);
+    if (i < 9) await pressKey(page, "Tab");
+    await wait(140);
   }
   await sleep(1000);
   await cap(page, "A real math keyboard — drag it, resize it");
@@ -276,21 +315,21 @@ async function shortcuts(page) {
   await cap(page, "Hands on the keyboard? Stay there.");
   await sleep(1400);
   await hudKeys(page, ["Ctrl", "M"], 1500);
-  await page.keyboard.press("Control+m");
+  await pressKey(page, "Control+m");
   await sleep(1100);
-  await page.keyboard.type("A=pir^2", { delay: 130 });
+  await typeMath(page, "A=pir^2", 130);
   await sleep(700);
   await cap(page, "Insert without touching the mouse");
   await hudKeys(page, ["Ctrl", "⏎"], 1500);
   await sleep(900);
-  await page.keyboard.press("Control+Enter");
+  await pressKey(page, "Control+Enter");
   await sleep(1400);
   await cap(page, "Toggle back any time");
   await hudKeys(page, ["Ctrl", "M"], 1400);
-  await page.keyboard.press("Control+m");
+  await pressKey(page, "Control+m");
   await sleep(1300);
   await hudKeys(page, ["Esc"], 1300);
-  await page.keyboard.press("Escape");
+  await pressKey(page, "Escape");
   await sleep(700);
   await cap(page, "Fast in. Fast out.");
   await sleep(2000);
@@ -301,13 +340,13 @@ async function shortcuts_modes(page) {
   await cap(page, "Inline mode → $ … $");
   await sleep(1000);
   await openEditor(page);
-  await page.keyboard.type("E=mc^2", { delay: 130 });
+  await typeMath(page, "E=mc^2", 130);
   await sleep(800);
   await clickEl(page, f.locator("#insert-btn"), 800);
   await sleep(1300);
-  await page.keyboard.type("  ", { delay: 60 }); // separate the two inserts in chat
+  await typeMath(page, "  ", 60); // separate the two inserts in chat
   await openEditor(page);
-  await page.keyboard.type("a/b", { delay: 130 });
+  await typeMath(page, "a/b", 130);
   await sleep(400);
   await cap(page, "Block mode → $$ … $$");
   await clickEl(page, f.locator('.mode-label[data-mode="block"]'), 800);
@@ -323,32 +362,114 @@ async function customization(page) {
   await cap(page, "Make it yours");
   await sleep(1000);
   await openEditor(page);
-  await page.keyboard.type("x^2+y^2=r^2", { delay: 90 }); // give the theme something to recolor
+  await typeMath(page, "x^2+y^2=r^2", 90); // give the theme something to recolor
   await sleep(400);
   await clickEl(page, f.locator("#settings-btn"), 800);
-  await sleep(600);
-  /* open the "Theme Colors" accordion (5th details element) */
-  await clickEl(page, f.locator("#settings-panel details").nth(4).locator("summary"), 700);
-  await sleep(500);
-  const hue = await f.locator("#set-primaryHue").boundingBox();
-  if (hue) {
-    const cur = parseFloat(await f.locator("#set-primaryHue").inputValue());
-    await glide(page, hue.x + hue.width * (cur / 360), hue.y + hue.height / 2, 700);
-    await cap(page, "Any accent color — live");
-    await dragTo(page, hue.x + hue.width * (335 / 360), hue.y + hue.height / 2, 1300);
-  }
-  await sleep(700);
-  const bg = await f.locator("#set-bgHue").boundingBox();
-  if (bg) {
-    const cur = parseFloat(await f.locator("#set-bgHue").inputValue());
-    await glide(page, bg.x + bg.width * (cur / 360), bg.y + bg.height / 2, 700);
-    await cap(page, "Background too");
-    await dragTo(page, bg.x + bg.width * (150 / 360), bg.y + bg.height / 2, 1300);
-  }
-  await sleep(800);
+  await wait(500); // real time: settings panel animates in
+  /* the Theme <details> ships open — click through curated preset swatches */
+  await cap(page, "13 hand-tuned themes — dark and light");
+  await clickEl(page, f.locator('.theme-swatch[data-preset="vaporwave"]'), 800);
+  await sleep(1200);
+  await clickEl(page, f.locator('.theme-swatch[data-preset="daylight"]'), 700); // light mode
+  await sleep(1400);
+  await clickEl(page, f.locator('.theme-swatch[data-preset="synthwave"]'), 700);
+  await sleep(1100);
   await clickEl(page, f.locator("#close-settings-btn"), 700);
   await cap(page, "Your editor. Your look.");
   await sleep(2200);
+}
+
+/* ── NEW: custom palette tabs (Pro) ──
+   "+ New Tab" → name it → browse the symbol catalog → save → use it.
+   Pro is auto-granted in the rig (editor served over http = web-demo mode). */
+async function customtabs(page) {
+  const f = fl(page);
+  await cap(page, "Build your own symbol tabs");
+  await sleep(900);
+  await openEditor(page);
+  await clickEl(page, f.locator(".new-tab-chip"), 800);
+  await wait(500); // real time: modal animates in
+  await typeMath(page, "Quantum", 95); // name input is auto-focused
+  await sleep(400);
+  await cap(page, "Pick from the full symbol catalog");
+  await clickEl(page, f.locator("#tab-browse-toggle"), 700);
+  await wait(450); // real time: picker builds/expands
+  await clickEl(page, f.locator("#symbol-search"), 600);
+  for (const term of ["hbar", "dagger", "otimes"]) {
+    await pressKey(page, "Control+a");
+    await typeMath(page, term, 70);
+    await sleep(420);
+    await clickEl(page, f.locator("#symbol-grid .symbol-cell:not([hidden])").first(), 550);
+    await sleep(220);
+  }
+  await sleep(500);
+  await clickEl(page, f.locator("#tab-save-btn"), 800);
+  await sleep(900);
+  await cap(page, "Your symbols — front and center");
+  await clickEl(page, f.locator(".pal-btn").first(), 700); // ℏ
+  await sleep(300);
+  await typeMath(page, "=h/2pi", 130); // ℏ = h/(2π)
+  await pressKey(page, "End");
+  await sleep(1000);
+  await hold(2000);
+}
+
+/* ── NEW: snippets + snippet tabs (Pro) ──
+   Type the quadratic formula (sequence probe-verified), save it as a named
+   snippet, then pull a seeded formula out of the "Physics" tab and insert it. */
+async function snippets(page) {
+  const f = fl(page);
+  await cap(page, "Type the same formula every week?");
+  await sleep(900);
+  await openEditor(page);
+  await typeMath(page, "x=", 130);
+  await typeMath(page, "/", 150); // empty fraction, cursor in numerator
+  await sleep(300);
+  await typeMath(page, "-b+-", 140); // +- → ±
+  await typeMath(page, "sqrt", 150);
+  await typeMath(page, "b^2-4ac", 125);
+  await pressKey(page, "ArrowRight"); // leave the root
+  await pressKey(page, "Tab"); // hop to the denominator
+  await typeMath(page, "2a", 140);
+  await pressKey(page, "End");
+  await sleep(700);
+  await cap(page, "Save it as a snippet — once");
+  await clickEl(page, f.locator("#snippets-btn"), 800);
+  await wait(500); // real time: the panel animates in; don't click mid-slide
+  await clickEl(page, f.locator("#snippet-name-input"), 700);
+  await typeMath(page, "Quadratic formula", 62);
+  await clickEl(page, f.locator("#snippet-save-btn"), 650);
+  await sleep(1000);
+  await cap(page, "Organize snippets into tabs");
+  await clickEl(page, f.locator(".snip-tab", { hasText: "Physics" }), 800);
+  await sleep(1300);
+  await cap(page, "Your formula sheet — one click away");
+  await clickEl(page, f.locator("#snippets-list .entry-row").first(), 800); // Schrödinger
+  await sleep(900);
+  await clickEl(page, f.locator("#insert-btn"), 800);
+  await sleep(1000);
+  await hold(2000);
+}
+
+/* ── NEW: insert history (free) ──
+   Seeded with the expressions "inserted" in earlier scenes; pull one back. */
+async function history(page) {
+  const f = fl(page);
+  await cap(page, "Inserted it before? It's in your history");
+  await sleep(900);
+  await openEditor(page);
+  await clickEl(page, f.locator("#history-btn"), 800);
+  await sleep(900);
+  await cap(page, "Every insert — saved automatically");
+  await sleep(1700);
+  await clickEl(page, f.locator("#history-list .entry-row").first(), 800); // quadratic
+  await sleep(800);
+  await cap(page, "Grab it again in seconds");
+  await clickEl(page, f.locator("#insert-btn"), 800);
+  await sleep(1000);
+  await clickEl(page, page.locator("#send-btn"), 700);
+  await sleep(600);
+  await hold(1800);
 }
 
 const CLIPS = {
@@ -356,6 +477,9 @@ const CLIPS = {
   promo_autocomplete: autocomplete,
   promo_backslash: backslash,
   promo_keyboard: keyboard,
+  promo_customtabs: customtabs,
+  promo_snippets: snippets,
+  promo_history: history,
   promo_shortcuts: shortcuts,
   promo_shortcuts_modes: shortcuts_modes,
   promo_customization: customization,
@@ -368,7 +492,7 @@ async function makeClip(browser, name, fn) {
   });
   // Enlarge the editor via its own settings system so the product
   // dominates the 1080p frame (authentic look, correct hit-testing).
-  await context.addInitScript(() => {
+  await context.addInitScript((seed) => {
     if (location.pathname.includes("/mathlive/editor.html")) {
       localStorage.setItem(
         "mathpaster_settings",
@@ -387,14 +511,22 @@ async function makeClip(browser, name, fn) {
           showLatexBar: true,
         })
       );
+      if (seed) {
+        for (const [k, v] of Object.entries(seed.raw || {})) {
+          localStorage.setItem(k, JSON.stringify(v));
+        }
+        const stamp = (l) => l.map(({ age, ...e }) => ({ ...e, ts: Date.now() - age }));
+        if (seed.history) localStorage.setItem("mathpaster_history", JSON.stringify(stamp(seed.history)));
+        if (seed.snippets) localStorage.setItem("mathpaster_snippets", JSON.stringify(stamp(seed.snippets)));
+      }
     }
-  });
+  }, SEEDS[name] || null);
   const page = await context.newPage();
   EVENTS = [];
   T0 = Date.now(); // video capture starts ≈ page creation
   await page.goto(STAGE);
   await fl(page).locator("#mf").waitFor({ state: "visible", timeout: 30000 });
-  await sleep(900); // let fonts/layout settle
+  await wait(650); // let fonts/layout settle
   cx = 1400; cy = 760;
   await setCursor(page, cx, cy);
   let videoPath = null;

@@ -12,8 +12,12 @@ import meta from "./meta.json";
 
 export const clipFrames = meta.clips.map((c) => Math.round(c.durationSec * FPS));
 
+/* transitions: title→clip1, between clips, lastClip→end = clips.length + 1 */
 export const totalFrames =
-  TITLE_FRAMES + clipFrames.reduce((a, b) => a + b, 0) + END_FRAMES - 4 * TRANSITION_FRAMES;
+  TITLE_FRAMES +
+  clipFrames.reduce((a, b) => a + b, 0) +
+  END_FRAMES -
+  (meta.clips.length + 1) * TRANSITION_FRAMES;
 
 /* absolute start frame of each clip scene in the final timeline */
 const clipStarts = meta.clips.map((_, i) => {
@@ -21,7 +25,8 @@ const clipStarts = meta.clips.map((_, i) => {
   for (let k = 0; k < i; k++) start += clipFrames[k] - TRANSITION_FRAMES;
   return start;
 });
-const endStart = clipStarts[2] + clipFrames[2] - TRANSITION_FRAMES;
+const endStart =
+  clipStarts[meta.clips.length - 1] + clipFrames[meta.clips.length - 1] - TRANSITION_FRAMES;
 
 /* ── music ducking: smoothed typing-density envelope per frame ── */
 const duck = new Float32Array(totalFrames);
@@ -52,11 +57,20 @@ const musicVolume = (f: number) => {
   return base * fadeIn * fadeOut;
 };
 
-const zooms: { zoom: number; origin: string }[] = [
-  { zoom: 1.06, origin: "50% 58%" }, // overview: editor + chat
-  { zoom: 1.07, origin: "50% 45%" }, // autocomplete: mathfield
-  { zoom: 1.08, origin: "46% 38%" }, // backslash: popover region
-];
+/* slow push-in per clip, keyed by name; aimed at each scene's focal region */
+const DEFAULT_ZOOM = { zoom: 1.06, origin: "50% 55%" };
+const zooms: Record<string, { zoom: number; origin: string }> = {
+  promo_overview: { zoom: 1.06, origin: "50% 58%" }, // editor + chat
+  promo_autocomplete: { zoom: 1.07, origin: "50% 45%" }, // mathfield
+  promo_backslash: { zoom: 1.08, origin: "46% 38%" }, // popover region
+  promo_keyboard: { zoom: 1.06, origin: "45% 55%" }, // matrix + parked keyboard
+  promo_customtabs: { zoom: 1.06, origin: "50% 48%" }, // tab-editor modal
+  promo_snippets: { zoom: 1.06, origin: "50% 45%" }, // snippets panel
+  promo_history: { zoom: 1.07, origin: "50% 45%" }, // history panel
+  promo_shortcuts_modes: { zoom: 1.06, origin: "50% 55%" },
+  promo_shortcuts: { zoom: 1.06, origin: "50% 55%" },
+  promo_customization: { zoom: 1.06, origin: "55% 50%" }, // settings panel
+};
 
 export const MathPasterPromo: React.FC = () => {
   return (
@@ -70,15 +84,16 @@ export const MathPasterPromo: React.FC = () => {
           timing={linearTiming({ durationInFrames: TRANSITION_FRAMES })}
         />
         {meta.clips.flatMap((c, i) => {
+          const z = zooms[c.name] ?? DEFAULT_ZOOM;
           const scene = (
             <TransitionSeries.Sequence key={c.name} durationInFrames={clipFrames[i]}>
               <ClipScene
                 src={`clips/${c.name}.mp4`}
                 durationInFrames={clipFrames[i]}
                 events={c.events as Ev[]}
-                zoom={zooms[i].zoom}
-                origin={zooms[i].origin}
-                dingAfterLastClickMs={i === 0 ? 1900 : undefined}
+                zoom={z.zoom}
+                origin={z.origin}
+                dingAfterLastClickMs={c.name === "promo_overview" ? 1650 : undefined}
               />
             </TransitionSeries.Sequence>
           );
