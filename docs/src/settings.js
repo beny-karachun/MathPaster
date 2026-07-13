@@ -54,7 +54,41 @@ const defaultSettings = {
   showLatexBar: false
 };
 
+const MOBILE_BREAKPOINT = 600;
+const MOBILE_DESIGN_WIDTH = 470;
+const MOBILE_IFRAME_PADDING = 24;
+
 state.currentSettings = { ...defaultSettings };
+
+function isMobileFrame() {
+  return window.innerWidth <= MOBILE_BREAKPOINT && window.frameElement !== null;
+}
+
+function getMobileScaleFactor() {
+  return (window.innerWidth * 0.94) / MOBILE_DESIGN_WIDTH;
+}
+
+function syncMobileIframeHeight() {
+  if (!isMobileFrame()) return;
+
+  const naturalHeight = editorWindow.offsetHeight;
+  if (!naturalHeight) return;
+
+  const frameHeight = Math.ceil(naturalHeight * getMobileScaleFactor() + MOBILE_IFRAME_PADDING);
+  window.frameElement.style.setProperty('height', `${frameHeight}px`, 'important');
+}
+
+// MathLive, palette tabs, and optional banners can all change the editor's natural
+// height after the first settings pass. Keep the parent iframe matched to the final
+// rendered content so the footer actions never end up below the mobile frame.
+let mobileResizeFrame = 0;
+if ('ResizeObserver' in window) {
+  const mobileEditorResizeObserver = new ResizeObserver(() => {
+    cancelAnimationFrame(mobileResizeFrame);
+    mobileResizeFrame = requestAnimationFrame(syncMobileIframeHeight);
+  });
+  mobileEditorResizeObserver.observe(editorWindow);
+}
 
 export function applySettings(settings) {
   // Resolve the chosen preset into accent (primary*) + background (bg*) HSL,
@@ -87,9 +121,8 @@ export function applySettings(settings) {
   // symbol/button — is far larger, and we let the window height be content-driven so
   // the symbol palette is never clipped by a fixed height. The iframe is sized to the
   // editor's natural height after the styles below are applied (see end of function).
-  const MOBILE = window.innerWidth <= 600 && window.frameElement;
-  const MDW = 470; // mobile design width (px) — narrow enough that symbols stay large
-  if (MOBILE) scaleFactor = (window.innerWidth * 0.94) / MDW;
+  const MOBILE = isMobileFrame();
+  if (MOBILE) scaleFactor = getMobileScaleFactor();
 
   let styleEl = document.getElementById('dynamic-theme');
   if (!styleEl) {
@@ -166,11 +199,11 @@ export function applySettings(settings) {
       #editor-scale {
         position: static !important;
         transform: none !important;
-        width: ${MDW}px !important;
+        width: ${MOBILE_DESIGN_WIDTH}px !important;
         height: auto !important;
       }
       #editor-window {
-        width: ${MDW}px !important;
+        width: ${MOBILE_DESIGN_WIDTH}px !important;
         height: auto !important;
         flex-shrink: 0 !important;
         max-width: none !important;
@@ -266,13 +299,9 @@ export function applySettings(settings) {
   const inputLatex = document.getElementById("set-showLatexBar");
   if (inputLatex) inputLatex.checked = !!settings.showLatexBar;
 
-  // Size the iframe to the editor's natural (content) height on mobile. The styles
-  // above are now applied, so offsetHeight is the un-scaled layout height; multiply by
-  // scaleFactor to get the on-screen height, plus a little breathing room.
-  if (MOBILE) {
-    const naturalH = editorWindow.offsetHeight;
-    window.frameElement.style.setProperty('height', Math.round(naturalH * scaleFactor + 24) + 'px', 'important');
-  }
+  // Resize immediately when settings change; ResizeObserver handles asynchronous
+  // content changes such as MathLive becoming ready or a taller symbol tab opening.
+  syncMobileIframeHeight();
 
   localStorage.setItem('mathpaster_settings', JSON.stringify(settings));
 }
