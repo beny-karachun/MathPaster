@@ -14,103 +14,264 @@
   let activeTarget = null;
   let activeTargetSelection = null;
   let activeTargetRange = null;
+  let activeTargetTextSelection = null;
+  let activeTargetId = null;
   let isVisible = false;
   let iframeReady = false;
   let toastTimer = 0;
+  let restoreFocusTimer = 0;
   let initialMathDraft = null;
+
+  function isTextControl(el) {
+    return !!el && (
+      el.tagName === "TEXTAREA" ||
+      (el.tagName === "INPUT" && /^(text|search|url|)$/.test(el.type || "text"))
+    );
+  }
+
+  function isEditableTarget(el) {
+    return !!el && (
+      isTextControl(el) ||
+      el.isContentEditable ||
+      (el.hasAttribute?.("contenteditable") && el.getAttribute("contenteditable") !== "false")
+    );
+  }
+
+  function findEditableTarget(el) {
+    if (!el) return null;
+    if (isEditableTarget(el)) return el;
+    const ce = el.closest?.("[contenteditable]");
+    return isEditableTarget(ce) ? ce : null;
+  }
+
+  function rangeBelongsToTarget(range, target) {
+    if (!range || !target) return false;
+    const container = range.commonAncestorContainer;
+    return container === target || target.contains(container);
+  }
+
+  // Keep character offsets as a fallback because React/ProseMirror editors can
+  // replace the contenteditable DOM after an input event, invalidating a Range.
+  function getTextSelection(target, range) {
+    if (!rangeBelongsToTarget(range, target)) return null;
+    try {
+      const startRange = document.createRange();
+      startRange.selectNodeContents(target);
+      startRange.setEnd(range.startContainer, range.startOffset);
+
+      const endRange = document.createRange();
+      endRange.selectNodeContents(target);
+      endRange.setEnd(range.endContainer, range.endOffset);
+
+      return {
+        start: startRange.toString().length,
+        end: endRange.toString().length,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  function rangeFromTextSelection(target, textSelection) {
+    if (!target || !textSelection) return null;
+    const range = document.createRange();
+    const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
+    const total = Math.max(0, target.textContent?.length || 0);
+    const start = Math.min(Math.max(0, textSelection.start), total);
+    const end = Math.min(Math.max(start, textSelection.end), total);
+    let offset = 0;
+    let startPoint = null;
+    let endPoint = null;
+    let node;
+
+    while ((node = walker.nextNode())) {
+      const nextOffset = offset + node.data.length;
+      if (!startPoint && start <= nextOffset) {
+        startPoint = { node, offset: start - offset };
+      }
+      if (!endPoint && end <= nextOffset) {
+        endPoint = { node, offset: end - offset };
+        break;
+      }
+      offset = nextOffset;
+    }
+
+    try {
+      if (!startPoint || !endPoint) {
+        range.selectNodeContents(target);
+        range.collapse(false);
+      } else {
+        range.setStart(startPoint.node, startPoint.offset);
+        range.setEnd(endPoint.node, endPoint.offset);
+      }
+      return range;
+    } catch {
+      return null;
+    }
+  }
+
+  function resolveActiveTarget() {
+    if (isEditableTarget(activeTarget) && activeTarget.isConnected) return activeTarget;
+    if (activeTargetId) {
+      const replacement = document.getElementById(activeTargetId);
+      if (isEditableTarget(replacement)) {
+        activeTarget = replacement;
+        activeTargetRange = null;
+        return replacement;
+      }
+    }
+    return null;
+  }
+
+  function rememberCurrentSelection() {
+    const focusedTarget = findEditableTarget(document.activeElement);
+    if (focusedTarget && (
+      focusedTarget === activeTarget ||
+      (activeTargetId && focusedTarget.id === activeTargetId)
+    )) {
+      activeTarget = focusedTarget;
+    }
+
+    const target = resolveActiveTarget();
+    if (!target) return;
+
+    if (isTextControl(target)) {
+      const start = target.selectionStart;
+      const end = target.selectionEnd;
+      if (typeof start === "number" && typeof end === "number") {
+        activeTargetSelection = { start, end };
+      }
+      return;
+    }
+
+    const sel = window.getSelection();
+    if (!sel || !sel.rangeCount) return;
+    const range = sel.getRangeAt(0);
+    if (!rangeBelongsToTarget(range, target)) return;
+    activeTargetRange = range.cloneRange();
+    activeTargetTextSelection = getTextSelection(target, range);
+  }
+
+  function restoreActiveTarget() {
+    const target = resolveActiveTarget();
+    if (!target) return;
+
+    try {
+      target.focus({ preventScroll: true });
+    } catch {
+      try { target.focus(); } catch {}
+    }
+
+    if (isTextControl(target)) {
+      if (activeTargetSelection) {
+        const max = target.value.length;
+        const start = Math.min(activeTargetSelection.start, max);
+        const end = Math.min(Math.max(start, activeTargetSelection.end), max);
+        try { target.setSelectionRange(start, end); } catch {}
+      }
+      return;
+    }
+
+    const sel = window.getSelection();
+    if (!sel) return;
+    let range = activeTargetRange;
+    if (!rangeBelongsToTarget(range, target)) {
+      range = rangeFromTextSelection(target, activeTargetTextSelection);
+    }
+    if (!range) {
+      range = document.createRange();
+      range.selectNodeContents(target);
+      range.collapse(false);
+    }
+    try {
+      sel.removeAllRanges();
+      sel.addRange(range);
+      activeTargetRange = range.cloneRange();
+      activeTargetTextSelection = getTextSelection(target, range);
+    } catch {}
+  }
 
   /* ── Capture the element that was focused before opening ── */
   function captureActiveTarget() {
+    // A selected formula only applies to this opening. Without clearing it, a
+    // later toggle can unexpectedly resurrect the first selected expression.
+    initialMathDraft = null;
+
     const el = document.activeElement;
     if (!el || el === document.body || el === document.documentElement) return;
     
     // Skip our own overlay/iframe
     if (el.id === "mathpaster-overlay" || el.id === "mathpaster-iframe") return;
 
-    // Reset previous selection state
+    const target = findEditableTarget(el);
+    // If focus was temporarily lost while the popup closed, keep the last
+    // successful insertion bookmark instead of replacing it with no target.
+    if (!target) return;
+
     activeTarget = null;
     activeTargetSelection = null;
     activeTargetRange = null;
+    activeTargetTextSelection = null;
+    activeTargetId = target.id || null;
+    activeTarget = target;
+    let rawText = "";
 
-    const isTextarea = el.tagName === "TEXTAREA" || (el.tagName === "INPUT" && /^(text|search|url|)$/.test(el.type || "text"));
-    const isCE = el.isContentEditable || (el.hasAttribute("contenteditable") && el.getAttribute("contenteditable") !== "false");
-    
-    let target = null;
-    if (isTextarea || isCE) {
-      target = el;
+    // Capture exact caret position before focus is lost to the iframe
+    if (isTextControl(target)) {
+      activeTargetSelection = { start: target.selectionStart, end: target.selectionEnd };
+      rawText = target.value.substring(target.selectionStart, target.selectionEnd);
     } else {
-      const ce = el.closest("[contenteditable]");
-      if (ce && (ce.isContentEditable || ce.getAttribute("contenteditable") !== "false")) {
-        target = ce;
-      }
-    }
-
-    if (target) {
-      activeTarget = target;
-      let rawText = "";
-
-      // Capture exact caret position before focus is lost to the iframe
-      if (isTextarea) {
-        activeTargetSelection = { start: target.selectionStart, end: target.selectionEnd };
-        rawText = target.value.substring(target.selectionStart, target.selectionEnd);
-      } else {
-        const sel = window.getSelection();
-        if (sel && sel.rangeCount > 0) {
-          activeTargetRange = sel.getRangeAt(0).cloneRange();
+      const sel = window.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        if (rangeBelongsToTarget(range, target)) {
+          activeTargetRange = range.cloneRange();
+          activeTargetTextSelection = getTextSelection(target, range);
           rawText = sel.toString();
         }
       }
+    }
 
-      rawText = rawText.trim();
-      if (rawText.startsWith("$$") && rawText.endsWith("$$") && rawText.length >= 4) {
-        initialMathDraft = { mode: "block", text: rawText.slice(2, -2).trim() };
-      } else if (rawText.startsWith("$") && rawText.endsWith("$") && rawText.length >= 2) {
-        initialMathDraft = { mode: "inline", text: rawText.slice(1, -1).trim() };
-      }
+    rawText = rawText.trim();
+    if (rawText.startsWith("$$") && rawText.endsWith("$$") && rawText.length >= 4) {
+      initialMathDraft = { mode: "block", text: rawText.slice(2, -2).trim() };
+    } else if (rawText.startsWith("$") && rawText.endsWith("$") && rawText.length >= 2) {
+      initialMathDraft = { mode: "inline", text: rawText.slice(1, -1).trim() };
     }
   }
 
   /* ── Insert text at caret in the original element ── */
   function insertTextAtCaret(text) {
-    if (!activeTarget || !activeTarget.isConnected) return false;
+    const target = resolveActiveTarget();
+    if (!target) return false;
 
-    if (activeTarget.tagName === "TEXTAREA" || activeTarget.tagName === "INPUT") {
-      activeTarget.focus();
-      const start  = activeTargetSelection?.start ?? activeTarget.value.length;
+    if (isTextControl(target)) {
+      target.focus();
+      const start  = activeTargetSelection?.start ?? target.value.length;
       const end    = activeTargetSelection?.end   ?? start;
-      const before = activeTarget.value.slice(0, start);
-      const after  = activeTarget.value.slice(end);
+      const before = target.value.slice(0, start);
+      const after  = target.value.slice(end);
 
       // Use native setter so React / Vue / Angular picks it up
-      const proto = activeTarget.tagName === "TEXTAREA"
+      const proto = target.tagName === "TEXTAREA"
         ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
       const setter = Object.getOwnPropertyDescriptor(proto, "value")?.set;
-      if (setter) setter.call(activeTarget, before + text + after);
-      else activeTarget.value = before + text + after;
+      if (setter) setter.call(target, before + text + after);
+      else target.value = before + text + after;
 
-      activeTarget.selectionStart = activeTarget.selectionEnd = start + text.length;
-      activeTarget.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: text }));
-      activeTarget.dispatchEvent(new Event("change", { bubbles: true }));
+      const caret = start + text.length;
+      target.selectionStart = target.selectionEnd = caret;
+      activeTargetSelection = { start: caret, end: caret };
+      target.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: text }));
+      target.dispatchEvent(new Event("change", { bubbles: true }));
+      rememberCurrentSelection();
       return true;
     }
 
-    if (activeTarget.isContentEditable || activeTarget.hasAttribute("contenteditable")) {
-      activeTarget.focus();
+    if (target.isContentEditable || target.hasAttribute("contenteditable")) {
+      restoreActiveTarget();
       const sel = window.getSelection();
-      
-      // Restore exact selection range if we captured it
-      if (activeTargetRange) {
-        sel.removeAllRanges();
-        sel.addRange(activeTargetRange);
-      } 
-      // Fallback: place cursor at end if selection was completely lost
-      else if (sel && (!sel.rangeCount || !activeTarget.contains(sel.anchorNode))) {
-        const range = document.createRange();
-        range.selectNodeContents(activeTarget);
-        range.collapse(false);
-        sel.removeAllRanges();
-        sel.addRange(range);
-      }
+      if (!sel) return false;
       
       // execCommand keeps the page's undo stack intact where supported;
       // fall back to manual Range insertion if it's unavailable or refused.
@@ -123,8 +284,11 @@
         range.collapse(true);
         sel.removeAllRanges();
         sel.addRange(range);
-        activeTarget.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: text }));
+        target.dispatchEvent(new InputEvent("input", { bubbles: true, inputType: "insertText", data: text }));
       }
+      // This becomes the fallback bookmark on the next open. Updating it here
+      // prevents a stale first-open Range from receiving subsequent inserts.
+      rememberCurrentSelection();
       return true;
     }
     return false;
@@ -169,18 +333,26 @@
     overlay.style.cssText = [
       "position:fixed", "inset:0", "z-index:2147483640",
       "display:flex", "align-items:flex-end", "justify-content:center",
-      "background:rgba(0,0,0,0.45)",
+      "background:transparent",
       "opacity:0", "pointer-events:none",
       "transition:opacity .22s cubic-bezier(.4,0,.2,1)",
     ].join(";");
+    overlay.style.setProperty("background-color", "transparent", "important");
+    overlay.style.setProperty("backdrop-filter", "none", "important");
+    overlay.style.setProperty("-webkit-backdrop-filter", "none", "important");
 
     iframe = document.createElement("iframe");
     iframe.id = "mathpaster-iframe";
     iframe.src = chrome.runtime.getURL("editor.html");
     iframe.style.cssText = [
       "position:absolute", "inset:0", "width:100%", "height:100%", "border:none",
-      "background:transparent", "color-scheme:dark"
+      "background:transparent", "color-scheme:normal"
     ].join(";");
+    // Keep host-page iframe rules (including ChatGPT's dark color scheme) from
+    // turning the otherwise transparent iframe canvas black.
+    iframe.style.setProperty("background-color", "transparent", "important");
+    iframe.style.setProperty("color-scheme", "normal", "important");
+    iframe.setAttribute("allowtransparency", "true");
     iframe.setAttribute("allow", "clipboard-write");
 
     overlay.appendChild(iframe);
@@ -196,6 +368,8 @@
   }
 
   function showOverlay() {
+    clearTimeout(restoreFocusTimer);
+    restoreFocusTimer = 0;
     captureActiveTarget();
     if (!overlay) buildOverlay();
     isVisible = true;
@@ -226,8 +400,12 @@
     overlay.style.pointerEvents = "none";
     // Restore page scrolling
     document.body.style.overflow = "";
-    if (activeTarget && activeTarget.isConnected) {
-      setTimeout(() => { try { activeTarget.focus(); } catch {} }, 60);
+    if (activeTarget || activeTargetId) {
+      clearTimeout(restoreFocusTimer);
+      restoreFocusTimer = setTimeout(() => {
+        restoreFocusTimer = 0;
+        restoreActiveTarget();
+      }, 60);
     }
   }
 
