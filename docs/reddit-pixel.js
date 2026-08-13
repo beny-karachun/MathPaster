@@ -175,6 +175,16 @@
         link.href = url.toString();
     };
 
+    const addAttributionToInstall = (link) => {
+        if (!attribution || readStorage(CONSENT_KEY) !== 'granted') return;
+        const url = new URL(link.href);
+        ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'].forEach((field) => {
+            const value = attribution[field];
+            if (value) url.searchParams.set(field, value);
+        });
+        link.href = url.toString();
+    };
+
     let actionsWired = false;
     const wireFunnelActions = () => {
         if (actionsWired) return;
@@ -182,6 +192,7 @@
 
         document.querySelectorAll('a[href*="chromewebstore.google.com/detail/mathpaster"]')
             .forEach((link) => {
+                addAttributionToInstall(link);
                 link.addEventListener('click', () => trackCustom('InstallIntent'));
             });
 
@@ -230,7 +241,7 @@
     banner.setAttribute('role', 'dialog');
     banner.setAttribute('aria-label', 'Advertising measurement choice');
     banner.innerHTML = `
-        <p>May MathPaster send Reddit limited events to measure this ad, such as page visits, button clicks, and a confirmed purchase? No equations, name, email, or extension activity are shared. <a href="privacy.html" target="_blank" rel="noopener">Privacy details</a>.</p>
+        <p>May MathPaster use limited measurement for this Reddit ad, such as page visits, button clicks, and a confirmed purchase? This sends events to Reddit and can add campaign tags to Store or checkout links. No equations, name, email, or extension activity are shared. <a href="privacy.html" target="_blank" rel="noopener">Privacy details</a>.</p>
         <div class="reddit-consent-actions">
             <button type="button" class="reddit-consent-decline">No thanks</button>
             <button type="button" class="reddit-consent-accept">Allow measurement</button>
