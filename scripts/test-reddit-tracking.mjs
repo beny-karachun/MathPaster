@@ -137,6 +137,9 @@ const accepted = runPage({
 });
 accepted.acceptButton.dispatch('click');
 assert.ok(accepted.context.rdt, 'accepting should initialize Reddit Pixel');
+assert.match(accepted.installLink.href, /utm_source=reddit/);
+assert.match(accepted.installLink.href, /utm_campaign=test/);
+assert.match(accepted.installLink.href, /utm_content=variant-a/);
 assert.match(accepted.checkoutLink.href, /checkout%5Bcustom%5D%5Brdt_cid%5D=click-123/);
 assert.match(accepted.checkoutLink.href, /checkout%5Bcustom%5D%5Butm_content%5D=variant-a/);
 
