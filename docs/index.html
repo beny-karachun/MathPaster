@@ -70,6 +70,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://app.lemonsqueezy.com">
     <link
         href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
@@ -408,7 +409,7 @@
                             <li>Supports an independent developer ♥</li>
                         </ul>
                         <a href="https://mathpaster.lemonsqueezy.com/checkout/buy/c4b9e824-6289-4913-b467-028670ec5c7f"
-                            class="btn btn-primary" target="_blank" style="width: 100%; box-sizing: border-box; text-align: center;">GET PRO</a>
+                            class="btn btn-primary lemonsqueezy-button" style="width: 100%; box-sizing: border-box; text-align: center;">GET PRO</a>
                         <p class="pricing-note">Instant license key by email — activate in the extension under Settings → MathPaster Pro.</p>
                     </div>
                 </div>
@@ -574,7 +575,9 @@
             });
         });
     </script>
-    <!-- Loaded only for Reddit-attributed visits, and only after opt-in. -->
+    <!-- Official checkout overlay exposes a confirmed-success event for purchase measurement. -->
+    <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
+    <!-- Reddit events are sent only for attributed visits, and only after opt-in. -->
     <script src="reddit-pixel.js"></script>
 </body>
 
