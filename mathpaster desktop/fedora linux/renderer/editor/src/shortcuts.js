@@ -118,8 +118,8 @@ document.addEventListener("keydown", e => {
     doInsert();
     return;
   }
-  // Ctrl+Shift+M inside the desktop editor → toggle (close)
-  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key.toLowerCase() === "m" || e.code === "KeyM")) {
+  // Alt+M inside the desktop editor → toggle (close)
+  if (e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && (e.key.toLowerCase() === "m" || e.code === "KeyM")) {
     e.preventDefault();
     e.stopPropagation();
     window.parent.postMessage({ mathpaster: "toggle" }, "*");

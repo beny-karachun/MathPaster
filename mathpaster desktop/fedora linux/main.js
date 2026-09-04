@@ -18,9 +18,14 @@ const {
   setAutostartEnabled
 } = require("./src/autostart");
 const { ensureDesktopIntegration } = require("./src/desktop-entry");
+const {
+  listKdeShortcutNames,
+  reconcileKdeShortcuts
+} = require("./src/kde-shortcut-cleanup");
 const { createShortcutHandler } = require("./src/shortcut");
 
-const TOGGLE_SHORTCUT = "Control+Shift+M";
+const TOGGLE_SHORTCUT = "Alt+M";
+const TOGGLE_SHORTCUT_LABEL = "Alt+M";
 const START_HIDDEN = process.argv.includes("--hidden");
 
 let mainWindow = null;
@@ -73,7 +78,7 @@ function sendAppState() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
   mainWindow.webContents.send("app:state", {
     launchOnRestart: isAutostartEnabled(),
-    shortcut: "Ctrl+Shift+M",
+    shortcut: TOGGLE_SHORTCUT_LABEL,
     shortcutRegistered
   });
 }
@@ -94,10 +99,10 @@ function toggleWindow() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
   if (mainWindow.isVisible()) {
     hideWindow();
-    console.info("MathPaster window hidden by Ctrl+Shift+M.");
+    console.info(`MathPaster window hidden by ${TOGGLE_SHORTCUT_LABEL}.`);
   } else {
     showWindow();
-    console.info("MathPaster window opened by Ctrl+Shift+M.");
+    console.info(`MathPaster window opened by ${TOGGLE_SHORTCUT_LABEL}.`);
   }
 }
 
@@ -130,7 +135,7 @@ function rebuildTrayMenu() {
     },
     { type: "separator" },
     {
-      label: shortcutRegistered ? "Shortcut: Ctrl+Shift+M" : "Shortcut unavailable",
+      label: shortcutRegistered ? `Shortcut: ${TOGGLE_SHORTCUT_LABEL}` : "Shortcut unavailable",
       enabled: false
     },
     { type: "separator" },
@@ -145,7 +150,7 @@ function rebuildTrayMenu() {
 function createTray() {
   const trayIcon = nativeImage.createFromPath(getIconPath()).resize({ width: 24, height: 24 });
   tray = new Tray(trayIcon);
-  tray.setToolTip("MathPaster — Ctrl+Shift+M");
+  tray.setToolTip(`MathPaster — ${TOGGLE_SHORTCUT_LABEL}`);
   tray.on("click", toggleWindow);
   rebuildTrayMenu();
 }
@@ -201,12 +206,22 @@ function createWindow() {
 }
 
 function registerShortcut() {
+  const previousKdeShortcutNames = listKdeShortcutNames();
   const handleShortcut = createShortcutHandler(toggleWindow);
   shortcutRegistered = globalShortcut.register(TOGGLE_SHORTCUT, handleShortcut);
   if (!shortcutRegistered) {
     console.error(`${TOGGLE_SHORTCUT} is already reserved by another application.`);
   } else {
     console.info(`${TOGGLE_SHORTCUT} registered for ${DESKTOP_ID}.`);
+  }
+  if (shortcutRegistered && previousKdeShortcutNames.length > 0) {
+    const cleanupTimer = setTimeout(() => {
+      const result = reconcileKdeShortcuts(previousKdeShortcutNames);
+      if (result.removedNames?.length) {
+        console.info(`Removed ${result.removedNames.length} stale KDE MathPaster shortcut registration(s).`);
+      }
+    }, 1000);
+    cleanupTimer.unref();
   }
   rebuildTrayMenu();
   sendAppState();
@@ -217,7 +232,7 @@ function registerIpc() {
   ipcMain.handle("window:toggle", () => toggleWindow());
   ipcMain.handle("app:get-state", () => ({
     launchOnRestart: isAutostartEnabled(),
-    shortcut: "Ctrl+Shift+M",
+    shortcut: TOGGLE_SHORTCUT_LABEL,
     shortcutRegistered
   }));
   ipcMain.handle("app:set-autostart", (_event, enabled) => {

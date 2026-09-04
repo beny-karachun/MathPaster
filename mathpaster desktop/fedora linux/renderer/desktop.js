@@ -23,7 +23,7 @@ function applyAppState(state) {
   shortcutStatus.classList.toggle("unavailable", !state.shortcutRegistered);
   shortcutStatus.title = state.shortcutRegistered
     ? "Global shortcut is active"
-    : "Ctrl+Shift+M is already reserved by another application";
+    : `${state.shortcut || "The shortcut"} is already reserved by another application`;
   shortcutDot.setAttribute("aria-label", state.shortcutRegistered ? "Shortcut active" : "Shortcut unavailable");
   sendToEditor({ mathpaster: "desktop-app-state", state });
 }
