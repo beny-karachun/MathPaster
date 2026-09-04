@@ -1,8 +1,33 @@
 import { state } from './state.js';
-import { mf, latexEl } from './dom.js';
+import { mf } from './dom.js';
 import { updatePreview } from './mathfield.js';
 import { recordUse } from './review.js';
 import { recordHistory } from './history.js';
+
+const copyButton = document.getElementById("copy-btn");
+const insertButton = document.getElementById("insert-btn");
+const copyFeedbackTimers = new Map();
+
+function showCopied(button) {
+  const label = button.querySelector(".copy-button-label");
+  if (!label) return;
+
+  if (!button.dataset.defaultLabel) button.dataset.defaultLabel = label.textContent;
+  clearTimeout(copyFeedbackTimers.get(button));
+  button.classList.add("is-copied");
+  label.textContent = "Copied!";
+
+  copyFeedbackTimers.set(button, setTimeout(() => {
+    button.classList.remove("is-copied");
+    label.textContent = button.dataset.defaultLabel;
+    copyFeedbackTimers.delete(button);
+  }, 1400));
+}
+
+window.addEventListener("message", (event) => {
+  if (event.source !== window.parent || event.data?.mathpaster !== "copied") return;
+  showCopied(event.data.target === "insert" ? insertButton : copyButton);
+});
 
 /* ── Mode toggle ── */
 const modeSwitch = document.getElementById("mode-switch");
@@ -85,24 +110,15 @@ export function doInsert() {
   recordHistory(raw, state.insertMode);
   window.parent.postMessage({ mathpaster: "insert", latex: wrap }, "*");
 }
-document.getElementById("insert-btn").addEventListener("mousedown", e => e.preventDefault());
-document.getElementById("insert-btn").addEventListener("click", doInsert);
+insertButton.addEventListener("mousedown", e => e.preventDefault());
+insertButton.addEventListener("click", doInsert);
 
 /* ── Copy ── */
-document.getElementById("copy-btn").addEventListener("mousedown", e => e.preventDefault());
-document.getElementById("copy-btn").addEventListener("click", () => {
+copyButton.addEventListener("mousedown", e => e.preventDefault());
+copyButton.addEventListener("click", () => {
   const raw = (mf.value || "").trim();
   if (!raw) return;
   const wrap = state.insertMode === "block" ? `$$${raw}$$` : `$${raw}$`;
   recordUse();
-  navigator.clipboard.writeText(wrap).then(() => {
-    window.parent.postMessage({ mathpaster: "toast", text: "Copied to clipboard!" }, "*");
-  }).catch(() => {
-    // Fallback: select the code element so user can Ctrl+C
-    const sel = window.getSelection();
-    const range = document.createRange();
-    range.selectNodeContents(latexEl);
-    sel.removeAllRanges();
-    sel.addRange(range);
-  });
+  window.parent.postMessage({ mathpaster: "copy", latex: wrap }, "*");
 });

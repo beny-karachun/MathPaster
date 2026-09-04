@@ -115,14 +115,29 @@
         copy &amp; close</span>
       <div class="action-group">
         <button class="btn secondary" id="copy-btn">
-          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
-            stroke-linecap="round" stroke-linejoin="round">
-            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-          </svg>
-          Copy LaTeX
+          <span class="copy-icon-stack" aria-hidden="true">
+            <svg class="copy-default-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <svg class="copy-success-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4" fill="none"
+              stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"></path></svg>
+          </span>
+          <span class="copy-button-label" aria-live="polite">Copy LaTeX</span>
         </button>
-        <button class="btn primary" id="insert-btn">Copy &amp; Close ⏎</button>
+        <button class="btn primary" id="insert-btn">
+          <span class="copy-icon-stack" aria-hidden="true">
+            <svg class="copy-default-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"
+              stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <svg class="copy-success-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4" fill="none"
+              stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"></path></svg>
+          </span>
+          <span class="copy-button-label" aria-live="polite">Copy &amp; Close ⏎</span>
+        </button>
       </div>
     </div>
     </div>

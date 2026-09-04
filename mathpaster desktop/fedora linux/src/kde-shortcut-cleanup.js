@@ -40,9 +40,6 @@ function parseShortcutNames(output) {
 }
 
 function listKdeShortcutNames(options = {}) {
-  const environment = options.environment || process.env;
-  if (!isKdeSession(environment)) return [];
-
   const result = (options.runQdbus || runQdbus)([
     KDE_SHORTCUT_SERVICE,
     KDE_SHORTCUT_COMPONENT,

@@ -5,6 +5,7 @@ const test = require("node:test");
 const {
   findReconciliation,
   isKdeSession,
+  listKdeShortcutNames,
   parseShortcutNames,
   reconcileKdeShortcuts
 } = require("../src/kde-shortcut-cleanup");
@@ -21,6 +22,14 @@ test("detects KDE and Plasma sessions only", () => {
 
 test("parses only MathPaster-managed accelerator action names", () => {
   assert.deepEqual(parseShortcutNames(`${OLD}\n${LIVE}\nunrelated-Ctrl+K\n`), [OLD, LIVE]);
+});
+
+test("queries the KDE service even when a desktop launcher omits session markers", () => {
+  const names = listKdeShortcutNames({
+    environment: {},
+    runQdbus: () => ({ status: 0, stdout: `${OLD}\n${LIVE}\n` })
+  });
+  assert.deepEqual(names, [OLD, LIVE]);
 });
 
 test("keeps the newly registered action and marks prior actions stale", () => {

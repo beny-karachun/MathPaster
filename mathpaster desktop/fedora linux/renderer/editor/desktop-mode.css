@@ -80,6 +80,57 @@ body.desktop-mode .desktop-hidden-setting {
   scale: 0.96;
 }
 
+.copy-icon-stack {
+  position: relative;
+  display: block;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.copy-icon-stack svg {
+  position: absolute;
+  inset: 0;
+  width: 20px;
+  height: 20px;
+  transition-property: opacity, filter, scale;
+  transition-duration: 180ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.copy-default-icon {
+  opacity: 1;
+  filter: blur(0);
+  scale: 1;
+}
+
+.copy-success-icon {
+  opacity: 0;
+  filter: blur(4px);
+  scale: 0.25;
+}
+
+body.desktop-mode .btn.is-copied {
+  color: #a7f3d0 !important;
+  border-color: rgba(52, 211, 153, 0.5) !important;
+  background: linear-gradient(145deg, rgba(16, 185, 129, 0.24), rgba(5, 150, 105, 0.14)) !important;
+  box-shadow:
+    0 0 0 1px rgba(52, 211, 153, 0.14),
+    0 5px 18px rgba(5, 150, 105, 0.22) !important;
+}
+
+body.desktop-mode .btn.is-copied .copy-default-icon {
+  opacity: 0;
+  filter: blur(4px);
+  scale: 0.25;
+}
+
+body.desktop-mode .btn.is-copied .copy-success-icon {
+  opacity: 1;
+  filter: blur(0);
+  scale: 1;
+}
+
 body.desktop-mode .btn:active,
 body.desktop-mode .header-btn:active,
 body.desktop-mode .rate-btn:active,

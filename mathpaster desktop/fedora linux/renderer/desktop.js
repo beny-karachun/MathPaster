@@ -6,6 +6,7 @@ const shortcutStatus = document.getElementById("shortcut-status");
 const shortcutDot = document.getElementById("shortcut-dot");
 const toast = document.getElementById("toast");
 let toastTimer = null;
+let copyCloseTimer = null;
 
 function showToast(message) {
   window.clearTimeout(toastTimer);
@@ -26,6 +27,21 @@ function applyAppState(state) {
     : `${state.shortcut || "The shortcut"} is already reserved by another application`;
   shortcutDot.setAttribute("aria-label", state.shortcutRegistered ? "Shortcut active" : "Shortcut unavailable");
   sendToEditor({ mathpaster: "desktop-app-state", state });
+}
+
+async function copyFromEditor(latex, target, closeAfter) {
+  try {
+    await desktop.writeClipboard(latex, false);
+    sendToEditor({ mathpaster: "copied", target });
+    showToast("Copied!");
+
+    if (closeAfter) {
+      window.clearTimeout(copyCloseTimer);
+      copyCloseTimer = window.setTimeout(() => desktop.hide(), 360);
+    }
+  } catch (error) {
+    showToast("Could not copy to the clipboard.");
+  }
 }
 
 document.getElementById("hide-button").addEventListener("click", () => desktop.hide());
@@ -55,11 +71,13 @@ window.addEventListener("message", async (event) => {
       }
       break;
     case "close":
-    case "toggle":
       await desktop.hide();
       break;
     case "insert":
-      await desktop.writeClipboard(event.data.latex, true);
+      await copyFromEditor(event.data.latex, "insert", true);
+      break;
+    case "copy":
+      await copyFromEditor(event.data.latex, "copy", false);
       break;
     case "toast":
       showToast(event.data.text || "Done");

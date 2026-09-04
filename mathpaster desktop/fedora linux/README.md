@@ -6,6 +6,8 @@ extension and does not use Chrome extension APIs or the Chrome Web Store.
 ## What it does
 
 - Opens or hides globally with **Alt+M**.
+- Uses the Fedora/KDE global shortcut as the single toggle owner, whether the
+  window is visible or hidden.
 - Keeps running in the desktop tray when its window is closed.
 - Offers a **Launch on restart** switch under Settings → General & Window and in the tray menu.
 - Resizes with a locked editor aspect ratio, scaling the whole interface together.
@@ -14,6 +16,7 @@ extension and does not use Chrome extension APIs or the Chrome Web Store.
   themes, insert history, and the virtual keyboard.
 - Copies finished inline or block LaTeX to the system clipboard. Press
   **Ctrl+V** in the application where you want the equation.
+- Shows an immediate **Copied!** confirmation on both copy actions.
 
 The copy-and-close workflow is intentional: Fedora's default GNOME Wayland
 session prevents applications from silently injecting keystrokes into other
