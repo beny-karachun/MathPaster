@@ -11,11 +11,12 @@
   <main class="app-shell">
     <header class="desktop-bar">
       <div class="brand-lockup">
-        <img src="../build/icon.png" alt="" class="app-icon">
-        <div>
-          <div class="app-name">MathPaster</div>
-          <div class="platform-name">Fedora desktop</div>
-        </div>
+        <span class="app-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM17 14v7M13.5 17.5h7"/>
+          </svg>
+        </span>
+        <span class="platform-name">Desktop</span>
       </div>
 
       <div class="desktop-actions">
@@ -23,14 +24,6 @@
           <span class="status-dot" id="shortcut-dot"></span>
           <kbd>Ctrl</kbd><span>+</span><kbd>Shift</kbd><span>+</span><kbd>M</kbd>
         </div>
-
-        <label class="autostart-control" for="autostart-toggle">
-          <span>Launch on restart</span>
-          <span class="switch">
-            <input type="checkbox" id="autostart-toggle">
-            <span class="slider" aria-hidden="true"></span>
-          </span>
-        </label>
 
         <button type="button" class="window-button" id="hide-button" aria-label="Hide MathPaster" title="Hide to tray">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>

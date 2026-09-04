@@ -7,7 +7,8 @@ extension and does not use Chrome extension APIs or the Chrome Web Store.
 
 - Opens or hides globally with **Ctrl+Shift+M**.
 - Keeps running in the desktop tray when its window is closed.
-- Offers a **Launch on restart** switch in the title bar and tray menu.
+- Offers a **Launch on restart** switch under Settings → General & Window and in the tray menu.
+- Resizes with a locked editor aspect ratio, scaling the whole interface together.
 - Starts hidden when Fedora launches it after login.
 - Uses the full MathPaster editor, including palettes, matrices, snippets,
   themes, insert history, and the virtual keyboard.
@@ -31,6 +32,14 @@ npm start
 GNOME may ask you to approve the global shortcut the first time the app runs.
 If the title-bar status dot is red, another application has already reserved
 Ctrl+Shift+M.
+
+When run from source or AppImage, MathPaster installs a small managed launcher
+under `~/.local/share/applications/` before registering the shortcut. Fedora's
+Wayland shortcut portal uses that launcher to identify the background app. An
+RPM installation uses its system launcher instead.
+
+Shortcut activation is coalesced briefly so Wayland portal repeat events from
+one keypress cannot toggle the window open and closed several times.
 
 ## Build Fedora packages
 

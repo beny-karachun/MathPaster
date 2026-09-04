@@ -12,10 +12,12 @@ body.desktop-mode {
 }
 
 body.desktop-mode #editor-window {
+  max-width: none !important;
+  max-height: none !important;
   animation: none;
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.07),
-    0 18px 60px rgba(0, 0, 0, 0.5);
+    0 10px 32px rgba(0, 0, 0, 0.34);
 }
 
 body.desktop-mode .resize-handle {
@@ -24,6 +26,58 @@ body.desktop-mode .resize-handle {
 
 body.desktop-mode #header {
   cursor: default !important;
+}
+
+.desktop-only-setting {
+  display: none !important;
+}
+
+body.desktop-mode .desktop-only-setting {
+  display: flex !important;
+}
+
+body.desktop-mode .desktop-hidden-setting {
+  display: none !important;
+}
+
+.desktop-setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.desktop-setting-row > div {
+  min-width: 0;
+}
+
+.desktop-setting-row label {
+  display: block;
+  color: #e4e8f2;
+  font-weight: 650;
+}
+
+.desktop-setting-row p {
+  max-width: 210px;
+  margin-top: 5px !important;
+  color: #8f99ae;
+  font-size: 11px;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.desktop-autostart-switch {
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.desktop-autostart-switch input:focus-visible + .slider {
+  outline: 2px solid var(--accent-bright);
+  outline-offset: 3px;
+}
+
+.desktop-autostart-switch:active {
+  scale: 0.96;
 }
 
 body.desktop-mode .btn:active,

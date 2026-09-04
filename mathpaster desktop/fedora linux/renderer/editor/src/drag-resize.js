@@ -322,7 +322,10 @@ document.addEventListener("mouseup", () => {
 
 // Re-apply scaled settings or clamp positions on window resize
 window.addEventListener("resize", () => {
-  if (window.innerWidth <= 600) {
+  if (IS_DESKTOP) {
+    applySettings(state.currentSettings);
+    if (kbdWindow.style.display !== "none") clampKeyboardPosition();
+  } else if (window.innerWidth <= 600) {
     applySettings(state.currentSettings);
   } else {
     // If the viewport shrank below the rendered window, zoom out so it still fits.

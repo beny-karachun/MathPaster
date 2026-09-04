@@ -2,7 +2,6 @@
 
 const desktop = window.mathpasterDesktop;
 const frame = document.getElementById("editor-frame");
-const autostartToggle = document.getElementById("autostart-toggle");
 const shortcutStatus = document.getElementById("shortcut-status");
 const shortcutDot = document.getElementById("shortcut-dot");
 const toast = document.getElementById("toast");
@@ -20,28 +19,14 @@ function sendToEditor(message) {
 }
 
 function applyAppState(state) {
-  autostartToggle.checked = Boolean(state.launchOnRestart);
+  if (!state) return;
   shortcutStatus.classList.toggle("unavailable", !state.shortcutRegistered);
   shortcutStatus.title = state.shortcutRegistered
     ? "Global shortcut is active"
     : "Ctrl+Shift+M is already reserved by another application";
   shortcutDot.setAttribute("aria-label", state.shortcutRegistered ? "Shortcut active" : "Shortcut unavailable");
+  sendToEditor({ mathpaster: "desktop-app-state", state });
 }
-
-autostartToggle.addEventListener("change", async () => {
-  const requested = autostartToggle.checked;
-  autostartToggle.disabled = true;
-  try {
-    const enabled = await desktop.setAutostart(requested);
-    autostartToggle.checked = enabled;
-    showToast(enabled ? "MathPaster will start in the tray after login." : "Launch on restart is off.");
-  } catch (error) {
-    autostartToggle.checked = !requested;
-    showToast("Could not update the restart setting.");
-  } finally {
-    autostartToggle.disabled = false;
-  }
-});
 
 document.getElementById("hide-button").addEventListener("click", () => desktop.hide());
 document.getElementById("close-button").addEventListener("click", () => desktop.hide());
@@ -54,6 +39,20 @@ window.addEventListener("message", async (event) => {
   switch (event.data.mathpaster) {
     case "ready":
       sendToEditor({ mathpaster: "reset" });
+      desktop.getState().then(applyAppState);
+      break;
+    case "desktop-get-state":
+      desktop.getState().then(applyAppState);
+      break;
+    case "desktop-set-autostart":
+      try {
+        const enabled = await desktop.setAutostart(Boolean(event.data.enabled));
+        applyAppState(await desktop.getState());
+        showToast(enabled ? "MathPaster will launch after login." : "Launch on restart is off.");
+      } catch (error) {
+        applyAppState(await desktop.getState());
+        showToast("Could not update the restart setting.");
+      }
       break;
     case "close":
     case "toggle":

@@ -84,5 +84,6 @@ module.exports = {
   getLaunchArguments,
   isAutostartEnabled,
   quoteExecArgument,
+  sanitizeDesktopValue,
   setAutostartEnabled
 };

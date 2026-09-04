@@ -57,11 +57,12 @@ const defaultSettings = {
 const MOBILE_BREAKPOINT = 600;
 const MOBILE_DESIGN_WIDTH = 470;
 const MOBILE_IFRAME_PADDING = 24;
+const IS_DESKTOP = new URLSearchParams(window.location.search).has('desktop');
 
 state.currentSettings = { ...defaultSettings };
 
 function isMobileFrame() {
-  return window.innerWidth <= MOBILE_BREAKPOINT && window.frameElement !== null;
+  return !IS_DESKTOP && window.innerWidth <= MOBILE_BREAKPOINT && window.frameElement !== null;
 }
 
 function getMobileScaleFactor() {
@@ -110,7 +111,15 @@ export function applySettings(settings) {
   // Uniform zoom from corner-drag resize: the window renders at the zoomed size and the
   // content (laid out at the design size) is scaled to fill it — so everything shrinks
   // or grows together and always fits.
-  const zoom = (state.zoom && isFinite(state.zoom) && state.zoom > 0) ? state.zoom : 1;
+  let zoom = (state.zoom && isFinite(state.zoom) && state.zoom > 0) ? state.zoom : 1;
+  if (IS_DESKTOP) {
+    // The Electron window is the resize handle. Scale the complete editor as a
+    // single unit so native corner resizing behaves like the Chrome version.
+    zoom = Math.max(0.25, Math.min(2.5,
+      window.innerWidth / settings.popupWidth,
+      window.innerHeight / settings.popupHeight));
+    state.zoom = zoom;
+  }
   const renderW = settings.popupWidth * zoom;
   const renderH = settings.popupHeight * zoom;
 
@@ -181,7 +190,7 @@ export function applySettings(settings) {
     
     /* Dynamic Mobile Proportionate Scaling */
     @media (max-width: 600px) {
-      body {
+      body:not(.desktop-mode) {
         display: flex !important;
         align-items: flex-start !important;
         justify-content: center !important;
@@ -196,13 +205,13 @@ export function applySettings(settings) {
       /* Lay the content out at the narrow mobile design width, in normal flow, with a
          content-driven height — so the window grows to fit the full symbol palette
          instead of clipping it. (Desktop keeps the absolute/fixed-height zoom layout.) */
-      #editor-scale {
+      body:not(.desktop-mode) #editor-scale {
         position: static !important;
         transform: none !important;
         width: ${MOBILE_DESIGN_WIDTH}px !important;
         height: auto !important;
       }
-      #editor-window {
+      body:not(.desktop-mode) #editor-window {
         width: ${MOBILE_DESIGN_WIDTH}px !important;
         height: auto !important;
         flex-shrink: 0 !important;
@@ -218,11 +227,12 @@ export function applySettings(settings) {
       }
       /* Let body & palette flow at their natural height rather than fighting over a
          fixed window height (which previously squeezed the palette to a thin sliver). */
-      #body { flex: 0 0 auto !important; overflow: visible !important; }
-      #palette-container { flex: 0 0 auto !important; overflow: visible !important; }
+      body:not(.desktop-mode) #body { flex: 0 0 auto !important; overflow: visible !important; }
+      body:not(.desktop-mode) #palette-container { flex: 0 0 auto !important; overflow: visible !important; }
       /* The empty math-input box shouldn't dominate the screen on a phone. */
-      #mf, math-field { min-height: 60px !important; }
-      #drag-hint {
+      body:not(.desktop-mode) #mf,
+      body:not(.desktop-mode) math-field { min-height: 60px !important; }
+      body:not(.desktop-mode) #drag-hint {
         display: none !important;
       }
     }

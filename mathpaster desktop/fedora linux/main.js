@@ -17,6 +17,8 @@ const {
   isAutostartEnabled,
   setAutostartEnabled
 } = require("./src/autostart");
+const { ensureDesktopIntegration } = require("./src/desktop-entry");
+const { createShortcutHandler } = require("./src/shortcut");
 
 const TOGGLE_SHORTCUT = "Control+Shift+M";
 const START_HIDDEN = process.argv.includes("--hidden");
@@ -58,6 +60,15 @@ function getAutostartOptions() {
   };
 }
 
+function getDesktopIntegrationOptions() {
+  return {
+    isPackaged: app.isPackaged,
+    executablePath: process.env.APPIMAGE || process.execPath,
+    appPath: app.getAppPath(),
+    iconSourcePath: getIconPath()
+  };
+}
+
 function sendAppState() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
   mainWindow.webContents.send("app:state", {
@@ -81,8 +92,18 @@ function hideWindow() {
 
 function toggleWindow() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
-  if (mainWindow.isVisible()) hideWindow();
-  else showWindow();
+  if (mainWindow.isVisible()) {
+    hideWindow();
+    console.info("MathPaster window hidden by Ctrl+Shift+M.");
+  } else {
+    showWindow();
+    console.info("MathPaster window opened by Ctrl+Shift+M.");
+  }
+}
+
+function quitApplication() {
+  isQuitting = true;
+  app.quit();
 }
 
 function rebuildTrayMenu() {
@@ -115,10 +136,7 @@ function rebuildTrayMenu() {
     { type: "separator" },
     {
       label: "Quit MathPaster",
-      click: () => {
-        isQuitting = true;
-        app.quit();
-      }
+      click: quitApplication
     }
   ]);
   tray.setContextMenu(menu);
@@ -134,15 +152,19 @@ function createTray() {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 700,
-    minWidth: 680,
-    minHeight: 560,
+    name: "mathpaster-main-window",
+    width: 790,
+    height: 614,
+    minWidth: 500,
+    minHeight: 388,
+    useContentSize: true,
+    center: true,
     frame: false,
     transparent: false,
     resizable: true,
     show: false,
     alwaysOnTop: true,
+    windowStatePersistence: true,
     backgroundColor: "#0b0c18",
     icon: getIconPath(),
     title: "MathPaster",
@@ -155,6 +177,9 @@ function createWindow() {
   });
 
   mainWindow.setMenuBarVisibility(false);
+  // Match the Chrome editor's aspect-locked corner resizing. The renderer also
+  // letterboxes gracefully on Wayland compositors that ignore this hint.
+  mainWindow.setAspectRatio(760 / 590);
   mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
 
   mainWindow.on("close", (event) => {
@@ -176,9 +201,12 @@ function createWindow() {
 }
 
 function registerShortcut() {
-  shortcutRegistered = globalShortcut.register(TOGGLE_SHORTCUT, toggleWindow);
+  const handleShortcut = createShortcutHandler(toggleWindow);
+  shortcutRegistered = globalShortcut.register(TOGGLE_SHORTCUT, handleShortcut);
   if (!shortcutRegistered) {
     console.error(`${TOGGLE_SHORTCUT} is already reserved by another application.`);
+  } else {
+    console.info(`${TOGGLE_SHORTCUT} registered for ${DESKTOP_ID}.`);
   }
   rebuildTrayMenu();
   sendAppState();
@@ -206,14 +234,23 @@ function registerIpc() {
   });
 }
 
-app.whenReady().then(() => {
-  registerIpc();
-  createWindow();
-  createTray();
-  registerShortcut();
-  if (!START_HIDDEN) showWindow();
-});
+if (hasSingleInstanceLock) {
+  app.whenReady().then(() => {
+    registerIpc();
+    try {
+      ensureDesktopIntegration(getDesktopIntegrationOptions());
+    } catch (error) {
+      console.error("Could not register the desktop identity:", error);
+    }
+    createWindow();
+    createTray();
+    registerShortcut();
+    if (!START_HIDDEN) showWindow();
+  });
 
-app.on("activate", showWindow);
-app.on("window-all-closed", () => {});
-app.on("will-quit", () => globalShortcut.unregisterAll());
+  app.on("activate", showWindow);
+  app.on("window-all-closed", () => {});
+  app.on("will-quit", () => globalShortcut.unregisterAll());
+  process.on("SIGINT", quitApplication);
+  process.on("SIGTERM", quitApplication);
+}
