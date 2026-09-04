@@ -2,50 +2,84 @@
 
 const assert = require("node:assert/strict");
 const test = require("node:test");
-const { createShortcutHandler } = require("../src/shortcut");
+const {
+  createLocalShortcutHandler,
+  createShortcutHandler,
+  isAltMToggle
+} = require("../src/shortcut");
 
-test("coalesces a portal activation burst into one toggle", () => {
-  let currentTime = 1_000;
+test("passes every shortcut activation through", () => {
   let toggles = 0;
-  const handleShortcut = createShortcutHandler(() => toggles++, {
-    cooldownMs: 160,
-    now: () => currentTime
-  });
+  const handleShortcut = createShortcutHandler(() => toggles++);
 
   assert.equal(handleShortcut(), true);
-  currentTime += 5;
-  assert.equal(handleShortcut(), false);
-  currentTime += 40;
-  assert.equal(handleShortcut(), false);
-  assert.equal(toggles, 1);
+  assert.equal(handleShortcut(), true);
+  assert.equal(handleShortcut(), true);
+  assert.equal(handleShortcut(), true);
+  assert.equal(handleShortcut(), true);
+  assert.equal(toggles, 5);
 });
 
-test("allows a later intentional shortcut press", () => {
-  let currentTime = 1_000;
-  let toggles = 0;
-  const handleShortcut = createShortcutHandler(() => toggles++, {
-    cooldownMs: 160,
-    now: () => currentTime
-  });
+test("does not retain timing state between presses", () => {
+  const calls = [];
+  const handleShortcut = createShortcutHandler(() => calls.push("toggle"));
 
   handleShortcut();
-  currentTime += 161;
+  handleShortcut();
+  handleShortcut();
+
+  assert.deepEqual(calls, ["toggle", "toggle", "toggle"]);
+});
+
+test("returns true after dispatching each activation", () => {
+  let toggles = 0;
+  const handleShortcut = createShortcutHandler(() => toggles++);
+
+  assert.equal(handleShortcut(), true);
   assert.equal(handleShortcut(), true);
   assert.equal(toggles, 2);
 });
 
-test("does not discard a quick intentional reopen after the short guard", () => {
-  let currentTime = 5_000;
+test("coalesces only duplicate events from different shortcut backends", () => {
+  let currentTime = 1_000;
   let toggles = 0;
   const handleShortcut = createShortcutHandler(() => toggles++, {
-    cooldownMs: 160,
-    now: () => currentTime
+    now: () => currentTime,
+    crossSourceWindowMs: 50
   });
 
-  assert.equal(handleShortcut(), true);
-  currentTime += 159;
-  assert.equal(handleShortcut(), false);
+  assert.equal(handleShortcut("electron-global"), true);
+  currentTime += 4;
+  assert.equal(handleShortcut("kde-native"), false);
   currentTime += 1;
-  assert.equal(handleShortcut(), true);
+  assert.equal(handleShortcut("electron-global"), true);
   assert.equal(toggles, 2);
+});
+
+test("recognizes Alt+M without accepting extra modifiers", () => {
+  assert.equal(isAltMToggle({ alt: true, key: "m" }), true);
+  assert.equal(isAltMToggle({ alt: true, code: "KeyM", key: "µ" }), true);
+  assert.equal(isAltMToggle({ alt: true, shift: true, key: "M" }), false);
+  assert.equal(isAltMToggle({ control: true, key: "m" }), false);
+});
+
+test("focused Alt+M toggles once, blocks text input, and ignores repeat", () => {
+  const sources = [];
+  let prevented = 0;
+  const event = { preventDefault: () => prevented++ };
+  const handleInput = createLocalShortcutHandler((source) => sources.push(source));
+
+  assert.equal(handleInput(event, { type: "keyDown", alt: true, code: "KeyM" }), true);
+  assert.equal(handleInput(event, {
+    type: "keyDown",
+    alt: true,
+    code: "KeyM",
+    isAutoRepeat: true
+  }), true);
+  assert.equal(handleInput(event, { type: "char", alt: true, key: "m" }), true);
+  assert.equal(handleInput(event, { type: "keyUp", alt: true, code: "KeyM" }), true);
+  assert.equal(handleInput(event, { type: "keyDown", alt: true, code: "KeyM" }), true);
+
+  assert.deepEqual(sources, ["local-input", "local-input"]);
+  assert.equal(prevented, 5);
 });

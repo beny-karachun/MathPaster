@@ -3,6 +3,7 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const {
+  cleanInactiveKdeShortcuts,
   findReconciliation,
   isKdeSession,
   listKdeShortcutNames,
@@ -30,6 +31,29 @@ test("queries the KDE service even when a desktop launcher omits session markers
     runQdbus: () => ({ status: 0, stdout: `${OLD}\n${LIVE}\n` })
   });
   assert.deepEqual(names, [OLD, LIVE]);
+});
+
+test("cleans inactive MathPaster portal actions before re-registering", () => {
+  const calls = [];
+  const result = cleanInactiveKdeShortcuts({
+    environment: { XDG_CURRENT_DESKTOP: "KDE" },
+    runQdbus: (argumentsList) => {
+      calls.push(argumentsList);
+      return { status: 0, stdout: "true\n" };
+    }
+  });
+
+  assert.deepEqual(result, { attempted: true, cleaned: true });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].at(-1), "org.kde.kglobalaccel.Component.cleanUp");
+});
+
+test("does not touch KGlobalAccel outside a KDE session", () => {
+  const result = cleanInactiveKdeShortcuts({
+    environment: { XDG_CURRENT_DESKTOP: "GNOME" },
+    runQdbus: () => { throw new Error("must not run"); }
+  });
+  assert.deepEqual(result, { attempted: false, cleaned: false });
 });
 
 test("keeps the newly registered action and marks prior actions stale", () => {

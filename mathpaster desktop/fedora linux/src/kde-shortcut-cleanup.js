@@ -49,6 +49,22 @@ function listKdeShortcutNames(options = {}) {
   return parseShortcutNames(result.stdout);
 }
 
+function cleanInactiveKdeShortcuts(options = {}) {
+  const environment = options.environment || process.env;
+  if (!isKdeSession(environment)) return { attempted: false, cleaned: false };
+
+  const result = (options.runQdbus || runQdbus)([
+    KDE_SHORTCUT_SERVICE,
+    KDE_SHORTCUT_COMPONENT,
+    "org.kde.kglobalaccel.Component.cleanUp"
+  ]);
+
+  return {
+    attempted: true,
+    cleaned: result.status === 0 && String(result.stdout).trim() === "true"
+  };
+}
+
 function findReconciliation(previousNames, currentNames) {
   const previous = new Set(previousNames.filter(isManagedShortcutName));
   const current = currentNames.filter(isManagedShortcutName);
@@ -86,6 +102,7 @@ function reconcileKdeShortcuts(previousNames, options = {}) {
 }
 
 module.exports = {
+  cleanInactiveKdeShortcuts,
   findReconciliation,
   isKdeSession,
   isManagedShortcutName,

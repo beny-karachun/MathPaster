@@ -83,6 +83,22 @@ document.addEventListener("keydown", e => {
     window.parent.postMessage({ mathpaster: "close" }, "*");
     return;
   }
+  // The main process normally owns Alt+M, but keep a renderer fallback so a
+  // focused MathLive field can never consume the M if the compositor lets the
+  // keystroke reach the window.
+  if (
+    new URLSearchParams(window.location.search).has("desktop")
+    && e.altKey
+    && !e.ctrlKey
+    && !e.metaKey
+    && !e.shiftKey
+    && (e.key.toLowerCase() === "m" || e.code === "KeyM")
+  ) {
+    e.preventDefault();
+    e.stopPropagation();
+    window.parent.postMessage({ mathpaster: "toggle" }, "*");
+    return;
+  }
   // Ctrl+Backspace inside mathfield -> delete word backward
   if (e.key === "Backspace" && (e.ctrlKey || e.metaKey)) {
     if (state.mfReady && mf && (

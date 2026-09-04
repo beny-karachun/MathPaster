@@ -24,7 +24,7 @@ test("builds packaged and development launch commands", () => {
     isPackaged: true,
     executablePath: "/opt/MathPaster/mathpaster",
     appPath: "/ignored"
-  }), ["/opt/MathPaster/mathpaster", "--hidden"]);
+  }), ["/opt/MathPaster/mathpaster", "--", "--hidden"]);
 
   assert.deepEqual(getLaunchArguments({
     isPackaged: false,
@@ -42,17 +42,17 @@ test("accepts an AppImage path as the durable packaged executable", () => {
     isPackaged: true,
     executablePath: "/home/user/Applications/MathPaster.AppImage",
     appPath: "/tmp/.mount_mathpaster/resources/app.asar"
-  }), ["/home/user/Applications/MathPaster.AppImage", "--hidden"]);
+  }), ["/home/user/Applications/MathPaster.AppImage", "--", "--hidden"]);
 });
 
 test("creates a valid Fedora autostart entry", () => {
   const entry = createDesktopEntry(
-    ["/opt/Math Paster/mathpaster", "--hidden"],
+    ["/opt/Math Paster/mathpaster", "--", "--hidden"],
     "/opt/Math Paster/icon.png"
   );
 
   assert.match(entry, /^\[Desktop Entry\]/);
-  assert.match(entry, /Exec="\/opt\/Math Paster\/mathpaster" "--hidden"/);
+  assert.match(entry, /Exec="\/opt\/Math Paster\/mathpaster" "--" "--hidden"/);
   assert.match(entry, /X-GNOME-Autostart-enabled=true/);
   assert.match(entry, /StartupNotify=false/);
 });

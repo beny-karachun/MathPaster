@@ -73,6 +73,9 @@ window.addEventListener("message", async (event) => {
     case "close":
       await desktop.hide();
       break;
+    case "toggle":
+      await desktop.toggle();
+      break;
     case "insert":
       await copyFromEditor(event.data.latex, "insert", true);
       break;

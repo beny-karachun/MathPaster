@@ -6,10 +6,15 @@ extension and does not use Chrome extension APIs or the Chrome Web Store.
 ## What it does
 
 - Opens or hides globally with **Alt+M**.
-- Uses the Fedora/KDE global shortcut as the single toggle owner, whether the
-  window is visible or hidden.
+- On Fedora KDE Wayland, clears only inactive MathPaster portal actions before
+  registering so Plasma performs a real bind after every relaunch.
+- Uses Electron's portal callback plus a tiny isolated KDE signal listener,
+  coalescing duplicate backend events without swallowing rapid key presses.
+- Intercepts Alt+M before it reaches the focused editor, so the `M` is never
+  inserted into the current equation when closing the window.
 - Keeps running in the desktop tray when its window is closed.
 - Offers a **Launch on restart** switch under Settings → General & Window and in the tray menu.
+- Repairs older autostart entries so packaged Electron builds receive the hidden-start argument.
 - Resizes with a locked editor aspect ratio, scaling the whole interface together.
 - Starts hidden when Fedora launches it after login.
 - Uses the full MathPaster editor, including palettes, matrices, snippets,
@@ -41,8 +46,8 @@ under `~/.local/share/applications/` before registering the shortcut. Fedora's
 Wayland shortcut portal uses that launcher to identify the background app. An
 RPM installation uses its system launcher instead.
 
-Shortcut activation is coalesced briefly so Wayland portal repeat events from
-one keypress cannot toggle the window open and closed several times.
+Duplicate activation from the Electron and KDE backends is coalesced without
+discarding rapid intentional presses from either backend.
 On KDE Plasma, startup also removes obsolete MathPaster-only portal actions
 left behind by earlier runs or shortcut changes, preserving the single live
 binding and leaving every other application's shortcuts untouched.

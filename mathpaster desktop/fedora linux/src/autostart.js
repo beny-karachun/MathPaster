@@ -26,7 +26,8 @@ function getAutostartPath(env = process.env, homedir = os.homedir()) {
 
 function getLaunchArguments({ isPackaged, executablePath, appPath }) {
   const args = [executablePath];
-  if (!isPackaged) args.push(appPath);
+  if (isPackaged) args.push("--");
+  else args.push(appPath);
   args.push("--hidden");
   return args;
 }

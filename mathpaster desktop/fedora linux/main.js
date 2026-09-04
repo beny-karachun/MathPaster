@@ -19,10 +19,23 @@ const {
 } = require("./src/autostart");
 const { ensureDesktopIntegration } = require("./src/desktop-entry");
 const {
+  cleanInactiveKdeShortcuts,
+  isKdeSession,
   listKdeShortcutNames,
   reconcileKdeShortcuts
 } = require("./src/kde-shortcut-cleanup");
-const { createShortcutHandler } = require("./src/shortcut");
+const {
+  createKdeShortcutWorker
+} = require("./src/kde-shortcut-worker-client");
+const {
+  createLocalShortcutHandler,
+  createShortcutHandler
+} = require("./src/shortcut");
+const {
+  concealWindow,
+  isWindowOpen,
+  revealWindow
+} = require("./src/window-visibility");
 
 const TOGGLE_SHORTCUT = "Alt+M";
 const TOGGLE_SHORTCUT_LABEL = "Alt+M";
@@ -32,6 +45,13 @@ let mainWindow = null;
 let tray = null;
 let isQuitting = false;
 let shortcutRegistered = false;
+let kdeShortcutWorker = null;
+const handleShortcut = createShortcutHandler(toggleWindow);
+const handleLocalShortcut = createLocalShortcutHandler(handleShortcut);
+
+function isKdeWaylandSession() {
+  return process.env.XDG_SESSION_TYPE === "wayland" && isKdeSession();
+}
 
 app.setName("MathPaster");
 if (process.platform === "linux") app.setDesktopName(DESKTOP_ID);
@@ -85,19 +105,19 @@ function sendAppState() {
 
 function showWindow() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
-  if (mainWindow.isMinimized()) mainWindow.restore();
-  mainWindow.show();
-  mainWindow.focus();
+  handleLocalShortcut.reset();
+  revealWindow(mainWindow);
   mainWindow.webContents.send("window:shown");
 }
 
 function hideWindow() {
-  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.hide();
+  handleLocalShortcut.reset();
+  concealWindow(mainWindow);
 }
 
 function toggleWindow() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
-  if (mainWindow.isVisible()) {
+  if (isWindowOpen(mainWindow)) {
     hideWindow();
     console.info(`MathPaster window hidden by ${TOGGLE_SHORTCUT_LABEL}.`);
   } else {
@@ -115,7 +135,7 @@ function rebuildTrayMenu() {
   if (!tray) return;
   const menu = Menu.buildFromTemplate([
     {
-      label: mainWindow && mainWindow.isVisible() ? "Hide MathPaster" : "Show MathPaster",
+      label: isWindowOpen(mainWindow) ? "Hide MathPaster" : "Show MathPaster",
       click: toggleWindow
     },
     {
@@ -182,6 +202,7 @@ function createWindow() {
   });
 
   mainWindow.setMenuBarVisibility(false);
+  mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   // Match the Chrome editor's aspect-locked corner resizing. The renderer also
   // letterboxes gracefully on Wayland compositors that ignore this hint.
   mainWindow.setAspectRatio(760 / 590);
@@ -195,7 +216,11 @@ function createWindow() {
   });
   mainWindow.on("show", rebuildTrayMenu);
   mainWindow.on("hide", rebuildTrayMenu);
+  mainWindow.on("blur", handleLocalShortcut.reset);
+  mainWindow.on("minimize", rebuildTrayMenu);
+  mainWindow.on("restore", rebuildTrayMenu);
   mainWindow.webContents.on("did-finish-load", sendAppState);
+  mainWindow.webContents.on("before-input-event", handleLocalShortcut);
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (/^https?:\/\//i.test(url)) shell.openExternal(url);
     return { action: "deny" };
@@ -205,14 +230,52 @@ function createWindow() {
   });
 }
 
-function registerShortcut() {
+async function registerShortcut() {
+  const useNativeKdePresses = isKdeWaylandSession();
+  let usingNativeKdePresses = false;
+
+  // Plasma remembers portal shortcuts after an app exits, but some versions
+  // return the remembered action from ListShortcuts without marking it active.
+  // Chromium then skips BindShortcuts and the keystroke falls through into the
+  // focused editor. Removing only this app's inactive actions forces a real
+  // bind on every launch while preserving every other application's shortcuts.
+  if (useNativeKdePresses) {
+    const cleanup = cleanInactiveKdeShortcuts();
+    if (cleanup.cleaned) {
+      console.info("Removed inactive KDE MathPaster shortcut state before registration.");
+    }
+  }
+
   const previousKdeShortcutNames = listKdeShortcutNames();
-  const handleShortcut = createShortcutHandler(toggleWindow);
-  shortcutRegistered = globalShortcut.register(TOGGLE_SHORTCUT, handleShortcut);
+  shortcutRegistered = globalShortcut.register(
+    TOGGLE_SHORTCUT,
+    () => handleShortcut("electron-global")
+  );
+
+  // Electron owns the portal registration, but subscribe to Plasma's Pressed
+  // signal directly in this process. This produces one immediate event per
+  // physical press without relying on Electron's unreliable Wayland callback
+  // or a buffered external monitor process.
+  if (shortcutRegistered && useNativeKdePresses) {
+    kdeShortcutWorker = createKdeShortcutWorker(
+      () => handleShortcut("kde-native")
+    );
+    try {
+      await kdeShortcutWorker.start();
+      usingNativeKdePresses = true;
+    } catch (error) {
+      console.error("Could not subscribe to KDE shortcut presses; using Electron fallback:", error);
+      kdeShortcutWorker?.stop();
+      kdeShortcutWorker = null;
+    }
+  }
   if (!shortcutRegistered) {
+    kdeShortcutWorker?.stop();
+    kdeShortcutWorker = null;
     console.error(`${TOGGLE_SHORTCUT} is already reserved by another application.`);
   } else {
-    console.info(`${TOGGLE_SHORTCUT} registered for ${DESKTOP_ID}.`);
+    const backend = usingNativeKdePresses ? "KDE native press listener" : "Electron global shortcut";
+    console.info(`${TOGGLE_SHORTCUT} registered for ${DESKTOP_ID} via ${backend}.`);
   }
   if (shortcutRegistered && previousKdeShortcutNames.length > 0) {
     const cleanupTimer = setTimeout(() => {
@@ -229,7 +292,7 @@ function registerShortcut() {
 
 function registerIpc() {
   ipcMain.handle("window:hide", () => hideWindow());
-  ipcMain.handle("window:toggle", () => toggleWindow());
+  ipcMain.handle("window:toggle", () => handleShortcut("renderer-local"));
   ipcMain.handle("app:get-state", () => ({
     launchOnRestart: isAutostartEnabled(),
     shortcut: TOGGLE_SHORTCUT_LABEL,
@@ -250,22 +313,30 @@ function registerIpc() {
 }
 
 if (hasSingleInstanceLock) {
-  app.whenReady().then(() => {
+  app.whenReady().then(async () => {
     registerIpc();
     try {
       ensureDesktopIntegration(getDesktopIntegrationOptions());
+      // Rewrite older packaged autostart entries with the `--` separator that
+      // Electron requires before application-defined arguments.
+      if (isAutostartEnabled()) {
+        setAutostartEnabled(true, getAutostartOptions());
+      }
     } catch (error) {
       console.error("Could not register the desktop identity:", error);
     }
     createWindow();
     createTray();
-    registerShortcut();
+    await registerShortcut();
     if (!START_HIDDEN) showWindow();
   });
 
   app.on("activate", showWindow);
   app.on("window-all-closed", () => {});
-  app.on("will-quit", () => globalShortcut.unregisterAll());
+  app.on("will-quit", () => {
+    kdeShortcutWorker?.stop();
+    globalShortcut.unregisterAll();
+  });
   process.on("SIGINT", quitApplication);
   process.on("SIGTERM", quitApplication);
 }
