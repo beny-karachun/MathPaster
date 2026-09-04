@@ -1,0 +1,80 @@
+{
+  "name": "mathpaster-desktop-fedora",
+  "productName": "MathPaster",
+  "version": "1.0.0",
+  "description": "A fast visual LaTeX editor for every Fedora application.",
+  "author": {
+    "name": "Beny Karachun",
+    "email": "beny7375@gmail.com"
+  },
+  "homepage": "https://mathpaster.com",
+  "license": "SEE LICENSE IN ../../LICENSE",
+  "main": "main.js",
+  "desktopName": "com.mathpaster.MathPaster",
+  "scripts": {
+    "start": "electron .",
+    "start:hidden": "electron . --hidden",
+    "test": "node test/autostart.test.js",
+    "check": "node --check main.js && node --check preload.js && node --check src/autostart.js && node --check renderer/desktop.js",
+    "pack": "electron-builder --linux dir",
+    "dist": "electron-builder --linux rpm AppImage",
+    "dist:rpm": "electron-builder --linux rpm",
+    "dist:appimage": "electron-builder --linux AppImage"
+  },
+  "devDependencies": {
+    "electron": "44.2.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.mathpaster.MathPaster",
+    "productName": "MathPaster",
+    "artifactName": "MathPaster-${version}-${arch}.${ext}",
+    "asar": true,
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "renderer/**/*",
+      "build/icon.png"
+    ],
+    "extraResources": [
+      {
+        "from": "build/icon.png",
+        "to": "icon.png"
+      }
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "linux": {
+      "target": [
+        "rpm",
+        "AppImage"
+      ],
+      "category": "Education",
+      "executableName": "mathpaster",
+      "icon": "build/icons",
+      "synopsis": "Visual LaTeX editor for any Fedora application",
+      "description": "Write mathematics visually, copy clean LaTeX, and summon the editor anywhere with Ctrl+Shift+M.",
+      "maintainer": "Beny Karachun <beny7375@gmail.com>",
+      "vendor": "MathPaster",
+      "syncDesktopName": true,
+      "desktop": {
+        "entry": {
+          "Name": "MathPaster",
+          "Comment": "Write math visually and paste LaTeX anywhere",
+          "Categories": "Education;Science;Utility;",
+          "Keywords": "math;latex;equation;editor;",
+          "StartupNotify": "true",
+          "Terminal": "false",
+          "Type": "Application"
+        }
+      }
+    },
+    "rpm": {
+      "compression": "xz",
+      "packageCategory": "Applications/Education"
+    }
+  }
+}

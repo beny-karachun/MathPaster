@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; frame-src 'self'; font-src 'self'">
+  <title>MathPaster</title>
+  <link rel="stylesheet" href="desktop.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="desktop-bar">
+      <div class="brand-lockup">
+        <img src="../build/icon.png" alt="" class="app-icon">
+        <div>
+          <div class="app-name">MathPaster</div>
+          <div class="platform-name">Fedora desktop</div>
+        </div>
+      </div>
+
+      <div class="desktop-actions">
+        <div class="shortcut-status" id="shortcut-status" title="Global window shortcut">
+          <span class="status-dot" id="shortcut-dot"></span>
+          <kbd>Ctrl</kbd><span>+</span><kbd>Shift</kbd><span>+</span><kbd>M</kbd>
+        </div>
+
+        <label class="autostart-control" for="autostart-toggle">
+          <span>Launch on restart</span>
+          <span class="switch">
+            <input type="checkbox" id="autostart-toggle">
+            <span class="slider" aria-hidden="true"></span>
+          </span>
+        </label>
+
+        <button type="button" class="window-button" id="hide-button" aria-label="Hide MathPaster" title="Hide to tray">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+        </button>
+        <button type="button" class="window-button close" id="close-button" aria-label="Close MathPaster" title="Close to tray">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="editor-stage">
+      <iframe
+        id="editor-frame"
+        title="MathPaster equation editor"
+        src="editor/editor.html?desktop=true"
+      ></iframe>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="desktop.js"></script>
+</body>
+</html>

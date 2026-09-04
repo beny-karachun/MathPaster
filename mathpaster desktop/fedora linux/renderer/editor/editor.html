@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MathPaster Editor</title>
+
+  <!-- @import MUST come before any other CSS rules -->
+  <link rel="stylesheet" href="lib/mathlive-static.css" />
+
+  <link rel="stylesheet" href="editor.css">
+  <link rel="stylesheet" href="desktop-mode.css">
+</head>
+
+<body>
+  <div id="editor-window">
+    <!-- Resize Handles -->
+    <div class="resize-handle resize-tl" data-handle="tl"></div>
+    <div class="resize-handle resize-tr" data-handle="tr"></div>
+    <div class="resize-handle resize-bl" data-handle="bl"></div>
+    <div class="resize-handle resize-br" data-handle="br"></div>
+
+    <!-- Everything inside scales as one piece via transform (uniform zoom on resize) -->
+    <div id="editor-scale">
+    <div id="header">
+      <div id="title">
+        <span class="icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4z" />
+            <path d="M17 14v8M13 18h8" />
+          </svg>
+        </span>
+        MathPaster
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <a href="https://mathpaster.com" target="_blank" rel="noopener noreferrer" class="rate-btn" id="rate-us-btn" title="Visit MathPaster.com">
+          <span class="rate-text">Website</span> ↗
+        </a>
+        <button class="header-btn" id="history-btn" title="Insert history">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 3v5h5"></path>
+            <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path>
+            <path d="M12 7v5l4 2"></path>
+          </svg>
+        </button>
+        <button class="header-btn header-btn-pro" id="snippets-btn" title="Snippets (Pro)">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span class="pro-badge header-pro-badge">PRO</span>
+        </button>
+        <button class="header-btn" id="settings-btn" title="Settings">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
+          </svg>
+        </button>
+        <button class="header-btn" id="close-btn" title="Close (Esc)">✕</button>
+      </div>
+    </div>
+
+    <div id="mode-bar">
+      <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: center;">
+        <div id="auto-symbol-selector" style="display: flex; align-items: center; gap: 10px;">
+          <span class="mode-label active" style="font-weight: 500;">Auto-Symbols</span>
+          <label class="switch">
+            <input type="checkbox" id="auto-symbol-switch" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div id="mode-selector" style="display: flex; align-items: center; gap: 10px;">
+          <span class="mode-label active" data-mode="inline">Inline</span>
+          <label class="switch">
+            <input type="checkbox" id="mode-switch">
+            <span class="slider"></span>
+          </label>
+          <span class="mode-label" data-mode="block">Block</span>
+        </div>
+        <div id="latex-bar-selector" style="display: flex; align-items: center; gap: 10px;">
+          <span class="mode-label active" id="label-showLatexBar" style="font-weight: 500;">LaTeX Bar</span>
+          <label class="switch">
+            <input type="checkbox" id="set-showLatexBar">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div id="body">
+      <div id="mf-wrap">
+        <div id="loading">Loading editor…</div>
+        <math-field id="mf" math-virtual-keyboard-policy="manual" style="display:none"></math-field>
+      </div>
+
+      <div id="category-tabs"></div>
+
+      <div id="palette-container">
+        <div id="palette"></div>
+      </div>
+
+      <div id="latex-preview">
+        <span class="label">LaTeX</span>
+        <code id="latex-code"></code>
+      </div>
+    </div>
+
+    <div id="footer">
+      <span class="hint"><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>M</kbd> toggle · <kbd>Esc</kbd> close · <kbd>Ctrl</kbd>+<kbd>⏎</kbd>
+        copy &amp; close</span>
+      <div class="action-group">
+        <button class="btn secondary" id="copy-btn">
+          <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          Copy LaTeX
+        </button>
+        <button class="btn primary" id="insert-btn">Copy &amp; Close ⏎</button>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div id="matrix-selector"></div>
+
+  <div id="settings-overlay">
+    <div id="settings-panel">
+      <div class="settings-header">
+        <h2>Customize UI</h2>
+        <button class="header-btn" id="close-settings-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
+      </div>
+      <div class="settings-body">
+        <details name="settings-group">
+          <summary>General & Window</summary>
+          <div class="details-content">
+            <div class="setting-group">
+              <label>Editor Width (px) <span id="val-popupWidth"></span></label>
+              <input type="range" id="set-popupWidth" min="400" max="1600" step="10">
+            </div>
+            <div class="setting-group">
+              <label>Editor Height (px) <span id="val-popupHeight"></span></label>
+              <input type="range" id="set-popupHeight" min="300" max="1200" step="10">
+            </div>
+            <div class="setting-group">
+              <label>UI Spacing Gap (px) <span id="val-gapSize"></span></label>
+              <input type="range" id="set-gapSize" min="4" max="40" step="2">
+            </div>
+          </div>
+        </details>
+
+        <details name="settings-group">
+          <summary>Category Tabs</summary>
+          <div class="details-content">
+            <div class="setting-group">
+              <label>Tab Padding X (px) <span id="val-tabPaddingH"></span></label>
+              <input type="range" id="set-tabPaddingH" min="10" max="60" step="1">
+            </div>
+            <div class="setting-group">
+              <label>Tab Padding Y (px) <span id="val-tabPaddingV"></span></label>
+              <input type="range" id="set-tabPaddingV" min="4" max="30" step="1">
+            </div>
+            <div class="setting-group">
+              <label>Tab Font Size (px) <span id="val-tabFontSize"></span></label>
+              <input type="range" id="set-tabFontSize" min="10" max="24" step="1">
+            </div>
+            <div class="setting-group">
+              <label>Tab Roundness (px) <span id="val-borderRadiusTab"></span></label>
+              <input type="range" id="set-borderRadiusTab" min="0" max="40" step="1">
+            </div>
+          </div>
+        </details>
+
+        <details name="settings-group">
+          <summary>Symbol Buttons</summary>
+          <div class="details-content">
+            <div class="setting-group">
+              <label>Symbol Button Width (px) <span id="val-symbolGridWidth"></span></label>
+              <input type="range" id="set-symbolGridWidth" min="40" max="120" step="2">
+            </div>
+            <div class="setting-group">
+              <label>Symbol Button Height (px) <span id="val-symbolHeight"></span></label>
+              <input type="range" id="set-symbolHeight" min="30" max="100" step="2">
+            </div>
+            <div class="setting-group">
+              <label>Symbol Font Size (px) <span id="val-symbolFontSize"></span></label>
+              <input type="range" id="set-symbolFontSize" min="14" max="40" step="1">
+            </div>
+            <div class="setting-group">
+              <label>Button Roundness (px) <span id="val-borderRadiusBtn"></span></label>
+              <input type="range" id="set-borderRadiusBtn" min="0" max="40" step="1">
+            </div>
+          </div>
+        </details>
+
+        <details name="settings-group">
+          <summary>Action Buttons</summary>
+          <div class="details-content">
+            <div class="setting-group">
+              <label>Action Button Padding X (px) <span id="val-actionBtnPaddingX"></span></label>
+              <input type="range" id="set-actionBtnPaddingX" min="10" max="60" step="2">
+            </div>
+            <div class="setting-group">
+              <label>Action Button Padding Y (px) <span id="val-actionBtnPaddingY"></span></label>
+              <input type="range" id="set-actionBtnPaddingY" min="4" max="30" step="2">
+            </div>
+            <div class="setting-group">
+              <label>Action Button Font Size (px) <span id="val-actionBtnFontSize"></span></label>
+              <input type="range" id="set-actionBtnFontSize" min="10" max="24" step="1">
+            </div>
+            <div class="setting-group">
+              <label>Action Button Roundness (px) <span id="val-actionBtnRoundness"></span></label>
+              <input type="range" id="set-actionBtnRoundness" min="0" max="40" step="1">
+            </div>
+          </div>
+        </details>
+
+        <details name="settings-group" open>
+          <summary>Theme</summary>
+          <div class="details-content">
+            <div class="setting-group">
+              <label>Color theme</label>
+              <div id="theme-presets" class="preset-grid"></div>
+            </div>
+          </div>
+        </details>
+
+        <details name="settings-group">
+          <summary>Tabs</summary>
+          <div class="details-content">
+            <p class="settings-note">Pro users can edit any tab — add or remove symbols, or remove a default tab entirely — with the <span class="settings-pencil">✎</span> on each tab. Reset clears every change and restores the original tabs.</p>
+            <button class="btn secondary" id="reset-tabs-btn">Reset tabs to default</button>
+            <div id="reset-tabs-confirm" class="reset-confirm" hidden>
+              <span class="reset-confirm-text">Remove all custom tabs and restore the defaults?</span>
+              <div class="reset-confirm-actions">
+                <button class="btn secondary" id="reset-tabs-cancel">Cancel</button>
+                <button class="btn secondary reset-confirm-danger" id="reset-tabs-yes">Reset tabs</button>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <details name="settings-group" id="pro-settings-group">
+          <summary>MathPaster Pro</summary>
+          <div class="details-content">
+            <div class="setting-group">
+              <div id="license-status" class="license-status">Free plan</div>
+              <div class="license-row" id="license-input-row">
+                <input type="text" id="license-key-input" class="tab-text-input" placeholder="Paste your license key" autocomplete="off" spellcheck="false">
+                <button class="btn primary" id="license-activate-btn">Activate</button>
+              </div>
+              <div id="license-msg" class="tab-error license-msg"></div>
+              <a id="license-buy-link" class="license-buy-link" href="#" target="_blank" rel="noopener">Get MathPaster Pro →</a>
+              <button class="btn secondary" id="license-deactivate-btn" style="display:none;">Deactivate on this device</button>
+            </div>
+          </div>
+        </details>
+
+        <button class="btn secondary" id="reset-settings-btn" style="margin-top:10px;">Reset to Defaults</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pro-overlay">
+    <div id="pro-panel">
+      <div class="settings-header">
+        <h2>MathPaster <span class="pro-badge">PRO</span></h2>
+        <button class="header-btn" id="close-pro-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
+      </div>
+      <div class="settings-body">
+        <p id="pro-modal-feature" class="pro-feature-line"></p>
+        <ul class="pro-perks">
+          <li>Custom symbol tabs — build palettes from any <code>\</code> command</li>
+          <li>All 13 vaporwave color themes, light &amp; dark</li>
+          <li>From $2.99/mo — or $19.99 once, yours forever</li>
+        </ul>
+        <div class="tab-editor-actions">
+          <button class="btn secondary" id="pro-have-key-btn">I have a license key</button>
+          <a class="btn primary" id="pro-buy-btn" href="#" target="_blank" rel="noopener">Get Pro</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-overlay">
+    <div id="tab-panel">
+      <div class="settings-header">
+        <h2 id="tab-editor-title">New Custom Tab <span class="pro-badge">PRO</span></h2>
+        <button class="header-btn" id="close-tab-editor-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
+      </div>
+      <div class="settings-body">
+        <div class="setting-group">
+          <label for="tab-name-input">Tab name</label>
+          <input type="text" id="tab-name-input" class="tab-text-input" placeholder="e.g. My Symbols" maxlength="24" autocomplete="off" spellcheck="false">
+        </div>
+
+        <div class="setting-group">
+          <label>Add a symbol — type a <code>\</code> command (e.g. <code>\frac</code>, <code>\alpha</code>)</label>
+          <div class="tab-add-row">
+            <math-field id="tab-mf" math-virtual-keyboard-policy="manual"></math-field>
+            <button class="btn primary" id="tab-add-btn">Add</button>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <button type="button" class="btn secondary symbol-browse-toggle" id="tab-browse-toggle" aria-expanded="false" aria-controls="tab-symbol-picker">
+            <span>＋ Browse symbols</span><span class="browse-caret" aria-hidden="true">▾</span>
+          </button>
+          <div id="tab-symbol-picker" class="symbol-picker" hidden>
+            <input type="text" id="symbol-search" class="tab-text-input symbol-search" placeholder="Search symbols…" autocomplete="off" spellcheck="false">
+            <div id="symbol-cat-nav" class="symbol-cat-nav"></div>
+            <div id="symbol-grid" class="symbol-grid"></div>
+            <div id="symbol-noresults" class="symbol-noresults" hidden>No symbols match your search.</div>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label>Symbols in this tab</label>
+          <div id="tab-symbol-list" class="tab-symbol-list"></div>
+        </div>
+
+        <div id="tab-error" class="tab-error"></div>
+
+        <div class="tab-editor-actions">
+          <button class="btn secondary" id="tab-delete-btn">Delete Tab</button>
+          <button class="btn primary" id="tab-save-btn">Save Tab</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <div id="history-overlay">
+    <div id="history-panel">
+      <div class="settings-header">
+        <h2>Insert History</h2>
+        <button class="header-btn" id="close-history-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
+      </div>
+      <div class="settings-body">
+        <div id="history-list" class="entry-list"></div>
+        <button class="btn secondary" id="history-clear-btn" style="margin-top:10px;">Clear history</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="snippets-overlay">
+    <div id="snippets-panel">
+      <div class="settings-header">
+        <h2>Snippets <span class="pro-badge">PRO</span></h2>
+        <button class="header-btn" id="close-snippets-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
+      </div>
+      <div class="settings-body">
+        <div id="snippets-pro">
+          <div id="snippet-tabs" class="snippet-tabs"></div>
+          <div id="snippet-tab-form" class="tab-add-row" style="display:none;margin-bottom:12px;">
+            <input type="text" id="snippet-tab-name" class="tab-text-input" placeholder="Tab name" maxlength="24" autocomplete="off" spellcheck="false">
+            <button class="btn primary snip-tab-btn" id="snippet-tab-save">Add</button>
+            <button class="btn secondary snip-tab-btn" id="snippet-tab-delete" style="display:none;">Delete</button>
+            <button class="btn secondary snip-tab-btn" id="snippet-tab-cancel">Cancel</button>
+          </div>
+          <div class="setting-group">
+            <label id="snippet-save-label" for="snippet-name-input">Save current expression</label>
+            <div class="tab-add-row">
+              <input type="text" id="snippet-name-input" class="tab-text-input" placeholder="Name (optional)" maxlength="40" autocomplete="off" spellcheck="false">
+              <button class="btn primary" id="snippet-save-btn">Save</button>
+            </div>
+          </div>
+          <div id="snippet-error" class="tab-error"></div>
+          <div id="snippets-list" class="entry-list"></div>
+        </div>
+
+        <div id="snippets-teaser">
+          <div class="snippet-tabs snippets-teaser-preview" aria-hidden="true">
+            <span class="snip-tab active"><span class="snip-tab-label">Calculus</span></span>
+            <span class="snip-tab"><span class="snip-tab-label">Algebra</span></span>
+            <span class="snip-tab new-tab">+ New tab</span>
+          </div>
+          <div class="entry-list snippets-teaser-preview" aria-hidden="true">
+            <div class="entry-row"><div class="entry-main"><span class="entry-name">Quadratic formula</span><div class="entry-face">x = (-b ± √(b²-4ac)) / 2a</div></div></div>
+            <div class="entry-row"><div class="entry-main"><span class="entry-name">Euler's identity</span><div class="entry-face">e^(iπ) + 1 = 0</div></div></div>
+            <div class="entry-row"><div class="entry-main"><span class="entry-name">Integral</span><div class="entry-face">∫ f(x) dx</div></div></div>
+          </div>
+          <div class="snippets-teaser-cta">
+            <p class="pro-feature-line">Save the expressions you reuse most, organise them into your own tabs, and drop them back into the editor in one click.</p>
+            <a class="btn primary" id="snippets-getpro-btn" href="#" target="_blank" rel="noopener">Get Pro</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Separate movable, resizable virtual keyboard tab -->
+  <div id="keyboard-window" style="display: none;">
+    <div id="keyboard-header">
+      <div id="keyboard-title">
+        <span class="keyboard-drag-icon">⠿</span>
+        Virtual Keyboard
+      </div>
+      <button class="header-btn" id="close-keyboard-btn" title="Close Keyboard">✕</button>
+    </div>
+    
+    <div class="kbd-resize-handle kbd-resize-tl" data-handle="tl"></div>
+    <div class="kbd-resize-handle kbd-resize-tr" data-handle="tr"></div>
+    <div class="kbd-resize-handle kbd-resize-bl" data-handle="bl"></div>
+    <div class="kbd-resize-handle kbd-resize-br" data-handle="br"></div>
+
+    <div id="keyboard-container"></div>
+  </div>
+
+  <script src="desktop-mode.js"></script>
+
+  <!-- Load MathLive AFTER the DOM so the page renders instantly -->
+  <script src="lib/mathlive.min.js"></script>
+  <script type="module" src="src/main.js"></script>
+</body>
+
+</html>
