@@ -26,8 +26,8 @@ test("builds source and packaged desktop launch commands", () => {
     executablePath: "/project/node_modules/electron/dist/electron",
     appPath: "/project/mathpaster desktop/fedora linux"
   }), [
-    "/project/node_modules/electron/dist/electron",
-    "/project/mathpaster desktop/fedora linux"
+    "/bin/sh",
+    "/project/mathpaster desktop/fedora linux/src/launch.sh"
   ]);
 });
 
@@ -56,6 +56,9 @@ test("installs a managed user launcher and icon when no RPM entry exists", () =>
     assert.equal(installedPath, getUserDesktopEntryPath(options.env, options.homedir));
     assert.match(fs.readFileSync(installedPath, "utf8"), /MathPaster\.AppImage/);
     assert.equal(fs.readFileSync(getUserIconPath(options.env, options.homedir), "utf8"), "icon");
+    fs.writeFileSync(installedPath, "[Desktop Entry]\nName=My custom MathPaster\n");
+    ensureDesktopIntegration(options);
+    assert.equal(fs.readFileSync(installedPath, "utf8"), "[Desktop Entry]\nName=My custom MathPaster\n");
   } finally {
     fs.rmSync(temporaryHome, { recursive: true, force: true });
   }

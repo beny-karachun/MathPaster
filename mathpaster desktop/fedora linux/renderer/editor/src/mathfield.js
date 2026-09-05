@@ -177,7 +177,13 @@ function enableImeInlineShortcuts(mf) {
 /* ── Live preview & Caching ── */
 export function updatePreview() {
   const raw = mf.value || "";
-  localStorage.setItem("mathpaster_draft", raw);
+  try { localStorage.setItem("mathpaster_draft", raw); } catch {
+    window.parent.postMessage({ mathpaster: "toast", text: "Storage is full. Copy your equation before closing." }, "*");
+  }
+  for (const id of ["copy-btn", "insert-btn"]) {
+    const button = document.getElementById(id);
+    button.disabled = !raw.trim() || Boolean(document.querySelector('[aria-busy="true"]'));
+  }
   if (!raw) { latexEl.textContent = ""; return; }
   latexEl.textContent = state.insertMode === "block" ? `$$${raw}$$` : `$${raw}$`;
 }
@@ -188,7 +194,8 @@ export function initMathField() {
     const MFE = window.MathLive?.MathfieldElement || window.MathfieldElement;
 
     if (!MFE) {
-      loading.textContent = "Failed to load math engine: MathfieldElement is undefined.";
+      loading.textContent = "The math engine could not load.";
+      window.parent.postMessage({ mathpaster: "editor-error" }, "*");
       return;
     }
 
@@ -196,6 +203,9 @@ export function initMathField() {
     try {
       MFE.fontsDirectory = "./lib/fonts/";
       MFE.soundsDirectory = null;
+      // The desktop shell has no MathLive instance. Keep the keyboard local
+      // instead of creating a proxy that sends commands to the parent frame.
+      mf.mathVirtualKeyboardPolicy = "sandboxed";
       if (window.mathVirtualKeyboard) {
         window.mathVirtualKeyboard.container = document.getElementById("keyboard-container");
       }
@@ -211,8 +221,7 @@ export function initMathField() {
       state.mfReady = true;
       
       // Prevent virtual keyboard from automatically popping up on focus
-      mf.mathVirtualKeyboardPolicy = "manual";
-      mf.setAttribute("math-virtual-keyboard-policy", "manual");
+      mf.mathVirtualKeyboardPolicy = "sandboxed";
       
       state.defaultShortcuts = mf.getOption ? mf.getOption("inlineShortcuts") : mf.inlineShortcuts;
       
@@ -230,6 +239,7 @@ export function initMathField() {
       loading.classList.add("hidden");
       mf.style.display = "block";
       mf.addEventListener("input", updatePreview);
+      mf.addEventListener("input", () => window.parent.postMessage({ mathpaster: "editing" }, "*"));
       // Auto-symbols on keydown-less input paths (mobile OS keyboards, Chrome/Wayland+IBus).
       // Always on — it self-disables on physical keyboards, so it's safe everywhere.
       enableImeInlineShortcuts(mf);
@@ -238,13 +248,16 @@ export function initMathField() {
         mf.addEventListener("pointerdown", enableNativeKeyboard, true);
         mf.addEventListener("focusin", enableNativeKeyboard);
       }
+      document.dispatchEvent(new CustomEvent("mathpaster:mathfield-ready"));
       window.parent.postMessage({ mathpaster: "ready" }, "*");
     }).catch(err => {
       loading.textContent = "Error defining math-field: " + err.message;
+      window.parent.postMessage({ mathpaster: "editor-error" }, "*");
     });
 
   } catch (err) {
     loading.textContent = "Init Error: " + err.message;
+    window.parent.postMessage({ mathpaster: "editor-error" }, "*");
   }
 }
 

@@ -147,8 +147,10 @@ document.getElementById("close-keyboard-btn").addEventListener("click", () => {
   }
 });
 
-// Virtual keyboard show/hide event listener
-if (window.mathVirtualKeyboard) {
+// Wait until the math field has selected the frame-local keyboard. Subscribing
+// at module import binds to MathLive's temporary parent-frame proxy instead.
+document.addEventListener("mathpaster:mathfield-ready", () => {
+  if (!window.mathVirtualKeyboard) return;
   window.mathVirtualKeyboard.addEventListener("virtual-keyboard-toggle", () => {
     if (window.mathVirtualKeyboard.visible) {
       kbdWindow.style.display = "flex";
@@ -161,7 +163,7 @@ if (window.mathVirtualKeyboard) {
       kbdWindow.style.display = "none";
     }
   });
-}
+}, { once: true });
 
 document.addEventListener("mousemove", e => {
   if (isDragging) {

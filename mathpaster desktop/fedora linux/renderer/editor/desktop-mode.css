@@ -138,3 +138,197 @@ body.desktop-mode .cat-tab:active,
 body.desktop-mode .pal-btn:active {
   scale: 0.96;
 }
+
+/* Native desktop layout: stable type sizes, quiet surfaces, and flexible space. */
+html:has(body.desktop-mode), body.desktop-mode {
+  background: var(--desktop-bg, #13151e) !important;
+  color: var(--desktop-text, #eef0f7);
+}
+body.desktop-mode #editor-window {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0;
+  background: var(--desktop-bg) !important;
+  box-shadow: none;
+}
+body.desktop-mode #editor-scale {
+  position: relative;
+  width: 100% !important;
+  height: 100% !important;
+  transform: none !important;
+  min-width: 0;
+}
+body.desktop-mode #header { padding: 14px 20px 10px; border: 0; gap: 12px; }
+body.desktop-mode #title { font-size: 15px; font-weight: 600; color: var(--desktop-text); white-space: nowrap; }
+body.desktop-mode #title .icon,
+body.desktop-mode #close-btn,
+body.desktop-mode #rate-us-btn { display: none; }
+body.desktop-mode .header-btn {
+  width: 40px !important;
+  height: 40px !important;
+  flex: 0 0 40px;
+  color: var(--desktop-muted);
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0;
+  border-radius: 8px !important;
+  transform: none;
+}
+body.desktop-mode .header-btn:hover { background: var(--desktop-panel) !important; color: var(--desktop-text); }
+body.desktop-mode .header-pro-badge { font-size: 7px; line-height: 1; padding: 3px 4px !important; box-shadow: none; right: -3px; top: auto; bottom: -2px; height: auto; }
+body.desktop-mode #mode-bar { padding: 0 20px; }
+body.desktop-mode #mode-bar > div { gap: 18px !important; }
+body.desktop-mode .mode-label { font-size: 12px; color: var(--desktop-muted); text-shadow: none !important; }
+body.desktop-mode .mode-label.active { color: var(--desktop-text) !important; }
+body.desktop-mode .switch { width: 36px; height: 40px; flex: 0 0 36px; }
+body.desktop-mode .switch .slider { top: 9px; bottom: 9px; border-radius: 20px; pointer-events: none; }
+body.desktop-mode .switch .slider:before { width: 16px; height: 16px; bottom: 2px; }
+body.desktop-mode .switch input:checked + .slider:before { transform: translateX(14px); }
+body.desktop-mode .switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; }
+body.desktop-mode .switch:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+body.desktop-mode #body { padding: 10px 20px 16px; gap: 14px !important; }
+body.desktop-mode #mf-wrap {
+  padding: 8px 12px;
+  background: var(--desktop-panel) !important;
+  border-color: var(--desktop-line) !important;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,.05) !important;
+  max-height: 40vh;
+  overflow: auto;
+}
+body.desktop-mode #mf-wrap:focus-within { border-color: var(--accent) !important; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 12%, transparent) !important; }
+body.desktop-mode #mf { min-height: 104px; font-size: 26px; padding: 16px 8px; border-radius: 4px; color: var(--desktop-text); }
+body.desktop-mode #category-tabs { padding: 3px 0 9px !important; margin: 0 !important; gap: 6px !important; }
+body.desktop-mode .cat-tab {
+  min-height: 40px;
+  border-radius: 8px !important;
+  border: 0;
+  padding: 8px 14px !important;
+  background: transparent !important;
+  color: var(--desktop-muted) !important;
+  box-shadow: none !important;
+  font-weight: 550;
+  text-shadow: none;
+}
+body.desktop-mode .cat-tab:hover { background: var(--desktop-panel) !important; }
+body.desktop-mode .cat-tab.active {
+  background: color-mix(in srgb, var(--accent) 16%, transparent) !important;
+  color: var(--desktop-text) !important;
+  box-shadow: inset 0 -2px 0 var(--accent) !important;
+}
+body.desktop-mode #palette-container { min-height: 76px; overflow: auto; }
+body.desktop-mode #palette { padding: 1px; align-content: start; }
+body.desktop-mode .pal-btn {
+  min-height: 40px;
+  min-width: 40px;
+  border: 0;
+  background: var(--desktop-panel) !important;
+  color: var(--desktop-text) !important;
+  box-shadow: 0 0 0 1px var(--desktop-line) !important;
+  border-radius: 8px !important;
+  transform: none;
+}
+body.desktop-mode .pal-btn:hover { background: color-mix(in srgb, var(--accent) 12%, var(--desktop-panel)) !important; box-shadow: 0 0 0 1px var(--accent) !important; }
+body.desktop-mode #latex-preview { background: var(--desktop-panel) !important; border: 1px solid var(--desktop-line); border-radius: 8px; max-height: 100px; overflow: auto; flex-shrink: 0; }
+body.desktop-mode #latex-code { color: var(--desktop-text); user-select: text; overflow-wrap: anywhere; }
+body.desktop-mode #footer { padding: 14px 20px; gap: 12px !important; border-top: 1px solid var(--desktop-line); background: var(--desktop-bg); flex-wrap: wrap; }
+body.desktop-mode .hint { color: var(--desktop-muted); font-size: 11px; line-height: 1.6; }
+body.desktop-mode .action-group { margin-left: auto; gap: 10px !important; }
+body.desktop-mode .btn { min-height: 42px; padding: 10px 16px !important; border-radius: 8px !important; font-size: 13px !important; font-weight: 600; transform: none; white-space: nowrap; }
+body.desktop-mode .btn.primary { background: #6956cb !important; color: #fff !important; border: 1px solid transparent; box-shadow: 0 1px 2px rgba(0,0,0,.16) !important; }
+body.desktop-mode .btn.primary:hover { background: #7965da !important; }
+body.desktop-mode .btn.secondary { background: var(--desktop-panel) !important; color: var(--desktop-text) !important; border: 1px solid var(--desktop-line) !important; box-shadow: none !important; }
+body.desktop-mode .btn:disabled { opacity: .4; cursor: not-allowed; scale: 1; }
+body.desktop-mode .btn.is-copied { background: #246c53 !important; color: #fff !important; }
+body.desktop-mode :is(button, a, input, summary, [role="button"]):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+body.desktop-mode :is(.btn, .pal-btn, .header-btn, .cat-tab) { transition: background-color 140ms ease, color 140ms ease, box-shadow 140ms ease, scale 140ms ease; }
+body.desktop-mode :is(#settings-panel, #tab-panel, #history-panel, #snippets-panel, #pro-panel) {
+  background: var(--desktop-bg) !important;
+  border: 1px solid var(--desktop-line);
+  border-radius: 16px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 32px);
+  box-shadow: 0 18px 60px rgba(0,0,0,.35);
+  backdrop-filter: none;
+  color: var(--desktop-text);
+}
+body.desktop-mode :is(.settings-header, .settings-body, .settings-footer) { padding: 16px 20px; }
+body.desktop-mode :is(.settings-header h2, #history-panel h2, #snippets-panel h2, #tab-panel h2, #pro-panel h2) { font-size: 17px; text-wrap: balance; color: var(--desktop-text); }
+body.desktop-mode .settings-body details { background: var(--desktop-panel) !important; border: 1px solid var(--desktop-line); border-radius: 10px; box-shadow: none; }
+body.desktop-mode .settings-body summary { min-height: 44px; color: var(--desktop-text); }
+body.desktop-mode .setting-group label, body.desktop-mode .desktop-setting-row label { color: var(--desktop-text); font-size: 12px; }
+body.desktop-mode .setting-group label span { font-variant-numeric: tabular-nums; }
+body.desktop-mode :is(p, .entry-empty, .pro-perks) { color: var(--desktop-muted); text-wrap: pretty; }
+body.desktop-mode .entry-row { background: var(--desktop-panel) !important; border-color: var(--desktop-line); box-shadow: none; }
+body.desktop-mode .entry-delete { min-width: 40px; min-height: 40px; }
+body.desktop-mode #keyboard-window { max-width: calc(100vw - 16px); max-height: calc(100vh - 16px); min-height: min(280px, calc(100vh - 16px)); background: var(--desktop-panel) !important; border-radius: 12px; animation: none; }
+body.desktop-mode #keyboard-container { min-height: 0; height: auto; }
+body.desktop-mode #keyboard-header { padding: 4px 12px; }
+body.desktop-mode #keyboard-title { color: var(--desktop-text); }
+body.desktop-mode #keyboard-container .ML__keyboard.is-visible > .MLK__backdrop { bottom: 8px; transform: none; }
+body.desktop-mode #keyboard-container :is(.ML__keyboard, .MLK__container, .MLK__keyboard-panel, .MLK__plate) {
+  --keyboard-background: var(--desktop-panel) !important;
+  --keyboard-accent-color: var(--accent);
+  --keyboard-toolbar-text: var(--desktop-muted);
+  --keyboard-toolbar-text-active: var(--desktop-text);
+  --keyboard-toolbar-background-hover: var(--desktop-bg);
+  --keycap-height: 40px !important;
+  --keycap-font-size: 17px !important;
+  --keycap-small-font-size: 14px !important;
+  --keycap-glyph-size: 18px !important;
+  --keycap-text: var(--desktop-text);
+  --keycap-background: var(--desktop-bg);
+  --keycap-background-hover: color-mix(in srgb, var(--accent) 18%, var(--desktop-bg));
+  --keycap-secondary-background: var(--desktop-bg);
+  --keycap-secondary-text: var(--desktop-muted);
+  --keycap-border: var(--desktop-line);
+  --keycap-border-bottom: var(--desktop-line);
+}
+body.desktop-mode .matrix-cell { width: 40px; height: 40px; padding: 0; cursor: pointer; }
+body.desktop-mode #settings-overlay { box-sizing: border-box; padding: 16px; }
+body.desktop-mode :is(#settings-overlay, #tab-overlay, #history-overlay, #snippets-overlay, #pro-overlay):not(.visible) { visibility: hidden; }
+body.desktop-mode #settings-overlay.visible { pointer-events: auto; background: rgba(0,0,0,.18); }
+body.desktop-mode .settings-body details:has(#set-tabPaddingH),
+body.desktop-mode .settings-body details:has(#set-actionBtnPaddingX),
+body.desktop-mode .setting-group:has(#set-gapSize),
+body.desktop-mode .setting-group:has(#set-borderRadiusBtn) { display: none; }
+body.desktop-mode #matrix-selector { background: var(--desktop-panel); color: var(--desktop-text); }
+body.desktop-mode.theme-light .pal-btn {
+  background: var(--desktop-panel) !important;
+  box-shadow: 0 0 0 1px var(--desktop-line) !important;
+  text-shadow: none;
+}
+body.desktop-mode.theme-light :is(.cat-tab:not(.active), .header-btn) {
+  background: transparent !important;
+  box-shadow: none !important;
+  text-shadow: none;
+}
+body.desktop-mode.theme-light :is(.cat-tab:not(.active), .header-btn):hover { background: var(--desktop-panel) !important; }
+body.desktop-mode .pro-badge { background: var(--accent); box-shadow: none; text-shadow: none; font-size: 8px; line-height: 1; padding: 3px 5px; }
+body.desktop-mode.theme-light .cat-tab.active { box-shadow: inset 0 -2px 0 var(--accent) !important; }
+body.desktop-mode.theme-light #palette-container { background: transparent; border-color: var(--desktop-line); }
+body.desktop-mode #mf::part(virtual-keyboard-toggle), body.desktop-mode #mf::part(menu-toggle) { display: none; }
+body.desktop-mode .hint kbd { padding: 1px 4px; border-radius: 4px; font-size: 10px; }
+
+@media (max-width: 660px) {
+  body.desktop-mode #header { padding: 8px 14px 4px; }
+  body.desktop-mode #title { font-size: 13px; }
+  body.desktop-mode #header > div:last-child { gap: 2px !important; }
+  body.desktop-mode #mode-bar { padding: 0 14px; }
+  body.desktop-mode #mode-bar > div { gap: 12px !important; }
+  body.desktop-mode #body { padding: 8px 14px 12px; }
+  body.desktop-mode #footer { padding: 10px 14px; }
+  body.desktop-mode #footer .hint { flex-basis: 100%; }
+  body.desktop-mode #mf { min-height: 72px; }
+}
+@media (max-height: 500px) {
+  body.desktop-mode #mf { min-height: 58px; padding: 8px; }
+  body.desktop-mode #body { gap: 8px !important; }
+  body.desktop-mode #footer .hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.desktop-mode *, body.desktop-mode *::before, body.desktop-mode *::after {
+    transition-duration: .01ms !important; animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important; scroll-behavior: auto !important;
+  }
+}

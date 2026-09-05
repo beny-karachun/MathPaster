@@ -21,9 +21,22 @@ state.hiddenDefaults   = loadHiddenDefaults();
 export function loadCustomTabs() {
   try {
     const saved = JSON.parse(localStorage.getItem(CUSTOM_TABS_KEY));
-    if (Array.isArray(saved)) return saved;
+    if (Array.isArray(saved)) {
+      const ids = new Set(Object.keys(PALETTE_DATA));
+      return saved.filter(t => {
+        if (!t || typeof t.id !== 'string' || !t.id || ids.has(t.id) || typeof t.name !== 'string' || !Array.isArray(t.symbols)) return false;
+        ids.add(t.id); return true;
+      }).map(t => ({ id: t.id, name: t.name, symbols: validSymbols(t.symbols) }));
+    }
   } catch (e) {}
   return [];
+}
+
+function validSymbols(symbols) {
+  return symbols.filter(s => s && (typeof s.latex === 'string' || ['bmatrix', 'pmatrix', 'vmatrix'].includes(s.matrixType)))
+    .map(s => s.matrixType && ['bmatrix', 'pmatrix', 'vmatrix'].includes(s.matrixType)
+      ? { matrixType: s.matrixType, label: typeof s.label === 'string' ? s.label : '▦' }
+      : { latex: s.latex });
 }
 
 export function saveCustomTabs() {
@@ -33,7 +46,11 @@ export function saveCustomTabs() {
 function loadDefaultOverrides() {
   try {
     const saved = JSON.parse(localStorage.getItem(DEFAULT_OVERRIDES_KEY));
-    if (saved && typeof saved === "object" && !Array.isArray(saved)) return saved;
+    if (saved && typeof saved === "object" && !Array.isArray(saved)) {
+      return Object.fromEntries(Object.entries(saved)
+        .filter(([key, value]) => isBuiltinKey(key) && value && typeof value.name === 'string' && Array.isArray(value.symbols))
+        .map(([key, value]) => [key, { name: value.name, symbols: validSymbols(value.symbols) }]));
+    }
   } catch (e) {}
   return {};
 }
@@ -43,7 +60,7 @@ function saveDefaultOverrides() {
 function loadHiddenDefaults() {
   try {
     const saved = JSON.parse(localStorage.getItem(HIDDEN_DEFAULTS_KEY));
-    if (Array.isArray(saved)) return saved.filter(k => PALETTE_DATA[k]);
+    if (Array.isArray(saved)) return saved.filter(k => typeof k === 'string' && isBuiltinKey(k));
   } catch (e) {}
   return [];
 }
@@ -88,8 +105,9 @@ export function removeDefaultTab(key) {
 // Normalize one item (built-in PALETTE_DATA item OR working symbol) to a render descriptor.
 function toRenderItem(item, useLabel) {
   if (item.matrixType) {
-    const face = item.label || "▦";
-    return { faceHTML: face, matrixType: item.matrixType, title: item.label || item.matrixType };
+    const face = document.createElement('span');
+    face.textContent = item.label || "▦";
+    return { faceHTML: face.outerHTML, matrixType: item.matrixType, title: item.label || item.matrixType };
   }
   return {
     faceHTML: useLabel && item.label ? item.label : renderSymbolFace(item.latex),
@@ -141,6 +159,7 @@ export function renderPalette(categoryName) {
     btn.className = "pal-btn";
     btn.innerHTML = item.faceHTML;
     btn.title = item.title;
+    btn.setAttribute('aria-label', item.title);
     btn.addEventListener("mousedown", e => e.preventDefault()); // don't steal focus
     btn.addEventListener("click", e => {
       e.preventDefault();
@@ -181,7 +200,7 @@ function allTabKeys() {
 // The saved order, with stale/hidden keys dropped and any newly-added keys appended.
 function getOrderedKeys() {
   const all = allTabKeys();
-  const order = loadTabOrder().filter(k => all.includes(k));
+  const order = [...new Set(loadTabOrder().filter(k => all.includes(k)))];
   for (const k of all) if (!order.includes(k)) order.push(k);
   return order;
 }

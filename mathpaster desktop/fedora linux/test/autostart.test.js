@@ -16,7 +16,8 @@ const {
 } = require("../src/autostart");
 
 test("quotes paths safely for a Desktop Entry Exec line", () => {
-  assert.equal(quoteExecArgument('/opt/Math Paster/$app`"'), '"/opt/Math Paster/\\$app\\`\\""');
+  assert.equal(quoteExecArgument('/opt/Math Paster/$app"'), String.raw`"/opt/Math Paster/\\$app\\""`);
+  assert.equal(quoteExecArgument(String.raw`/opt/100%/back\slash`), String.raw`"/opt/100%%/back\\\\slash"`);
 });
 
 test("builds packaged and development launch commands", () => {
@@ -31,8 +32,8 @@ test("builds packaged and development launch commands", () => {
     executablePath: "/project/node_modules/electron/dist/electron",
     appPath: "/project/mathpaster desktop/fedora linux"
   }), [
-    "/project/node_modules/electron/dist/electron",
-    "/project/mathpaster desktop/fedora linux",
+    "/bin/sh",
+    "/project/mathpaster desktop/fedora linux/src/launch.sh",
     "--hidden"
   ]);
 });
@@ -77,6 +78,12 @@ test("enables and disables launch on restart", () => {
       path.join(temporaryHome, ".config", "autostart", `${DESKTOP_ID}.desktop`)
     );
     assert.match(fs.readFileSync(getAutostartPath(options.env, options.homedir), "utf8"), /--hidden/);
+    const entryPath = getAutostartPath(options.env, options.homedir);
+    fs.appendFileSync(entryPath, "Hidden=true\n");
+    assert.equal(isAutostartEnabled(options), false);
+    setAutostartEnabled(true, options);
+    fs.appendFileSync(entryPath, "X-GNOME-Autostart-enabled=false\n");
+    assert.equal(isAutostartEnabled(options), false);
     assert.equal(setAutostartEnabled(false, options), false);
     assert.equal(isAutostartEnabled(options), false);
   } finally {

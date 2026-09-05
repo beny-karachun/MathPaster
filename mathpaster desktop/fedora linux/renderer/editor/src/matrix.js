@@ -18,11 +18,14 @@ export function buildMatrixSelectorUI() {
     const row = document.createElement("div");
     row.className = "matrix-row";
     for (let c = 1; c <= 5; c++) {
-      const cell = document.createElement("div");
+      const cell = document.createElement("button");
+      cell.type = "button";
+      cell.setAttribute("aria-label", `${r} by ${c} matrix`);
       cell.className = "matrix-cell";
       cell.dataset.r = r;
       cell.dataset.c = c;
       cell.addEventListener("mouseenter", () => highlightGrid(r, c));
+      cell.addEventListener("focus", () => highlightGrid(r, c));
       cell.addEventListener("click", () => {
         insertMatrix(currentMatrixType, r, c);
         hideMatrixSelector();
@@ -58,20 +61,22 @@ function highlightGrid(rows, cols) {
 export function showMatrixSelector(anchorBtn, type) {
   currentMatrixType = type;
   const rect = anchorBtn.getBoundingClientRect();
+  matrixSelector.classList.add("visible");
+  const { width, height } = matrixSelector.getBoundingClientRect();
   
   let leftPos = rect.left;
-  if (leftPos + 180 > window.innerWidth) {
-    leftPos = window.innerWidth - 180;
+  if (leftPos + width > window.innerWidth - 8) {
+    leftPos = window.innerWidth - width - 8;
   }
   matrixSelector.style.left = `${Math.max(10, leftPos)}px`;
   
   // Try placing it below the button
   let topPos = rect.bottom + 6;
   // If it goes past bottom screen (approx 500px), place it above
-  if (topPos + 180 > window.innerHeight) {
-    topPos = rect.top - 180 - 6;
+  if (topPos + height > window.innerHeight - 8) {
+    topPos = rect.top - height - 6;
   }
-  matrixSelector.style.top = `${topPos}px`;
+  matrixSelector.style.top = `${Math.max(8, Math.min(topPos, window.innerHeight - height - 8))}px`;
   
   matrixSelector.classList.add("visible");
   highlightGrid(1, 1);

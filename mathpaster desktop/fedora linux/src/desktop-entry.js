@@ -33,9 +33,7 @@ function getSystemDesktopEntryPaths(env = process.env) {
 }
 
 function getDesktopLaunchArguments({ isPackaged, executablePath, appPath }) {
-  const args = [executablePath];
-  if (!isPackaged) args.push(appPath);
-  return args;
+  return isPackaged ? [executablePath] : ["/bin/sh", path.join(appPath, "src/launch.sh")];
 }
 
 function createApplicationDesktopEntry(launchArguments, icon = "mathpaster") {
@@ -84,6 +82,13 @@ function ensureDesktopIntegration(options) {
     // A previous AppImage/source launcher must not override a later RPM install.
     removeManagedUserEntry(userEntryPath);
     return systemEntry;
+  }
+
+  // A launcher customized by the user is not ours to rewrite on each start.
+  try {
+    if (!fs.readFileSync(userEntryPath, "utf8").includes(MANAGED_MARKER)) return userEntryPath;
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
   }
 
   const userIconPath = getUserIconPath(options.env, options.homedir);

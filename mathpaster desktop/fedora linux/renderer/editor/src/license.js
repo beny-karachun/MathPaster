@@ -49,10 +49,12 @@ function writeStored(value) {
 async function licensePost(action, params) {
   const resp = await fetch(`${API_BASE}/${action}`, {
     method: 'POST',
+    signal: AbortSignal.timeout(10000),
     headers: { Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams(params)
   });
-  return resp.json().catch(() => ({}));
+  if (!resp.ok && resp.status >= 500) throw new Error('The license service is unavailable. Please try again later.');
+  return resp.json().catch(() => { throw new Error('The license service returned an invalid response. Please try again.'); });
 }
 
 export async function activateLicense(key) {
@@ -64,7 +66,7 @@ export async function activateLicense(key) {
   }
   const data = await licensePost('activate', { license_key: key, instance_name: 'MathPaster' });
   if (!data.activated) throw new Error(data.error || 'That license key could not be activated.');
-  if (EXPECTED_STORE_ID && data.meta && data.meta.store_id !== EXPECTED_STORE_ID) {
+  if (EXPECTED_STORE_ID && data.meta?.store_id !== EXPECTED_STORE_ID) {
     throw new Error('This key was issued by a different store.');
   }
   state.license = {

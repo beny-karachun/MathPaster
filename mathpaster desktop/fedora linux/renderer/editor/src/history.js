@@ -12,7 +12,7 @@ const HISTORY_MAX = 20;
 function load() {
   try {
     const a = JSON.parse(localStorage.getItem(HISTORY_KEY));
-    if (Array.isArray(a)) return a;
+    if (Array.isArray(a)) return a.filter(entry => entry && typeof entry.latex === "string" && entry.latex.trim()).slice(0, HISTORY_MAX);
   } catch (e) {}
   return [];
 }
@@ -43,7 +43,7 @@ const clearBtn = document.getElementById("history-clear-btn");
 
 function render() {
   renderEntryList(listEl, load(), {
-    emptyText: "No history yet. Expressions you insert show up here.",
+    emptyText: "No history yet. Equations you copy will appear here.",
     onPick: entry => { loadExpression(entry.latex, entry.mode); closePanel(); },
     onDelete: entry => {
       save(load().filter(e => !(e.ts === entry.ts && e.latex === entry.latex)));

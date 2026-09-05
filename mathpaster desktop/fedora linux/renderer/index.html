@@ -16,15 +16,18 @@
             <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM17 14v7M13.5 17.5h7"/>
           </svg>
         </span>
-        <span class="platform-name">Desktop</span>
+        <span class="platform-name">MathPaster <span class="platform-tag">Desktop</span></span>
       </div>
 
       <div class="desktop-actions">
         <div class="shortcut-status" id="shortcut-status" title="Global window shortcut">
-          <span class="status-dot" id="shortcut-dot"></span>
+          <span class="status-dot" id="shortcut-dot" aria-hidden="true"></span>
           <kbd>Alt</kbd><span>+</span><kbd>M</kbd>
         </div>
 
+        <button type="button" class="window-button" id="pin-button" aria-label="Always on top" aria-pressed="true" title="Always on top">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m16 3 5 5-4 1-3 5-4 1-1-4 5-3 1-4M10 14l-7 7"/></svg>
+        </button>
         <button type="button" class="window-button" id="hide-button" aria-label="Hide MathPaster" title="Hide to tray">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
         </button>
@@ -35,6 +38,11 @@
     </header>
 
     <section class="editor-stage">
+      <div id="editor-error" class="editor-error" role="alert" hidden>
+        <h1>The editor couldn’t load</h1>
+        <p>Your saved draft is kept on this device. Reload to try again.</p>
+        <button id="reload-editor" type="button">Reload editor</button>
+      </div>
       <iframe
         id="editor-frame"
         title="MathPaster equation editor"

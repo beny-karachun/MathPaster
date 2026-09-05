@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MathPaster Editor</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data:; connect-src https://api.lemonsqueezy.com; object-src 'none'; base-uri 'none'">
 
   <!-- @import MUST come before any other CSS rules -->
   <link rel="stylesheet" href="lib/mathlive-static.css" />
@@ -31,9 +32,12 @@
             <path d="M17 14v8M13 18h8" />
           </svg>
         </span>
-        MathPaster
+        <span>Equation editor</span>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
+        <button class="header-btn" id="new-equation-btn" title="New equation (undo with Ctrl+Z)" aria-label="New equation">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
         <a href="https://mathpaster.com" target="_blank" rel="noopener noreferrer" class="rate-btn" id="rate-us-btn" title="Visit MathPaster.com">
           <span class="rate-text">Website</span> ↗
         </a>
@@ -44,6 +48,9 @@
             <path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path>
             <path d="M12 7v5l4 2"></path>
           </svg>
+        </button>
+        <button class="header-btn" id="keyboard-btn" title="Math keyboard (Alt+K)">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 15h8"/></svg>
         </button>
         <button class="header-btn header-btn-pro" id="snippets-btn" title="Snippets (Pro)">
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
@@ -70,14 +77,14 @@
         <div id="auto-symbol-selector" style="display: flex; align-items: center; gap: 10px;">
           <span class="mode-label active" style="font-weight: 500;">Auto-Symbols</span>
           <label class="switch">
-            <input type="checkbox" id="auto-symbol-switch" checked>
+            <input type="checkbox" id="auto-symbol-switch" aria-label="Auto symbols" checked>
             <span class="slider"></span>
           </label>
         </div>
         <div id="mode-selector" style="display: flex; align-items: center; gap: 10px;">
           <span class="mode-label active" data-mode="inline">Inline</span>
           <label class="switch">
-            <input type="checkbox" id="mode-switch">
+            <input type="checkbox" id="mode-switch" aria-label="Block math mode">
             <span class="slider"></span>
           </label>
           <span class="mode-label" data-mode="block">Block</span>
@@ -85,7 +92,7 @@
         <div id="latex-bar-selector" style="display: flex; align-items: center; gap: 10px;">
           <span class="mode-label active" id="label-showLatexBar" style="font-weight: 500;">LaTeX Bar</span>
           <label class="switch">
-            <input type="checkbox" id="set-showLatexBar">
+            <input type="checkbox" id="set-showLatexBar" aria-label="Show LaTeX source">
             <span class="slider"></span>
           </label>
         </div>
@@ -95,7 +102,7 @@
     <div id="body">
       <div id="mf-wrap">
         <div id="loading">Loading editor…</div>
-        <math-field id="mf" math-virtual-keyboard-policy="manual" style="display:none"></math-field>
+        <math-field id="mf" aria-label="Equation" placeholder="\text{Write an equation…}" math-virtual-keyboard-policy="sandboxed" style="display:none"></math-field>
       </div>
 
       <div id="category-tabs"></div>
@@ -111,10 +118,9 @@
     </div>
 
     <div id="footer">
-      <span class="hint"><kbd>Alt</kbd>+<kbd>M</kbd> toggle · <kbd>Esc</kbd> close · <kbd>Ctrl</kbd>+<kbd>⏎</kbd>
-        copy &amp; close</span>
+      <span class="hint">Paste into any app with <kbd>Ctrl</kbd> <kbd>V</kbd></span>
       <div class="action-group">
-        <button class="btn secondary" id="copy-btn">
+        <button class="btn secondary" id="copy-btn" disabled>
           <span class="copy-icon-stack" aria-hidden="true">
             <svg class="copy-default-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"
               stroke-linecap="round" stroke-linejoin="round">
@@ -126,7 +132,7 @@
           </span>
           <span class="copy-button-label" aria-live="polite">Copy LaTeX</span>
         </button>
-        <button class="btn primary" id="insert-btn">
+        <button class="btn primary" id="insert-btn" title="Copy and hide (Ctrl+Enter)" disabled>
           <span class="copy-icon-stack" aria-hidden="true">
             <svg class="copy-default-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none"
               stroke-linecap="round" stroke-linejoin="round">
@@ -136,7 +142,7 @@
             <svg class="copy-success-icon" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4" fill="none"
               stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"></path></svg>
           </span>
-          <span class="copy-button-label" aria-live="polite">Copy &amp; Close ⏎</span>
+          <span class="copy-button-label" aria-live="polite">Copy &amp; Hide</span>
         </button>
       </div>
     </div>
@@ -148,7 +154,7 @@
   <div id="settings-overlay">
     <div id="settings-panel">
       <div class="settings-header">
-        <h2>Customize UI</h2>
+        <h2>Settings</h2>
         <button class="header-btn" id="close-settings-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
       </div>
       <div class="settings-body">
@@ -213,7 +219,7 @@
             </div>
             <div class="setting-group">
               <label>Symbol Button Height (px) <span id="val-symbolHeight"></span></label>
-              <input type="range" id="set-symbolHeight" min="30" max="100" step="2">
+              <input type="range" id="set-symbolHeight" min="40" max="100" step="2">
             </div>
             <div class="setting-group">
               <label>Symbol Font Size (px) <span id="val-symbolFontSize"></span></label>

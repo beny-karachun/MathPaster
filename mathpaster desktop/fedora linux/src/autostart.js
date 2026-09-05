@@ -8,11 +8,14 @@ const DESKTOP_ID = "com.mathpaster.MathPaster";
 
 function sanitizeDesktopValue(value) {
   const clean = String(value).replace(/[\r\n\0]/g, " ");
-  return clean.replace(/([\\"`$])/g, "\\$1");
+  return clean.replace(/\\/g, "\\\\");
 }
 
 function quoteExecArgument(value) {
-  return `"${sanitizeDesktopValue(value)}"`;
+  // Exec quoting is decoded AFTER Desktop Entry string escaping. Literal %
+  // must also be doubled so paths cannot be interpreted as field codes.
+  const quoted = String(value).replace(/[\r\n\0]/g, " ").replace(/([\\"`$])/g, "\\$1");
+  return `"${sanitizeDesktopValue(quoted).replace(/%/g, "%%")}"`;
 }
 
 function getAutostartDirectory(env = process.env, homedir = os.homedir()) {
@@ -25,9 +28,7 @@ function getAutostartPath(env = process.env, homedir = os.homedir()) {
 }
 
 function getLaunchArguments({ isPackaged, executablePath, appPath }) {
-  const args = [executablePath];
-  if (isPackaged) args.push("--");
-  else args.push(appPath);
+  const args = isPackaged ? [executablePath, "--"] : ["/bin/sh", path.join(appPath, "src/launch.sh")];
   args.push("--hidden");
   return args;
 }
@@ -51,7 +52,13 @@ function createDesktopEntry(launchArguments, iconPath) {
 }
 
 function isAutostartEnabled(options = {}) {
-  return fs.existsSync(getAutostartPath(options.env, options.homedir));
+  try {
+    const entry = fs.readFileSync(getAutostartPath(options.env, options.homedir), "utf8");
+    const section = entry.split(/^\[Desktop Entry\]\s*$/m)[1]?.split(/^\[/m)[0] || "";
+    return /^Exec=\S.+$/m.test(section)
+      && !/^Hidden=true\s*$/m.test(section)
+      && !/^X-GNOME-Autostart-enabled=false\s*$/m.test(section);
+  } catch { return false; }
 }
 
 function setAutostartEnabled(enabled, options) {

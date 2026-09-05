@@ -105,6 +105,7 @@ export function applySettings(settings) {
   const glowA = isLight ? 0.10 : 0.16;
   const glowB = isLight ? 0.07 : 0.11;
   document.body.classList.toggle('theme-light', isLight);
+  if (IS_DESKTOP) window.parent.postMessage({ mathpaster: 'desktop-theme', light: isLight }, '*');
 
   let scaleFactor = Math.min((window.innerWidth * 0.94) / settings.popupWidth, (window.innerHeight * 0.90) / settings.popupHeight);
 
@@ -113,12 +114,9 @@ export function applySettings(settings) {
   // or grows together and always fits.
   let zoom = (state.zoom && isFinite(state.zoom) && state.zoom > 0) ? state.zoom : 1;
   if (IS_DESKTOP) {
-    // The Electron window is the resize handle. Scale the complete editor as a
-    // single unit so native corner resizing behaves like the Chrome version.
-    zoom = Math.max(0.25, Math.min(2.5,
-      window.innerWidth / settings.popupWidth,
-      window.innerHeight / settings.popupHeight));
-    state.zoom = zoom;
+    // Desktop uses responsive layout: resizing must not shrink text or targets.
+    zoom = 1;
+    state.zoom = 1;
   }
   const renderW = settings.popupWidth * zoom;
   const renderH = settings.popupHeight * zoom;
@@ -148,10 +146,15 @@ export function applySettings(settings) {
       --accent2-hue: ${a2Hue};
       --accent2-sat: ${a2Sat}%;
       --accent2-light: ${a2Light}%;
+      --desktop-bg: ${isLight ? '#f7f8fb' : '#13151e'};
+      --desktop-panel: ${isLight ? '#ffffff' : '#1b1e2a'};
+      --desktop-text: ${isLight ? '#202536' : '#eef0f7'};
+      --desktop-muted: ${isLight ? '#606a7d' : '#a1a9bd'};
+      --desktop-line: ${isLight ? 'rgba(0,0,0,.10)' : 'rgba(255,255,255,.10)'};
     }
     #editor-scale {
-      width: ${settings.popupWidth}px !important;
-      height: ${settings.popupHeight}px !important;
+      width: ${IS_DESKTOP ? window.innerWidth : settings.popupWidth}px !important;
+      height: ${IS_DESKTOP ? window.innerHeight : settings.popupHeight}px !important;
       transform: scale(${zoom}) !important;
     }
     #editor-window {
@@ -319,7 +322,18 @@ export function applySettings(settings) {
 export function loadSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem('mathpaster_settings'));
-    if (saved) state.currentSettings = { ...defaultSettings, ...saved };
+    if (saved && typeof saved === 'object' && !Array.isArray(saved)) {
+      for (const [key, fallback] of Object.entries(defaultSettings)) {
+        const value = saved[key];
+        if (typeof fallback === 'number' && typeof value === 'number' && Number.isFinite(value)) {
+          const control = document.getElementById('set-' + key);
+          const min = Number(control?.min || 1);
+          const max = Number(control?.max || 1600);
+          state.currentSettings[key] = Math.max(min, Math.min(max, value));
+        } else if (typeof fallback === 'boolean' && typeof value === 'boolean') state.currentSettings[key] = value;
+        else if (key === 'themePreset' && THEME_PRESETS.some(preset => preset.id === value)) state.currentSettings[key] = value;
+      }
+    }
   } catch (e) {}
   try {
     const z = parseFloat(localStorage.getItem('mathpaster_zoom'));
@@ -353,7 +367,7 @@ function renderThemePresets() {
     // Preview shows the real window backdrop (with a faint accent glow) plus a
     // pill that reveals the dual-tone accent gradient the theme paints the UI with.
     const previewBg =
-      `radial-gradient(120% 110% at 12% -10%, ${accent}33 0%, transparent 60%), ` +
+      `radial-gradient(120% 110% at 12% -10%, hsla(${p.primary.h}, ${p.primary.s}%, ${p.primary.l}%, .2) 0%, transparent 60%), ` +
       `linear-gradient(150deg, ${bg}, ${bgEdge})`;
     btn.innerHTML =
       `<span class="swatch-preview" style="background:${previewBg}">` +
@@ -471,6 +485,12 @@ export function loadPosition() {
 }
 
 export function clampPositionToBounds() {
+  if (IS_DESKTOP) {
+    state.currentX = state.currentY = state.baseX = state.baseY = 0;
+    editorWindow.style.left = '0px';
+    editorWindow.style.top = '0px';
+    return;
+  }
   // On mobile the window is laid out by flex + transform:scale() (see the
   // max-width:600px block in applySettings), not by drag offsets. The offset math
   // below assumes the viewport is taller/wider than the window, which is false when

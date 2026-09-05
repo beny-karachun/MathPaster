@@ -20,9 +20,9 @@ function loadArray(key) {
   try { const a = JSON.parse(localStorage.getItem(key)); if (Array.isArray(a)) return a; } catch (e) {}
   return [];
 }
-function loadSnips()  { return loadArray(SNIPPETS_KEY); }
+function loadSnips()  { return loadArray(SNIPPETS_KEY).filter(s => s && typeof s.id === 'string' && typeof s.latex === 'string'); }
 function saveSnips(l) { try { localStorage.setItem(SNIPPETS_KEY, JSON.stringify(l)); } catch (e) {} }
-function loadTabs()   { return loadArray(TABS_KEY); }
+function loadTabs()   { return loadArray(TABS_KEY).filter(t => t && typeof t.id === 'string' && typeof t.name === 'string'); }
 function saveTabs(l)  { try { localStorage.setItem(TABS_KEY, JSON.stringify(l)); } catch (e) {} }
 function getActive()  { try { return localStorage.getItem(ACTIVE_KEY) || ""; } catch (e) { return ""; } }
 function setActive(id){ try { localStorage.setItem(ACTIVE_KEY, id || ""); } catch (e) {} }

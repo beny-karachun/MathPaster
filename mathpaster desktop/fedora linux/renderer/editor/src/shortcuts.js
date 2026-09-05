@@ -2,6 +2,7 @@ import { state } from './state.js';
 import { mf } from './dom.js';
 import { doInsert } from './actions.js';
 import { updatePreview } from './mathfield.js';
+import './dialogs.js';
 
 /* ── Word Deletion Handler ── */
 function performCustomWordDelete() {
@@ -68,9 +69,13 @@ function performCustomWordDelete() {
 
 /* ── Keyboard shortcuts ── */
 document.addEventListener("keydown", e => {
+  if (e.defaultPrevented) return;
   if (e.key === "Escape") {
     e.preventDefault();
     e.stopPropagation();
+    const matrix = document.getElementById("matrix-selector");
+    if (matrix?.classList.contains("visible")) { matrix.classList.remove("visible"); mf.focus(); return; }
+    if (window.mathVirtualKeyboard?.visible) { window.mathVirtualKeyboard.hide(); mf.focus(); return; }
     // Close an open modal first; only close the whole editor if none are open.
     const tabOv = document.getElementById("tab-overlay");
     const setOv = document.getElementById("settings-overlay");
@@ -96,7 +101,7 @@ document.addEventListener("keydown", e => {
   ) {
     e.preventDefault();
     e.stopPropagation();
-    window.parent.postMessage({ mathpaster: "toggle" }, "*");
+    if (!e.repeat) window.parent.postMessage({ mathpaster: "toggle" }, "*");
     return;
   }
   // Ctrl+Backspace inside mathfield -> delete word backward
@@ -129,6 +134,7 @@ document.addEventListener("keydown", e => {
   }
   // Ctrl+Enter → insert
   if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+    if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
     e.preventDefault();
     e.stopPropagation();
     doInsert();
@@ -151,9 +157,17 @@ document.addEventListener("keydown", e => {
 }, true);
 
 /* ── Messages from content script ── */
+let initialized = false;
+function focusEditor() {
+  if (document.querySelector('[role="dialog"][aria-modal="true"]')) return;
+  if (state.mfReady) { window.focus(); mf.focus(); }
+}
 window.addEventListener("message", e => {
-  if (e.data?.mathpaster === "reset") {
+  if (e.source !== window.parent) return;
+  if (e.data?.mathpaster === "desktop-focus") { focusEditor(); return; }
+  if (e.data?.mathpaster === "reset" || (e.data?.mathpaster === "desktop-initialize" && !initialized)) {
     if (state.mfReady) {
+      initialized = true;
       let draft = "";
       
       if (e.data.initialMath) {
@@ -164,23 +178,18 @@ window.addEventListener("message", e => {
         localStorage.setItem("mathpaster_mode", state.insertMode);
       } else {
         draft = localStorage.getItem("mathpaster_draft") || "";
-        state.insertMode = localStorage.getItem("mathpaster_mode") || "inline";
+        state.insertMode = localStorage.getItem("mathpaster_mode") === "block" ? "block" : "inline";
       }
 
       mf.value = draft;
       
       document.getElementById("mode-switch").checked = (state.insertMode === "block");
-      document.querySelectorAll(".mode-label").forEach(l => {
+      document.querySelectorAll("#mode-selector .mode-label").forEach(l => {
         l.classList.toggle("active", l.dataset.mode === state.insertMode);
       });
       
       updatePreview();
-      setTimeout(() => {
-        // Don't steal focus into the main field while the custom-tab modal is open.
-        const tabOv = document.getElementById("tab-overlay");
-        if (tabOv && tabOv.classList.contains("visible")) return;
-        try { window.focus(); mf.focus(); } catch {}
-      }, 100);
+      requestAnimationFrame(focusEditor);
     }
   }
 });

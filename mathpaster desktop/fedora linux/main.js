@@ -5,10 +5,12 @@ const {
   app,
   BrowserWindow,
   clipboard,
+  dialog,
   globalShortcut,
   ipcMain,
   Menu,
   nativeImage,
+  screen,
   shell,
   Tray
 } = require("electron");
@@ -37,8 +39,8 @@ const {
   revealWindow
 } = require("./src/window-visibility");
 const {
-  getWindowStateOptions,
-  shouldUseX11ForWindowPosition
+  loadWindowBounds,
+  trackWindowBounds
 } = require("./src/window-state");
 
 const TOGGLE_SHORTCUT = "Alt+M";
@@ -50,9 +52,13 @@ let tray = null;
 let isQuitting = false;
 let shortcutRegistered = false;
 let kdeShortcutWorker = null;
+let windowReady = false;
+let showWhenReady = !START_HIDDEN;
+let visibilityRevision = 0;
+let windowState = null;
 const isWaylandSession = process.platform === "linux"
   && String(process.env.XDG_SESSION_TYPE || "").toLowerCase() === "wayland";
-const useX11ForWindowPosition = shouldUseX11ForWindowPosition();
+const useX11ForWindowPosition = app.commandLine.getSwitchValue("ozone-platform") === "x11";
 const handleShortcut = createShortcutHandler(toggleWindow);
 const handleLocalShortcut = createLocalShortcutHandler(handleShortcut);
 
@@ -63,12 +69,15 @@ function isNativeKdeWaylandSession() {
 }
 
 app.setName("MathPaster");
-if (process.platform === "linux") app.setDesktopName(DESKTOP_ID);
-if (useX11ForWindowPosition) {
-  // Wayland intentionally hides global window coordinates. XWayland is the
-  // only Electron-supported path that can restore the user's exact position.
-  app.commandLine.appendSwitch("ozone-platform", "x11");
+if (process.platform === "linux") {
+  app.setDesktopName(DESKTOP_ID);
+  // This small 2D editor does not need GPU acceleration. Fedora driver stacks
+  // can repeatedly crash Chromium's GPU process even with Vulkan disabled.
+  // Use software compositing without weakening Chromium's sandbox.
+  app.disableHardwareAcceleration();
 }
+// src/launch.sh selects Ozone BEFORE Electron initializes. Changing it here
+// creates mismatched browser/renderer backends and an invisible native window.
 if (isWaylandSession) {
   // Fedora GNOME defaults to Wayland; Chromium's Vulkan path is not compatible
   // with every Fedora graphics stack, including XWayland sessions.
@@ -88,11 +97,18 @@ function getIconPath() {
     : path.join(__dirname, "build", "icon.png");
 }
 
+function getLauncherPath() {
+  // Never persist the temporary AppImage mount or the inner binary: both would
+  // bypass the early display-backend selection on subsequent launches.
+  if (process.env.APPIMAGE) return process.env.APPIMAGE;
+  return app.isPackaged ? path.join(path.dirname(process.execPath), "mathpaster") : process.execPath;
+}
+
 function getAutostartOptions() {
   return {
     isPackaged: app.isPackaged,
     // AppImages run from a temporary mount; APPIMAGE points to the durable file.
-    executablePath: process.env.APPIMAGE || process.execPath,
+    executablePath: getLauncherPath(),
     appPath: app.getAppPath(),
     // RPM installation and AppImage integration both register this icon name.
     iconPath: app.isPackaged ? "mathpaster" : getIconPath()
@@ -102,7 +118,7 @@ function getAutostartOptions() {
 function getDesktopIntegrationOptions() {
   return {
     isPackaged: app.isPackaged,
-    executablePath: process.env.APPIMAGE || process.execPath,
+    executablePath: getLauncherPath(),
     appPath: app.getAppPath(),
     iconSourcePath: getIconPath()
   };
@@ -113,24 +129,40 @@ function sendAppState() {
   mainWindow.webContents.send("app:state", {
     launchOnRestart: isAutostartEnabled(),
     shortcut: TOGGLE_SHORTCUT_LABEL,
-    shortcutRegistered
+    shortcutRegistered,
+    alwaysOnTop: mainWindow.isAlwaysOnTop()
   });
 }
 
 function showWindow() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
+  showWhenReady = true;
+  if (!windowReady) return;
+  if (isWindowOpen(mainWindow)) {
+    mainWindow.focus();
+    return;
+  }
+  visibilityRevision++;
   handleLocalShortcut.reset();
-  revealWindow(mainWindow);
+  revealWindow(mainWindow, { nativeWayland: isWaylandSession && !useX11ForWindowPosition });
   mainWindow.webContents.send("window:shown");
 }
 
 function hideWindow() {
+  windowState?.flush();
+  showWhenReady = false;
+  visibilityRevision++;
   handleLocalShortcut.reset();
   concealWindow(mainWindow);
+  if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send("window:hidden");
 }
 
 function toggleWindow() {
   if (!mainWindow || mainWindow.isDestroyed()) return;
+  if (!windowReady) {
+    showWhenReady = !showWhenReady;
+    return;
+  }
   if (isWindowOpen(mainWindow)) {
     hideWindow();
     console.info(`MathPaster window hidden by ${TOGGLE_SHORTCUT_LABEL}.`);
@@ -190,14 +222,16 @@ function createTray() {
 }
 
 function createWindow() {
+  windowReady = false;
+  const statePath = path.join(app.getPath("userData"), "window-bounds.json");
+  const primary = screen.getPrimaryDisplay();
+  const displays = [primary, ...screen.getAllDisplays().filter(display => display.id !== primary.id)];
+  const bounds = loadWindowBounds(statePath, displays);
   mainWindow = new BrowserWindow({
-    ...getWindowStateOptions(),
-    width: 790,
-    height: 614,
+    ...(bounds || { width: 820, height: 660, center: true }),
     minWidth: 500,
-    minHeight: 388,
+    minHeight: 440,
     useContentSize: true,
-    center: true,
     frame: false,
     transparent: false,
     resizable: true,
@@ -213,13 +247,19 @@ function createWindow() {
       sandbox: true
     }
   });
+  windowState = trackWindowBounds(mainWindow, statePath);
 
   mainWindow.setMenuBarVisibility(false);
   mainWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-  // Match the Chrome editor's aspect-locked corner resizing. The renderer also
-  // letterboxes gracefully on Wayland compositors that ignore this hint.
-  mainWindow.setAspectRatio(760 / 590);
-  mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
+  mainWindow.once("ready-to-show", () => {
+    windowReady = true;
+    if (showWhenReady) showWindow();
+  });
+  mainWindow.loadFile(path.join(__dirname, "renderer", "index.html")).catch(error => {
+    console.error("Could not load the editor:", error);
+    dialog.showErrorBox("MathPaster could not open", "The editor files could not be loaded. Please reinstall MathPaster.");
+    quitApplication();
+  });
 
   mainWindow.on("close", (event) => {
     if (!isQuitting) {
@@ -232,14 +272,25 @@ function createWindow() {
   mainWindow.on("blur", handleLocalShortcut.reset);
   mainWindow.on("minimize", rebuildTrayMenu);
   mainWindow.on("restore", rebuildTrayMenu);
+  mainWindow.on("closed", () => { mainWindow = null; windowReady = false; });
   mainWindow.webContents.on("did-finish-load", sendAppState);
   mainWindow.webContents.on("before-input-event", handleLocalShortcut);
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (/^https?:\/\//i.test(url)) shell.openExternal(url);
+    if (/^https?:\/\//i.test(url)) shell.openExternal(url).catch(error => console.error("Could not open link:", error));
     return { action: "deny" };
   });
   mainWindow.webContents.on("will-navigate", (event, url) => {
     if (url !== mainWindow.webContents.getURL()) event.preventDefault();
+  });
+  mainWindow.webContents.on("render-process-gone", async (_event, details) => {
+    if (isQuitting || details.reason === "clean-exit") return;
+    const { response } = await dialog.showMessageBox(mainWindow, {
+      type: "error", title: "The editor stopped responding",
+      message: "Reload MathPaster to continue. Your saved draft will be restored.",
+      buttons: ["Reload editor", "Quit"], defaultId: 0, cancelId: 1
+    });
+    if (response === 0 && mainWindow && !mainWindow.isDestroyed()) mainWindow.reload();
+    else quitApplication();
   });
 }
 
@@ -287,7 +338,7 @@ async function registerShortcut() {
   if (!shortcutRegistered) {
     kdeShortcutWorker?.stop();
     kdeShortcutWorker = null;
-    console.error(`${TOGGLE_SHORTCUT} is already reserved by another application.`);
+    console.error(`${TOGGLE_SHORTCUT} could not be registered. Check desktop shortcut permissions or conflicting bindings.`);
   } else {
     const backend = usingNativeKdePresses ? "KDE native press listener" : "Electron global shortcut";
     console.info(`${TOGGLE_SHORTCUT} registered for ${DESKTOP_ID} via ${backend}.`);
@@ -306,24 +357,43 @@ async function registerShortcut() {
 }
 
 function registerIpc() {
-  ipcMain.handle("window:hide", () => hideWindow());
-  ipcMain.handle("window:toggle", () => handleShortcut("renderer-local"));
-  ipcMain.handle("app:get-state", () => ({
+  // Only our top-level, local shell may invoke privileged operations.
+  const handle = (channel, callback) => ipcMain.handle(channel, (event, ...args) => {
+    if (!mainWindow || event.sender !== mainWindow.webContents
+      || event.senderFrame !== mainWindow.webContents.mainFrame) {
+      throw new Error("Untrusted desktop request.");
+    }
+    return callback(...args);
+  });
+  handle("window:hide", () => hideWindow());
+  handle("window:toggle", () => handleShortcut("renderer-local"));
+  handle("window:pin", () => {
+    mainWindow.setAlwaysOnTop(!mainWindow.isAlwaysOnTop());
+    sendAppState();
+    return mainWindow.isAlwaysOnTop();
+  });
+  handle("app:get-state", () => ({
     launchOnRestart: isAutostartEnabled(),
     shortcut: TOGGLE_SHORTCUT_LABEL,
-    shortcutRegistered
+    shortcutRegistered,
+    alwaysOnTop: mainWindow.isAlwaysOnTop()
   }));
-  ipcMain.handle("app:set-autostart", (_event, enabled) => {
-    const result = setAutostartEnabled(Boolean(enabled), getAutostartOptions());
+  handle("app:set-autostart", enabled => {
+    if (typeof enabled !== "boolean") throw new TypeError("Autostart must be a boolean.");
+    const result = setAutostartEnabled(enabled, getAutostartOptions());
     rebuildTrayMenu();
     sendAppState();
     return result;
   });
-  ipcMain.handle("clipboard:write", (_event, latex, closeAfter = false) => {
-    if (typeof latex !== "string") throw new TypeError("LaTeX must be a string.");
+  handle("clipboard:write", latex => {
+    if (typeof latex !== "string" || !latex.trim() || latex.length > 1_000_000) {
+      throw new TypeError("Enter an equation before copying.");
+    }
     clipboard.writeText(latex);
-    if (closeAfter) hideWindow();
-    return true;
+    return { visibilityRevision };
+  });
+  handle("window:hide-after-copy", revision => {
+    if (revision === visibilityRevision) hideWindow();
   });
 }
 
@@ -341,13 +411,22 @@ if (hasSingleInstanceLock) {
       console.error("Could not register the desktop identity:", error);
     }
     createWindow();
-    createTray();
+    try { createTray(); } catch (error) {
+      console.error("Could not create tray:", error);
+      showWhenReady = true;
+    }
     await registerShortcut();
-    if (!START_HIDDEN) showWindow();
+    if (showWhenReady || (!tray && !shortcutRegistered)) showWindow();
+  }).catch(error => {
+    console.error("MathPaster startup failed:", error);
+    dialog.showErrorBox("MathPaster could not start", error.message);
+    quitApplication();
   });
 
   app.on("activate", showWindow);
   app.on("window-all-closed", () => {});
+  // app.quit(), session shutdown, and the tray must all bypass close-to-tray.
+  app.on("before-quit", () => { isQuitting = true; windowState?.flush(); });
   app.on("will-quit", () => {
     kdeShortcutWorker?.stop();
     globalShortcut.unregisterAll();

@@ -39,6 +39,9 @@ export function renderEntryList(container, entries, opts) {
   entries.forEach(entry => {
     const row = document.createElement("div");
     row.className = "entry-row";
+    row.tabIndex = 0;
+    row.setAttribute("role", "button");
+    row.setAttribute("aria-label", `Load ${entry.name || entry.latex}`);
     row.title = entry.latex;
 
     const main = document.createElement("div");
@@ -61,6 +64,7 @@ export function renderEntryList(container, entries, opts) {
     const del = document.createElement("button");
     del.className = "entry-delete";
     del.title = "Delete";
+    del.setAttribute("aria-label", `Delete ${entry.name || entry.latex}`);
     del.textContent = "×";
     del.addEventListener("mousedown", e => e.preventDefault());
     del.addEventListener("click", e => {
@@ -72,6 +76,11 @@ export function renderEntryList(container, entries, opts) {
     // Don't steal focus from the math field on click (the editor-wide pattern).
     row.addEventListener("mousedown", e => e.preventDefault());
     row.addEventListener("click", () => opts.onPick(entry));
+    row.addEventListener("keydown", event => {
+      if (event.target === row && (event.key === "Enter" || event.key === " ")) {
+        event.preventDefault(); opts.onPick(entry);
+      }
+    });
 
     row.append(main, meta, del);
     container.appendChild(row);

@@ -13,8 +13,10 @@ contextBridge.exposeInMainWorld("mathpasterDesktop", {
   setAutostart: (enabled) => ipcRenderer.invoke("app:set-autostart", Boolean(enabled)),
   hide: () => ipcRenderer.invoke("window:hide"),
   toggle: () => ipcRenderer.invoke("window:toggle"),
-  writeClipboard: (latex, closeAfter = false) =>
-    ipcRenderer.invoke("clipboard:write", latex, Boolean(closeAfter)),
+  togglePin: () => ipcRenderer.invoke("window:pin"),
+  writeClipboard: latex => ipcRenderer.invoke("clipboard:write", latex),
+  hideAfterCopy: revision => ipcRenderer.invoke("window:hide-after-copy", revision),
   onAppState: (callback) => subscribe("app:state", callback),
-  onWindowShown: (callback) => subscribe("window:shown", callback)
+  onWindowShown: (callback) => subscribe("window:shown", callback),
+  onWindowHidden: (callback) => subscribe("window:hidden", callback)
 });

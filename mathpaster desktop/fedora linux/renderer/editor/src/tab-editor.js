@@ -69,7 +69,8 @@ function renderWorkingSymbols() {
     const face = document.createElement("span");
     face.className = "tab-symbol-face";
     // Matrix inserters carry no LaTeX (they pop the size picker), so show their glyph label.
-    face.innerHTML = sym.matrixType ? (sym.label || "▦") : renderSymbolFace(sym.latex);
+    if (sym.matrixType) face.textContent = sym.label || "▦";
+    else face.innerHTML = renderSymbolFace(sym.latex);
     chip.appendChild(face);
 
     const rm = document.createElement("button");
@@ -277,7 +278,7 @@ export function openTabEditor(key) {
     // Editing an existing custom tab.
     const tab = state.customTabs.find(t => t.id === key);
     tabNameInput.value = tab ? tab.name : "";
-    workingSymbols = tab ? tab.symbols.map(s => ({ latex: s.latex })) : [];
+    workingSymbols = tab ? getEditableSymbols(key) : [];
     tabEditorTitle.textContent = "Edit Tab";
     tabDeleteBtn.style.display = "";
     tabDeleteBtn.textContent = "Delete Tab";

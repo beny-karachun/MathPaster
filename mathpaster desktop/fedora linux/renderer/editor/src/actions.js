@@ -7,6 +7,16 @@ import { recordHistory } from './history.js';
 const copyButton = document.getElementById("copy-btn");
 const insertButton = document.getElementById("insert-btn");
 const copyFeedbackTimers = new Map();
+let pendingCopy = null;
+let copyTimeout = null;
+
+function finishCopy() {
+  clearTimeout(copyTimeout);
+  pendingCopy = null;
+  copyButton.removeAttribute("aria-busy");
+  insertButton.removeAttribute("aria-busy");
+  updatePreview();
+}
 
 function showCopied(button) {
   const label = button.querySelector(".copy-button-label");
@@ -25,13 +35,18 @@ function showCopied(button) {
 }
 
 window.addEventListener("message", (event) => {
-  if (event.source !== window.parent || event.data?.mathpaster !== "copied") return;
-  showCopied(event.data.target === "insert" ? insertButton : copyButton);
+  if (event.source !== window.parent || !pendingCopy || event.data?.requestId !== pendingCopy.id) return;
+  if (event.data.mathpaster === "copied") {
+    recordUse();
+    recordHistory(pendingCopy.raw, pendingCopy.mode);
+    showCopied(pendingCopy.closeAfter ? insertButton : copyButton);
+    finishCopy();
+  } else if (event.data.mathpaster === "copy-failed") finishCopy();
 });
 
 /* ── Mode toggle ── */
 const modeSwitch = document.getElementById("mode-switch");
-const modeLabels = document.querySelectorAll(".mode-label");
+const modeLabels = document.querySelectorAll("#mode-selector .mode-label");
 
 function updateModeUI(mode) {
   state.insertMode = mode;
@@ -102,23 +117,40 @@ export function loadExpression(latex, mode) {
 
 /* ── Insert ── */
 export function doInsert() {
+  requestCopy(true);
+}
+
+function requestCopy(closeAfter) {
   const raw = (mf.value || "").trim();
-  if (!raw) return;
+  if (!raw || pendingCopy || !state.mfReady) return;
+  // A new attempt must not keep showing a previous success if this one fails.
+  for (const button of [copyButton, insertButton]) {
+    clearTimeout(copyFeedbackTimers.get(button));
+    copyFeedbackTimers.delete(button);
+    button.classList.remove("is-copied");
+    if (button.dataset.defaultLabel) button.querySelector(".copy-button-label").textContent = button.dataset.defaultLabel;
+  }
   const wrap = state.insertMode === "block" ? `$$${raw}$$` : `$${raw}$`;
-  localStorage.removeItem("mathpaster_draft");
-  recordUse();
-  recordHistory(raw, state.insertMode);
-  window.parent.postMessage({ mathpaster: "insert", latex: wrap }, "*");
+  const id = crypto.randomUUID();
+  pendingCopy = { id, raw, mode: state.insertMode, closeAfter };
+  copyButton.disabled = insertButton.disabled = true;
+  (closeAfter ? insertButton : copyButton).setAttribute("aria-busy", "true");
+  copyTimeout = setTimeout(() => {
+    finishCopy();
+    window.parent.postMessage({ mathpaster: "toast", text: "Copy timed out. Your equation is saved — please try again." }, "*");
+  }, 5000);
+  window.parent.postMessage({ mathpaster: closeAfter ? "insert" : "copy", latex: wrap, requestId: id }, "*");
 }
 insertButton.addEventListener("mousedown", e => e.preventDefault());
 insertButton.addEventListener("click", doInsert);
 
 /* ── Copy ── */
 copyButton.addEventListener("mousedown", e => e.preventDefault());
-copyButton.addEventListener("click", () => {
-  const raw = (mf.value || "").trim();
-  if (!raw) return;
-  const wrap = state.insertMode === "block" ? `$$${raw}$$` : `$${raw}$`;
-  recordUse();
-  window.parent.postMessage({ mathpaster: "copy", latex: wrap }, "*");
+copyButton.addEventListener("click", () => requestCopy(false));
+document.getElementById("new-equation-btn").addEventListener("click", () => {
+  if (!state.mfReady) return;
+  mf.executeCommand("selectAll");
+  mf.executeCommand("deleteBackward");
+  updatePreview();
+  mf.focus();
 });

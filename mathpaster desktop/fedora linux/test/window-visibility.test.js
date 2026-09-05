@@ -55,8 +55,14 @@ test("restores, raises, and focuses a minimized window", () => {
   assert.equal(isWindowOpen(window), true);
 });
 
-test("always requests restore before showing because Wayland state can lag", () => {
+test("requests restore on native Wayland because its state can lag", () => {
+  const { calls, window } = createWindow({ minimized: false, visible: false });
+  assert.equal(revealWindow(window, { nativeWayland: true }), true);
+  assert.deepEqual(calls, ["restore", "show", "moveTop", "focus"]);
+});
+
+test("showing an X11 window does not unmaximize it", () => {
   const { calls, window } = createWindow({ minimized: false, visible: false });
   assert.equal(revealWindow(window), true);
-  assert.deepEqual(calls, ["restore", "show", "moveTop", "focus"]);
+  assert.deepEqual(calls, ["show", "moveTop", "focus"]);
 });
