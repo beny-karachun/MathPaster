@@ -16,6 +16,10 @@ extension and does not use Chrome extension APIs or the Chrome Web Store.
 - Offers a **Launch on restart** switch under Settings → General & Window and in the tray menu.
 - Repairs older autostart entries so packaged Electron builds receive the hidden-start argument.
 - Resizes with a locked editor aspect ratio, scaling the whole interface together.
+- Remembers the window's last position and size across normal quits, login
+  restarts, AppImage launches, and RPM launches.
+- Uses XWayland when it is available inside a Wayland session, because native
+  Wayland deliberately prevents applications from restoring global positions.
 - Starts hidden when Fedora launches it after login.
 - Uses the full MathPaster editor, including palettes, matrices, snippets,
   themes, insert history, and the virtual keyboard.

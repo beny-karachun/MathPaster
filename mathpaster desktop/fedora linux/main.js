@@ -36,6 +36,10 @@ const {
   isWindowOpen,
   revealWindow
 } = require("./src/window-visibility");
+const {
+  getWindowStateOptions,
+  shouldUseX11ForWindowPosition
+} = require("./src/window-state");
 
 const TOGGLE_SHORTCUT = "Alt+M";
 const TOGGLE_SHORTCUT_LABEL = "Alt+M";
@@ -46,18 +50,28 @@ let tray = null;
 let isQuitting = false;
 let shortcutRegistered = false;
 let kdeShortcutWorker = null;
+const isWaylandSession = process.platform === "linux"
+  && String(process.env.XDG_SESSION_TYPE || "").toLowerCase() === "wayland";
+const useX11ForWindowPosition = shouldUseX11ForWindowPosition();
 const handleShortcut = createShortcutHandler(toggleWindow);
 const handleLocalShortcut = createLocalShortcutHandler(handleShortcut);
 
-function isKdeWaylandSession() {
-  return process.env.XDG_SESSION_TYPE === "wayland" && isKdeSession();
+function isNativeKdeWaylandSession() {
+  return !useX11ForWindowPosition
+    && isWaylandSession
+    && isKdeSession();
 }
 
 app.setName("MathPaster");
 if (process.platform === "linux") app.setDesktopName(DESKTOP_ID);
-if (process.platform === "linux" && process.env.XDG_SESSION_TYPE === "wayland") {
+if (useX11ForWindowPosition) {
+  // Wayland intentionally hides global window coordinates. XWayland is the
+  // only Electron-supported path that can restore the user's exact position.
+  app.commandLine.appendSwitch("ozone-platform", "x11");
+}
+if (isWaylandSession) {
   // Fedora GNOME defaults to Wayland; Chromium's Vulkan path is not compatible
-  // with Electron's Wayland surface factory on every Fedora graphics stack.
+  // with every Fedora graphics stack, including XWayland sessions.
   app.commandLine.appendSwitch("disable-features", "Vulkan");
 }
 
@@ -177,7 +191,7 @@ function createTray() {
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    name: "mathpaster-main-window",
+    ...getWindowStateOptions(),
     width: 790,
     height: 614,
     minWidth: 500,
@@ -189,7 +203,6 @@ function createWindow() {
     resizable: true,
     show: false,
     alwaysOnTop: true,
-    windowStatePersistence: true,
     backgroundColor: "#0b0c18",
     icon: getIconPath(),
     title: "MathPaster",
@@ -231,7 +244,7 @@ function createWindow() {
 }
 
 async function registerShortcut() {
-  const useNativeKdePresses = isKdeWaylandSession();
+  const useNativeKdePresses = isNativeKdeWaylandSession();
   let usingNativeKdePresses = false;
 
   // Plasma remembers portal shortcuts after an app exits, but some versions
@@ -239,14 +252,16 @@ async function registerShortcut() {
   // Chromium then skips BindShortcuts and the keystroke falls through into the
   // focused editor. Removing only this app's inactive actions forces a real
   // bind on every launch while preserving every other application's shortcuts.
-  if (useNativeKdePresses) {
+  if (isKdeSession()) {
     const cleanup = cleanInactiveKdeShortcuts();
     if (cleanup.cleaned) {
       console.info("Removed inactive KDE MathPaster shortcut state before registration.");
     }
   }
 
-  const previousKdeShortcutNames = listKdeShortcutNames();
+  const previousKdeShortcutNames = useNativeKdePresses
+    ? listKdeShortcutNames()
+    : [];
   shortcutRegistered = globalShortcut.register(
     TOGGLE_SHORTCUT,
     () => handleShortcut("electron-global")
