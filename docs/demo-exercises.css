@@ -44,6 +44,9 @@
   #exercise-complete { grid-column: 1 / -1; grid-row: 5; margin-top: 20px; }
 }
 
-#exercise-effort { color: #e0ece6; font-size: 14px; line-height: 1.7; border-top: 1px solid #2d4038; padding-top: 14px; }
 #matrix-guide-status { color: #87e2bc; font-weight: 600; line-height: 1.7; }
 #matrix-guide-status:empty { display: none; }
+
+.exercise-hint { background: #16372b; border: 1px solid #34634e; border-radius: 10px; padding: 14px 16px; color: #d4f3e4; }
+#exercise-hint { margin: 0; padding: 0; }
+#exercise-hint code { color: #a5f3cd; background: #0a2319; border-radius: 4px; padding: 2px 5px; font-weight: 700; }

@@ -16,13 +16,13 @@ export function startMatrixGuide(frame, report) {
       const tab = doc.querySelector('.cat-tab[data-key="Linear Algebra"]');
       if (!tab?.classList.contains('active')) {
         next = tab;
-        report('1 / 3 · Click the highlighted Linear Algebra tab.');
+        report('1 / 3 · Click Linear Algebra.');
       } else if (squareOpen && doc.querySelector('#matrix-selector.visible')) {
         next = doc.querySelector('.matrix-cell[data-r="2"][data-c="2"]');
-        report('3 / 3 · Click the highlighted cell: second row, second column, for 2 × 2.');
+        report('3 / 3 · Choose 2×2.');
       } else {
         next = doc.querySelector('.pal-btn[title="[ ]"]');
-        report('2 / 3 · Click the highlighted square brackets [ ].');
+        report('2 / 3 · Click [ ].');
       }
     }
     if (next === target) return;
@@ -41,7 +41,7 @@ export function startMatrixGuide(frame, report) {
     const cell = event.target.closest('.matrix-cell');
     if (cell && squareOpen && cell.dataset.r === '2' && cell.dataset.c === '2') {
       finished = true;
-      report('Matrix ready · Fill in 1, 2, 3, 4. Use Tab to move to the next empty cell, then press Insert.');
+      report('Fill 1, 2, 3, 4 · Tab between cells.');
     }
     update();
   }

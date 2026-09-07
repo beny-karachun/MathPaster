@@ -37,11 +37,14 @@ function selectExercise(i) {
   $('exercise-instruction').textContent = exercise.instruction;
   $('exercise-target').innerHTML = window.MathLive.convertLatexToMarkup(exercise.latex);
   $('exercise-description').textContent = exercise.words;
-  $('exercise-effort').textContent = exercise.effort;
   const ratio = (exercise.words.length / exercise.latex.length).toFixed(1);
   $('exercise-comparison').textContent = `${exercise.words.length} characters in words · ${exercise.latex.length} characters of generated LaTeX. The wording is ${ratio}× as long.`;
-  $('exercise-hint').textContent = exercise.hint;
-  document.querySelector('.exercise-hint').open = true;
+  $('exercise-hint').replaceChildren(...exercise.hint.split('`').map((part, i) => {
+    if (i % 2 === 0) return document.createTextNode(part);
+    const code = document.createElement('code');
+    code.textContent = part;
+    return code;
+  }));
   input.value = answers.get(i) || '';
   $('exercise-status').textContent = completed.has(i) ? '✓ Completed. You can try it again.' : 'Build the target equation, then press Insert.';
   $('exercise-status').dataset.state = completed.has(i) ? 'success' : 'idle';
