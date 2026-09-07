@@ -179,7 +179,7 @@ export function updatePreview() {
   const raw = mf.value || "";
   localStorage.setItem("mathpaster_draft", raw);
   if (!raw) { latexEl.textContent = ""; return; }
-  latexEl.textContent = state.insertMode === "block" ? `$$${raw}$$` : `$${raw}$`;
+  latexEl.textContent = `$${raw}$`;
 }
 
 /* ── Register <math-field> custom element from UMD build ── */

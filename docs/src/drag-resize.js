@@ -341,3 +341,8 @@ window.addEventListener("resize", () => {
 window.addEventListener("scroll", () => {
   window.scrollTo(0, 0);
 });
+
+document.addEventListener("mathpaster:reset-sizes", () => {
+  positionKeyboardDefault();
+  clampKeyboardPosition();
+});
