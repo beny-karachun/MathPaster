@@ -30,12 +30,9 @@
             <path d="M17 14v8M13 18h8" />
           </svg>
         </span>
-        MathPaster
+        <span class="brand-name">MathPaster<span class="brand-caption">A space for your equations</span></span>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <a href="https://chromewebstore.google.com/detail/mathpaster/gpfikddlkclmegpdjoaflmbndcnddleg" target="_blank" rel="noopener noreferrer" class="rate-btn" id="rate-us-btn" title="Rate MathPaster on Chrome Web Store">
-          <span class="rate-text">Rate us</span> ⭐
-        </a>
         <button class="header-btn" id="history-btn" title="Insert history">
           <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"
             stroke-linecap="round" stroke-linejoin="round">
@@ -69,14 +66,14 @@
         <div id="auto-symbol-selector" style="display: flex; align-items: center; gap: 10px;">
           <span class="mode-label active" style="font-weight: 500;">Auto-Symbols</span>
           <label class="switch">
-            <input type="checkbox" id="auto-symbol-switch" checked>
+            <input type="checkbox" id="auto-symbol-switch" aria-label="Automatically format symbols" checked>
             <span class="slider"></span>
           </label>
         </div>
         <div id="mode-selector" style="display: flex; align-items: center; gap: 10px;">
           <span class="mode-label active" data-mode="inline">Inline</span>
           <label class="switch">
-            <input type="checkbox" id="mode-switch">
+            <input type="checkbox" id="mode-switch" aria-label="Use block equation delimiters">
             <span class="slider"></span>
           </label>
           <span class="mode-label" data-mode="block">Block</span>
@@ -84,7 +81,7 @@
         <div id="latex-bar-selector" style="display: flex; align-items: center; gap: 10px;">
           <span class="mode-label active" id="label-showLatexBar" style="font-weight: 500;">LaTeX Bar</span>
           <label class="switch">
-            <input type="checkbox" id="set-showLatexBar">
+            <input type="checkbox" id="set-showLatexBar" aria-label="Show LaTeX source">
             <span class="slider"></span>
           </label>
         </div>
@@ -93,6 +90,7 @@
 
     <div id="body">
       <div id="mf-wrap">
+        <div class="equation-label">YOUR EQUATION <span>Type, or choose a symbol below</span></div>
         <div id="loading">Loading editor…</div>
         <math-field id="mf" math-virtual-keyboard-policy="manual" style="display:none"></math-field>
       </div>
@@ -132,10 +130,19 @@
   <div id="settings-overlay">
     <div id="settings-panel">
       <div class="settings-header">
-        <h2>Customize UI</h2>
+        <h2>Make it yours</h2>
         <button class="header-btn" id="close-settings-btn" style="width:32px;height:32px;font-size:14px;">✕</button>
       </div>
       <div class="settings-body">
+        <details name="settings-group" open>
+          <summary>Editor style</summary>
+          <div class="details-content">
+            <div class="setting-group">
+              <p class="style-intro">Four different moods. The same familiar workspace.</p>
+              <div id="theme-presets" class="preset-grid"></div>
+            </div>
+          </div>
+        </details>
         <details name="settings-group">
           <summary>General & Window</summary>
           <div class="details-content">
@@ -220,15 +227,7 @@
           </div>
         </details>
 
-        <details name="settings-group" open>
-          <summary>Theme</summary>
-          <div class="details-content">
-            <div class="setting-group">
-              <label>Color theme</label>
-              <div id="theme-presets" class="preset-grid"></div>
-            </div>
-          </div>
-        </details>
+
 
         <details name="settings-group">
           <summary>Tabs</summary>
@@ -261,6 +260,9 @@
           </div>
         </details>
 
+        <a href="https://chromewebstore.google.com/detail/mathpaster/gpfikddlkclmegpdjoaflmbndcnddleg" target="_blank" rel="noopener noreferrer" class="rate-btn" id="rate-us-btn" title="Rate MathPaster on Chrome Web Store">
+          Leave a review ↗
+        </a>
         <button class="btn secondary" id="reset-settings-btn" style="margin-top:10px;">Reset to Defaults</button>
       </div>
     </div>
@@ -276,7 +278,7 @@
         <p id="pro-modal-feature" class="pro-feature-line"></p>
         <ul class="pro-perks">
           <li>Custom symbol tabs — build palettes from any <code>\</code> command</li>
-          <li>All 13 vaporwave color themes, light &amp; dark</li>
+          <li>Glass &amp; Vaporwave editor styles</li>
           <li>From $2.99/mo — or $19.99 once, yours forever</li>
         </ul>
         <div class="tab-editor-actions">
@@ -332,7 +334,6 @@
         </div>
       </div>
     </div>
-  </div>
   </div>
 
   <div id="history-overlay">

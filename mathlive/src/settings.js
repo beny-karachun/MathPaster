@@ -2,54 +2,43 @@ import { state } from './state.js';
 import { editorWindow } from './dom.js';
 import { isPro, openUpgradeModal } from './license.js';
 
-/* ── Theme presets (curated; replaces raw HSL customization) ── */
-// 13 hand-tuned themes (8 dark + 5 light). Each preset is a vaporwave-inspired
-// DUAL-TONE accent: `primary` is the lead accent and `accent2` is its gradient
-// partner — together they recolour every accent surface (active tabs, icon, focus
-// glow, caret, primary button…) via a 135° gradient. `bg` sets the editor-window
-// base; `mode:'light'` additionally toggles body.theme-light.
+/* Each style has its own surfaces and typography in editor.css. */
 const THEME_PRESETS = [
-  // ── Dark ──
-  { id: 'indigo-night',   name: 'Indigo Night', mode: 'dark',  primary: { h: 252, s: 85, l: 68 }, accent2: { h: 292, s: 82, l: 66 }, bg: { h: 244, s: 34, l: 11 } },
-  { id: 'anthropic',      name: 'Anthropic',    mode: 'dark',  primary: { h: 16,  s: 70, l: 62 }, accent2: { h: 34,  s: 74, l: 60 }, bg: { h: 24,  s: 14, l: 10 } },
-  { id: 'emerald',        name: 'Emerald',      mode: 'dark',  primary: { h: 158, s: 66, l: 50 }, accent2: { h: 182, s: 72, l: 54 }, bg: { h: 190, s: 22, l: 9  } },
-  { id: 'crimson',        name: 'Crimson',      mode: 'dark',  primary: { h: 344, s: 80, l: 64 }, accent2: { h: 8,   s: 80, l: 62 }, bg: { h: 344, s: 22, l: 9  } },
-  { id: 'amber',          name: 'Amber',        mode: 'dark',  primary: { h: 40,  s: 95, l: 60 }, accent2: { h: 22,  s: 90, l: 58 }, bg: { h: 28,  s: 16, l: 9  } },
-  { id: 'teal',           name: 'Teal',         mode: 'dark',  primary: { h: 186, s: 78, l: 54 }, accent2: { h: 204, s: 82, l: 60 }, bg: { h: 198, s: 30, l: 9  } },
-  { id: 'vaporwave',      name: 'Vaporwave',    mode: 'dark',  primary: { h: 322, s: 92, l: 72 }, accent2: { h: 190, s: 90, l: 66 }, bg: { h: 268, s: 42, l: 12 } },
-  { id: 'synthwave',      name: 'Synthwave',    mode: 'dark',  primary: { h: 286, s: 90, l: 72 }, accent2: { h: 212, s: 92, l: 64 }, bg: { h: 260, s: 44, l: 10 } },
-  // ── Light ──
-  { id: 'anthropic-light',name: 'Anthropic Light', mode: 'light', primary: { h: 16,  s: 62, l: 52 }, accent2: { h: 32,  s: 66, l: 52 }, bg: { h: 40,  s: 32, l: 96 } },
-  { id: 'daylight',       name: 'Daylight',     mode: 'light', primary: { h: 248, s: 74, l: 60 }, accent2: { h: 286, s: 72, l: 62 }, bg: { h: 230, s: 34, l: 97 } },
-  { id: 'mint',           name: 'Mint',         mode: 'light', primary: { h: 160, s: 58, l: 42 }, accent2: { h: 184, s: 62, l: 44 }, bg: { h: 154, s: 30, l: 97 } },
-  { id: 'sandstone',      name: 'Sandstone',    mode: 'light', primary: { h: 26,  s: 60, l: 50 }, accent2: { h: 40,  s: 66, l: 50 }, bg: { h: 36,  s: 34, l: 95 } },
-  { id: 'cotton-candy',   name: 'Cotton Candy', mode: 'light', primary: { h: 324, s: 80, l: 62 }, accent2: { h: 200, s: 80, l: 60 }, bg: { h: 300, s: 48, l: 97 } },
+  { id: 'precision', name: 'Precision', mode: 'dark', description: 'Quiet focus. Crisp detail.', primary: { h: 162, s: 58, l: 65 }, shape: { borderRadiusBtn: 6, borderRadiusTab: 6, actionBtnRoundness: 8 } },
+  { id: 'paper', name: 'Paper', mode: 'light', description: 'A little room to think.', primary: { h: 145, s: 29, l: 32 }, shape: { borderRadiusBtn: 5, borderRadiusTab: 5, actionBtnRoundness: 6 } },
+  { id: 'glass', name: 'Glass', mode: 'light', description: 'Light, layered, luminous.', primary: { h: 226, s: 65, l: 48 }, shape: { borderRadiusBtn: 13, borderRadiusTab: 20, actionBtnRoundness: 14 } },
+  { id: 'vaporwave', name: 'Vaporwave', mode: 'dark', description: 'After hours. Other worlds.', primary: { h: 185, s: 89, l: 72 }, shape: { borderRadiusBtn: 10, borderRadiusTab: 8, actionBtnRoundness: 10 } },
 ];
-const DEFAULT_PRESET = 'indigo-night';
-// One dark + one light theme stay free; the rest are part of Pro.
-const FREE_PRESETS = new Set(['indigo-night', 'daylight']);
-
+const DEFAULT_PRESET = 'precision';
+const FREE_PRESETS = new Set(['precision', 'paper']);
+const LEGACY_PRESETS = {
+  'indigo-night': 'precision', daylight: 'paper', anthropic: 'precision',
+  emerald: 'precision', crimson: 'precision', amber: 'precision', teal: 'precision',
+  synthwave: 'vaporwave', 'anthropic-light': 'paper', mint: 'paper',
+  sandstone: 'paper', 'cotton-candy': 'glass',
+};
 function resolvePreset(id) {
-  return THEME_PRESETS.find(p => p.id === id) || THEME_PRESETS[0];
+  return THEME_PRESETS.find(p => p.id === (LEGACY_PRESETS[id] || id)) || THEME_PRESETS[0];
 }
 
 /* ── Settings Logic ── */
 const defaultSettings = {
+  layoutVersion: 2,
   popupWidth: 760,
-  popupHeight: 550,
+  popupHeight: 560,
   gapSize: 8,
   symbolGridWidth: 52,
-  symbolHeight: 46,
+  symbolHeight: 48,
   symbolFontSize: 22,
-  borderRadiusBtn: 11,
-  tabPaddingH: 19,
-  tabPaddingV: 10,
+  borderRadiusBtn: 6,
+  tabPaddingH: 12,
+  tabPaddingV: 7,
   tabFontSize: 12,
-  borderRadiusTab: 30,
+  borderRadiusTab: 6,
   actionBtnPaddingX: 28,
-  actionBtnPaddingY: 12,
-  actionBtnFontSize: 16,
-  actionBtnRoundness: 14,
+  actionBtnPaddingY: 8,
+  actionBtnFontSize: 14,
+  actionBtnRoundness: 8,
   themePreset: DEFAULT_PRESET,
   showLatexBar: false
 };
@@ -64,18 +53,13 @@ function isMobileFrame() {
   return window.innerWidth <= MOBILE_BREAKPOINT && window.frameElement !== null;
 }
 
-function getMobileScaleFactor() {
-  return (window.innerWidth * 0.94) / MOBILE_DESIGN_WIDTH;
-}
-
-function syncMobileIframeHeight() {
-  if (!isMobileFrame()) return;
-
-  const naturalHeight = editorWindow.offsetHeight;
-  if (!naturalHeight) return;
-
-  const frameHeight = Math.ceil(naturalHeight * getMobileScaleFactor() + MOBILE_IFRAME_PADDING);
-  window.frameElement.style.setProperty('height', `${frameHeight}px`, 'important');
+function syncDemoIframeHeight() {
+  const frame = window.frameElement;
+  if (!frame) return;
+  const height = isMobileFrame()
+    ? editorWindow.offsetHeight + MOBILE_IFRAME_PADDING
+    : state.currentSettings.popupHeight * (state.zoom || 1) + 40;
+  if (height > 0) frame.style.setProperty('height', `${Math.ceil(height)}px`, 'important');
 }
 
 // MathLive, palette tabs, and optional banners can all change the editor's natural
@@ -85,44 +69,32 @@ let mobileResizeFrame = 0;
 if ('ResizeObserver' in window) {
   const mobileEditorResizeObserver = new ResizeObserver(() => {
     cancelAnimationFrame(mobileResizeFrame);
-    mobileResizeFrame = requestAnimationFrame(syncMobileIframeHeight);
+    mobileResizeFrame = requestAnimationFrame(syncDemoIframeHeight);
   });
   mobileEditorResizeObserver.observe(editorWindow);
 }
 
 export function applySettings(settings) {
-  // Resolve the chosen preset into accent (primary*) + background (bg*) HSL,
-  // and switch the whole UI to light mode when the preset calls for it.
   const preset = resolvePreset(settings.themePreset);
+  settings.themePreset = preset.id;
+  document.body.dataset.style = preset.id;
+  document.body.classList.toggle('theme-light', preset.mode === 'light');
   const primaryHue = preset.primary.h, primarySat = preset.primary.s, primaryLight = preset.primary.l;
-  const accent2 = preset.accent2 || preset.primary; // dual-tone partner (legacy fallback)
-  const a2Hue = accent2.h, a2Sat = accent2.s, a2Light = accent2.l;
-  const bgHue = preset.bg.h, bgSat = preset.bg.s, bgLight = preset.bg.l;
-  const isLight = preset.mode === 'light';
-  // Soft accent glows bleeding into the window corners — kept gentle on light themes
-  // so text/glass panels stay readable.
-  const glowA = isLight ? 0.10 : 0.16;
-  const glowB = isLight ? 0.07 : 0.11;
-  document.body.classList.toggle('theme-light', isLight);
-
-  let scaleFactor = Math.min((window.innerWidth * 0.94) / settings.popupWidth, (window.innerHeight * 0.90) / settings.popupHeight);
 
   // Uniform zoom from corner-drag resize: the window renders at the zoomed size and the
   // content (laid out at the design size) is scaled to fill it — so everything shrinks
   // or grows together and always fits.
-  const zoom = (state.zoom && isFinite(state.zoom) && state.zoom > 0) ? state.zoom : 1;
+  const requestedZoom = (state.zoom && isFinite(state.zoom) && state.zoom > 0) ? state.zoom : 1;
+  // The demo needs visible space around the floating panel, including in the
+  // narrower in-app browser. The extension keeps its normal viewport allowance.
+  const widthAllowance = document.body.classList.contains('demo-mode') ? 0.84 : 0.94;
+  const zoom = Math.min(requestedZoom, window.innerWidth * widthAllowance / settings.popupWidth,
+    window.innerHeight * 0.86 / settings.popupHeight);
   const renderW = settings.popupWidth * zoom;
   const renderH = settings.popupHeight * zoom;
 
-  // ── Mobile layout ──
-  // On a phone the desktop layout (popupWidth ≈ 760) gets shrunk to ~0.39 to fit the
-  // screen, making every symbol ~8px and unreadable. Instead we lay the editor out at
-  // a much narrower "mobile design width" so the scale factor — and therefore every
-  // symbol/button — is far larger, and we let the window height be content-driven so
-  // the symbol palette is never clipped by a fixed height. The iframe is sized to the
-  // editor's natural height after the styles below are applied (see end of function).
-  const MOBILE = isMobileFrame();
-  if (MOBILE) scaleFactor = getMobileScaleFactor();
+  // Reflow at the real available width so text and controls keep their size.
+  const mobileWidth = Math.min(MOBILE_DESIGN_WIDTH, Math.floor(window.innerWidth * 0.94));
 
   let styleEl = document.getElementById('dynamic-theme');
   if (!styleEl) {
@@ -136,9 +108,9 @@ export function applySettings(settings) {
       --primary-hue: ${primaryHue};
       --primary-sat: ${primarySat}%;
       --primary-light: ${primaryLight}%;
-      --accent2-hue: ${a2Hue};
-      --accent2-sat: ${a2Sat}%;
-      --accent2-light: ${a2Light}%;
+      --accent2-hue: ${primaryHue};
+      --accent2-sat: ${primarySat}%;
+      --accent2-light: ${primaryLight}%;
     }
     #editor-scale {
       width: ${settings.popupWidth}px !important;
@@ -148,20 +120,14 @@ export function applySettings(settings) {
     #editor-window {
       width: ${renderW}px !important;
       height: ${renderH}px !important;
-      background:
-        radial-gradient(135% 95% at 8% -12%, hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, ${glowA}) 0%, transparent 55%),
-        radial-gradient(125% 95% at 112% 112%, hsla(${a2Hue}, ${a2Sat}%, ${a2Light}%, ${glowB}) 0%, transparent 55%),
-        linear-gradient(155deg,
-          hsl(${bgHue}, ${bgSat}%, ${bgLight + 7}%) 0%,
-          hsl(${bgHue}, ${bgSat}%, ${bgLight}%) 55%,
-          hsl(${bgHue}, ${bgSat}%, ${Math.max(0, bgLight - 5)}%) 100%) !important;
+
     }
     #latex-preview { display: ${settings.showLatexBar ? 'flex' : 'none'} !important; }
     #body { gap: ${settings.gapSize}px !important; }
     #category-tabs {
       gap: ${settings.gapSize}px !important;
-      padding: 20px 24px 10px 24px !important;
-      margin: -20px -24px 0 -24px !important;
+      padding: 2px 0 4px !important;
+      margin: 0 !important;
     }
     #palette { grid-template-columns: repeat(auto-fill, minmax(${settings.symbolGridWidth}px, 1fr)) !important; gap: ${settings.gapSize}px !important; }
     #footer { gap: ${settings.gapSize}px !important; }
@@ -199,17 +165,17 @@ export function applySettings(settings) {
       #editor-scale {
         position: static !important;
         transform: none !important;
-        width: ${MOBILE_DESIGN_WIDTH}px !important;
+        width: ${mobileWidth}px !important;
         height: auto !important;
       }
       #editor-window {
-        width: ${MOBILE_DESIGN_WIDTH}px !important;
+        width: ${mobileWidth}px !important;
         height: auto !important;
         flex-shrink: 0 !important;
         max-width: none !important;
         max-height: none !important;
         transform-origin: top center !important;
-        transform: scale(${scaleFactor}) !important;
+        transform: none !important;
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
         border-radius: 20px !important;
         animation: none !important;
@@ -227,62 +193,6 @@ export function applySettings(settings) {
       }
     }
 
-    .cat-tab.active {
-      background: linear-gradient(135deg, hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.8) 0%, hsla(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 10)}%, 0.8) 100%) !important;
-      border-color: hsl(${primaryHue}, ${primarySat}%, ${primaryLight + 10}%) !important;
-      box-shadow: 0 0 24px hsla(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 5)}%, 0.5), inset 0 2px 4px rgba(255,255,255,0.3) !important;
-    }
-    
-    .btn.primary {
-      background: linear-gradient(135deg, hsl(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 10)}%) 0%, hsl(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 20)}%) 100%) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 4px 16px hsla(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 10)}%, 0.5) !important;
-    }
-    .btn.primary:hover {
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 20px hsla(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 10)}%, 0.6) !important;
-    }
-    
-    .btn.secondary {
-      color: hsl(${primaryHue}, ${primarySat}%, ${Math.min(100, primaryLight + 20)}%) !important;
-      background: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.1) !important;
-      border-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.3) !important;
-    }
-    
-    .icon {
-      background: linear-gradient(135deg, hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.15) 0%, hsla(${primaryHue}, ${primarySat}%, ${Math.max(0, primaryLight - 10)}%, 0.15) 100%) !important;
-      border-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.3) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.2) !important;
-    }
-    
-    #latex-preview {
-      border-left-color: hsl(${primaryHue}, ${primarySat}%, ${primaryLight}%) !important;
-    }
-    
-    .matrix-selector-btn {
-      background: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.1) !important;
-      border-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.3) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 2px 8px hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.2) !important;
-    }
-    .icon svg { stroke: hsl(${primaryHue}, ${primarySat}%, ${Math.min(100, primaryLight + 15)}%) !important; }
-    
-    #mf-wrap:focus-within {
-      border-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.5) !important;
-      box-shadow: 0 0 0 3px hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.12), 0 4px 16px hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.08) !important;
-    }
-    .matrix-cell.highlight {
-      background: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.6) !important;
-      border-color: hsl(${primaryHue}, ${primarySat}%, ${primaryLight}%) !important;
-    }
-    .switch input:checked + .slider {
-      background-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.2) !important;
-      border-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.4) !important;
-    }
-    .switch input:checked + .slider:before {
-      background-color: hsl(${primaryHue}, ${primarySat}%, ${primaryLight}%) !important;
-    }
-    .mode-label.active {
-      color: hsl(${primaryHue}, ${primarySat}%, ${Math.min(100, primaryLight + 20)}%) !important;
-      text-shadow: 0 0 8px hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.3) !important;
-    }
     math-field, #mf {
       --caret-color: hsl(${primaryHue}, ${primarySat}%, ${primaryLight}%) !important;
       --selection-background-color: hsla(${primaryHue}, ${primarySat}%, ${primaryLight}%, 0.3) !important;
@@ -301,7 +211,7 @@ export function applySettings(settings) {
 
   // Resize immediately when settings change; ResizeObserver handles asynchronous
   // content changes such as MathLive becoming ready or a taller symbol tab opening.
-  syncMobileIframeHeight();
+  syncDemoIframeHeight();
 
   localStorage.setItem('mathpaster_settings', JSON.stringify(settings));
 }
@@ -309,7 +219,19 @@ export function applySettings(settings) {
 export function loadSettings() {
   try {
     const saved = JSON.parse(localStorage.getItem('mathpaster_settings'));
-    if (saved) state.currentSettings = { ...defaultSettings, ...saved };
+    if (saved) {
+      // Upgrade former defaults, while retaining deliberately customized sizes.
+      if (!saved.layoutVersion) {
+        const formerDefaults = { popupHeight: [550, 590], symbolHeight: [46], tabPaddingV: [10], actionBtnPaddingY: [12] };
+        for (const [key, values] of Object.entries(formerDefaults)) {
+          if (values.includes(saved[key])) saved[key] = defaultSettings[key];
+        }
+        saved.layoutVersion = defaultSettings.layoutVersion;
+      }
+      const preset = resolvePreset(saved.themePreset);
+      const migration = LEGACY_PRESETS[saved.themePreset] ? preset.shape : {};
+      state.currentSettings = { ...defaultSettings, ...saved, ...migration, themePreset: preset.id };
+    }
   } catch (e) {}
   try {
     const z = parseFloat(localStorage.getItem('mathpaster_zoom'));
@@ -334,33 +256,26 @@ function renderThemePresets() {
       + (locked ? ' locked' : '');
     btn.dataset.preset = p.id;
     btn.title = p.name + (locked ? ' (Pro)' : '');
-    const a2 = p.accent2 || p.primary;
-    const bg = `hsl(${p.bg.h}, ${p.bg.s}%, ${p.bg.l}%)`;
-    const bgEdge = `hsl(${p.bg.h}, ${p.bg.s}%, ${Math.max(0, p.bg.l - 5)}%)`;
-    const accent = `hsl(${p.primary.h}, ${p.primary.s}%, ${p.primary.l}%)`;
-    const accentB = `hsl(${a2.h}, ${a2.s}%, ${a2.l}%)`;
-    const accentGrad = `linear-gradient(135deg, ${accent} 0%, ${accentB} 100%)`;
-    // Preview shows the real window backdrop (with a faint accent glow) plus a
-    // pill that reveals the dual-tone accent gradient the theme paints the UI with.
-    const previewBg =
-      `radial-gradient(120% 110% at 12% -10%, ${accent}33 0%, transparent 60%), ` +
-      `linear-gradient(150deg, ${bg}, ${bgEdge})`;
-    btn.innerHTML =
-      `<span class="swatch-preview" style="background:${previewBg}">` +
-        `<span class="swatch-dot" style="background:${accentGrad}"></span>` +
-        (locked ? `<span class="swatch-lock">PRO</span>` : ``) +
-      `</span>` +
-      `<span class="swatch-name">${p.name}</span>`;
+    btn.setAttribute('aria-label', `${p.name} — ${p.description}${locked ? ' Pro' : ''}`);
+    btn.setAttribute('aria-pressed', String(p.id === state.currentSettings.themePreset));
+    btn.innerHTML = `
+      <span class="swatch-preview preview-${p.id}" aria-hidden="true">
+        <span class="mini-toolbar"><i></i><i></i><i></i></span>
+        <span class="mini-equation">∫ x² dx</span>
+        <span class="mini-keys"><i>π</i><i>√</i><i>∞</i><i>α</i><i>Σ</i></span>
+        <span class="mini-footer"><i></i><b>Insert ↵</b></span>
+      </span>
+      <span class="swatch-heading"><span class="swatch-name">${p.name}</span><span class="swatch-tier">${FREE_PRESETS.has(p.id) ? 'FREE' : 'PRO'}</span></span>
+      <span class="swatch-description">${p.description}</span>`;
     btn.addEventListener('mousedown', e => e.preventDefault()); // don't steal focus
     btn.addEventListener('click', () => {
       if (locked) {
         openUpgradeModal(`The “${p.name}” theme is part of MathPaster Pro.`);
         return;
       }
-      state.currentSettings.themePreset = p.id;
+      Object.assign(state.currentSettings, p.shape, { themePreset: p.id });
       applySettings(state.currentSettings);
-      themePresetsEl.querySelectorAll('.theme-swatch').forEach(s =>
-        s.classList.toggle('selected', s.dataset.preset === p.id));
+      renderThemePresets();
     });
     themePresetsEl.appendChild(btn);
   }
@@ -461,12 +376,8 @@ export function loadPosition() {
 }
 
 export function clampPositionToBounds() {
-  // On mobile the window is laid out by flex + transform:scale() (see the
-  // max-width:600px block in applySettings), not by drag offsets. The offset math
-  // below assumes the viewport is taller/wider than the window, which is false when
-  // the full-size window is scaled down to fit a phone — it would shove the window
-  // off-screen. So pin the offset to 0 and let the mobile CSS center it.
-  if (window.innerWidth <= 600 && window.frameElement) {
+  // Narrow layouts flow vertically and do not use desktop drag offsets.
+  if (window.innerWidth <= MOBILE_BREAKPOINT) {
     state.currentX = state.currentY = state.baseX = state.baseY = 0;
     editorWindow.style.left = '0px';
     editorWindow.style.top = '0px';
