@@ -23,8 +23,8 @@ function resolvePreset(id) {
 
 /* ── Settings Logic ── */
 const defaultSettings = {
-  layoutVersion: 2,
-  popupWidth: 760,
+  layoutVersion: 3,
+  popupWidth: 610,
   popupHeight: 560,
   gapSize: 8,
   symbolGridWidth: 52,
@@ -221,6 +221,7 @@ export function loadSettings() {
     const saved = JSON.parse(localStorage.getItem('mathpaster_settings'));
     if (saved) {
       // Upgrade former defaults, while retaining deliberately customized sizes.
+      if ((saved.layoutVersion || 0) < 3 && saved.popupWidth === 760) saved.popupWidth = 610;
       if (!saved.layoutVersion) {
         const formerDefaults = { popupHeight: [550, 590], symbolHeight: [46], tabPaddingV: [10], actionBtnPaddingY: [12] };
         for (const [key, values] of Object.entries(formerDefaults)) {
@@ -228,6 +229,7 @@ export function loadSettings() {
         }
         saved.layoutVersion = defaultSettings.layoutVersion;
       }
+      saved.layoutVersion = defaultSettings.layoutVersion;
       const preset = resolvePreset(saved.themePreset);
       const migration = LEGACY_PRESETS[saved.themePreset] ? preset.shape : {};
       state.currentSettings = { ...defaultSettings, ...saved, ...migration, themePreset: preset.id };
