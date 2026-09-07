@@ -1975,3 +1975,7 @@ body[data-style] .reset-tools { display: flex; flex-direction: column; gap: 10px
 body[data-style] .reset-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 body[data-style] #reset-everything-confirm { padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
 body[data-style] #reset-everything-confirm[hidden] { display: none; }
+
+/* MathLive opts back into pointer events inside its shadow DOM. A transparent
+   closed dialog must also be hidden so its field cannot cover the editor. */
+#tab-overlay:not(.visible) { visibility: hidden; }
