@@ -1,0 +1,272 @@
+[
+  {
+    "name": "integral",
+    "frames": 261,
+    "events": [
+      {
+        "t": 2357,
+        "type": "key"
+      },
+      {
+        "t": 2566,
+        "type": "key"
+      },
+      {
+        "t": 2784,
+        "type": "key"
+      },
+      {
+        "t": 3844,
+        "type": "key"
+      },
+      {
+        "t": 3985,
+        "type": "key"
+      },
+      {
+        "t": 3992,
+        "type": "key"
+      },
+      {
+        "t": 4129,
+        "type": "key"
+      },
+      {
+        "t": 4136,
+        "type": "key"
+      },
+      {
+        "t": 4307,
+        "type": "key"
+      },
+      {
+        "t": 4477,
+        "type": "key"
+      },
+      {
+        "t": 4703,
+        "type": "key"
+      },
+      {
+        "t": 4717,
+        "type": "key"
+      },
+      {
+        "t": 4888,
+        "type": "key"
+      },
+      {
+        "t": 7592,
+        "type": "click"
+      }
+    ]
+  },
+  {
+    "name": "fraction",
+    "frames": 223,
+    "events": [
+      {
+        "t": 2092,
+        "type": "key"
+      },
+      {
+        "t": 2309,
+        "type": "key"
+      },
+      {
+        "t": 2508,
+        "type": "key"
+      },
+      {
+        "t": 2706,
+        "type": "key"
+      },
+      {
+        "t": 2902,
+        "type": "key"
+      },
+      {
+        "t": 3107,
+        "type": "key"
+      },
+      {
+        "t": 3959,
+        "type": "key"
+      },
+      {
+        "t": 4135,
+        "type": "key"
+      },
+      {
+        "t": 4311,
+        "type": "key"
+      },
+      {
+        "t": 4492,
+        "type": "key"
+      },
+      {
+        "t": 5325,
+        "type": "key"
+      },
+      {
+        "t": 5499,
+        "type": "key"
+      },
+      {
+        "t": 5671,
+        "type": "key"
+      },
+      {
+        "t": 5840,
+        "type": "key"
+      },
+      {
+        "t": 5847,
+        "type": "key"
+      },
+      {
+        "t": 6015,
+        "type": "key"
+      }
+    ]
+  },
+  {
+    "name": "matrix",
+    "frames": 239,
+    "events": [
+      {
+        "t": 2858,
+        "type": "click"
+      },
+      {
+        "t": 3806,
+        "type": "click"
+      },
+      {
+        "t": 4745,
+        "type": "click"
+      },
+      {
+        "t": 5820,
+        "type": "key"
+      },
+      {
+        "t": 5985,
+        "type": "key"
+      },
+      {
+        "t": 6214,
+        "type": "key"
+      },
+      {
+        "t": 6365,
+        "type": "key"
+      },
+      {
+        "t": 6592,
+        "type": "key"
+      },
+      {
+        "t": 6741,
+        "type": "key"
+      },
+      {
+        "t": 6970,
+        "type": "key"
+      }
+    ]
+  },
+  {
+    "name": "commands",
+    "frames": 269,
+    "events": [
+      {
+        "t": 2323,
+        "type": "key"
+      },
+      {
+        "t": 2585,
+        "type": "key"
+      },
+      {
+        "t": 2826,
+        "type": "key"
+      },
+      {
+        "t": 3063,
+        "type": "key"
+      },
+      {
+        "t": 3302,
+        "type": "key"
+      },
+      {
+        "t": 3538,
+        "type": "key"
+      },
+      {
+        "t": 5079,
+        "type": "key"
+      },
+      {
+        "t": 5092,
+        "type": "key"
+      },
+      {
+        "t": 5296,
+        "type": "key"
+      },
+      {
+        "t": 5493,
+        "type": "key"
+      },
+      {
+        "t": 7910,
+        "type": "click"
+      }
+    ]
+  },
+  {
+    "name": "style",
+    "frames": 297,
+    "events": [
+      {
+        "t": 2487,
+        "type": "key"
+      },
+      {
+        "t": 2665,
+        "type": "key"
+      },
+      {
+        "t": 2846,
+        "type": "key"
+      },
+      {
+        "t": 3023,
+        "type": "key"
+      },
+      {
+        "t": 3205,
+        "type": "key"
+      },
+      {
+        "t": 3384,
+        "type": "key"
+      },
+      {
+        "t": 5090,
+        "type": "click"
+      },
+      {
+        "t": 6780,
+        "type": "click"
+      },
+      {
+        "t": 8750,
+        "type": "click"
+      }
+    ]
+  }
+]
