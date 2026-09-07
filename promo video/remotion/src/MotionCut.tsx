@@ -3,8 +3,8 @@ import {AbsoluteFill,Sequence,useCurrentFrame,interpolate,Easing,staticFile} fro
 import {Video,Audio} from '@remotion/media';
 const ease=Easing.bezier(.45,0,.3,1);
 const lerp=(f:number,frames:number[],values:number[])=>interpolate(f,frames,values,{extrapolateLeft:'clamp',extrapolateRight:'clamp',easing:ease});
-type Shot={from:number;duration:number;start:number;rate:number;label:string;line:string;tip:string;camera:number[][];file?:string};
-const shots:Shot[]=[
+export type Shot={from:number;duration:number;start:number;rate:number;label:string;line:string;tip:string;camera:number[][];file?:string};
+export const shots:Shot[]=[
  {from:4,duration:7,start:3,rate:.65,label:'01 / FLOW',line:'Write it. Don’t describe it.',tip:'Press / for a fraction. Type sqrt for a square root.',camera:[[0,1.4,960,570],[90,2.15,770,440],[260,2.3,760,460],[420,1.55,910,535]]},
  {from:11,duration:8,start:27.7,rate:.7,label:'02 / STRUCTURE',line:'A matrix in a few clicks.',tip:'Linear Algebra → [ ] → 2 × 2. Tab between cells.',camera:[[0,1.45,960,570],[100,2.1,620,580],[220,2.1,580,610],[330,2.25,710,430],[480,1.6,900,525]]},
  {from:19,duration:6,start:39.8,rate:.75,label:'03 / SHORTCUTS',line:'The symbol is already at your fingertips.',tip:'Type \\nabla. Choose the symbol. Keep going.',camera:[[0,1.65,900,520],[100,2.2,700,440],[250,2.3,725,450],[360,1.55,940,535]]},
