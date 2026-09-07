@@ -4,8 +4,8 @@ export function startMatrixGuide(frame, report) {
   if (!doc?.querySelector('#category-tabs')) return () => {};
   const style = doc.createElement('style');
   style.textContent = `
-    .exercise-guide-target { outline: 3px solid #69e9b4 !important; outline-offset: 2px; animation: exercise-guide-pulse 1.6s ease-in-out infinite; }
-    @keyframes exercise-guide-pulse { 50% { outline-color: #69e9b455; box-shadow: 0 0 12px #69e9b466; } }
+    .exercise-guide-target { outline: 3px solid #69e9b4 !important; outline-offset: -3px; animation: exercise-guide-pulse 1.6s ease-in-out infinite; }
+    @keyframes exercise-guide-pulse { 50% { outline-color: #69e9b455; box-shadow: inset 0 0 12px #69e9b433; } }
     @media (prefers-reduced-motion: reduce) { .exercise-guide-target { animation: none; } }
   `;
   doc.head.append(style);
