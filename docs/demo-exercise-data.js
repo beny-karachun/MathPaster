@@ -18,7 +18,7 @@ export const exercises = [
     instruction: 'Put the whole square root in the denominator.',
     latex: String.raw`\frac{x+1}{\sqrt{x^2+1}}`,
     words: 'A fraction whose numerator is x plus one and whose denominator is the square root of the entire expression x squared plus one.',
-    hint: "Simply write `sqrt` to insert a square root."
+    hint: "Press `/` to create a fraction. Use `↑` and `↓` to navigate. Simply write `sqrt` to insert a square root."
   },
   {
     title: 'A sum with bounds', short: 'Sum',
