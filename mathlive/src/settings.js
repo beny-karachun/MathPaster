@@ -340,8 +340,9 @@ document.getElementById('close-settings-btn').addEventListener('click', () => {
   document.getElementById('settings-overlay').classList.remove('visible');
 });
 
-document.getElementById('reset-settings-btn').addEventListener('click', () => {
-  state.currentSettings = { ...defaultSettings };
+document.getElementById('reset-sizes-btn').addEventListener('click', () => {
+  const { themePreset, showLatexBar } = state.currentSettings;
+  state.currentSettings = { ...defaultSettings, themePreset, showLatexBar };
   state.zoom = 1;
   try { localStorage.removeItem('mathpaster_zoom'); } catch (e) {}
   settingsKeys.forEach(k => {
@@ -358,6 +359,23 @@ document.getElementById('reset-settings-btn').addEventListener('click', () => {
   });
   renderThemePresets();
   applySettings(state.currentSettings);
+  for (const key of ['mathpaster_pos_x', 'mathpaster_pos_y', 'mathpaster_kbd_width', 'mathpaster_kbd_height', 'mathpaster_kbd_left', 'mathpaster_kbd_top']) localStorage.removeItem(key);
+  state.currentX = state.currentY = state.baseX = state.baseY = 0;
+  clampPositionToBounds();
+  document.dispatchEvent(new Event('mathpaster:reset-sizes'));
+  document.getElementById('reset-feedback').textContent = 'Default sizes restored.';
+});
+
+const resetConfirmation = document.getElementById('reset-everything-confirm');
+document.getElementById('reset-settings-btn').addEventListener('click', () => { resetConfirmation.hidden = false; });
+document.getElementById('reset-everything-cancel').addEventListener('click', () => { resetConfirmation.hidden = true; });
+document.getElementById('reset-everything-yes').addEventListener('click', () => {
+  // Limit reset to editor-owned data. Do not clear website consent or licensing.
+  const keys = ['settings', 'zoom', 'pos_x', 'pos_y', 'kbd_width', 'kbd_height', 'kbd_left', 'kbd_top',
+    'draft', 'mode', 'autosymbols', 'history', 'custom_tabs', 'default_overrides', 'hidden_default_tabs',
+    'tab_order', 'snippet_tabs', 'snippets', 'snippet_active', 'review'];
+  keys.forEach(key => localStorage.removeItem('mathpaster_' + key));
+  location.reload();
 });
 
 // Positioning state & helper to keep window fully visible within the viewport

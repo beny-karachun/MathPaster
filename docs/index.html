@@ -68,6 +68,8 @@
 
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="lib/mathlive-static.css">
+    <link rel="stylesheet" href="demo-exercises.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://app.lemonsqueezy.com">
@@ -310,8 +312,8 @@
                                 <p class="card-text">Toggle the <strong>Auto-Symbols</strong> switch in the editor toolbar. When active, common combinations automatically format (e.g. typing <code>/</code> creates a fraction). Turn it off if you prefer to write traditional, raw LaTeX code.</p>
                             </div>
                             <div class="manual-card">
-                                <h4>Inline vs Block Modes</h4>
-                                <p class="card-text">Toggle the <strong>Inline/Block</strong> switch to change how MathPaster wraps your formula. Inline wraps formulas with single <code>$</code> tags (perfect for standard sentences). Block mode uses double <code>$$</code> tags (for centered, prominent equations).</p>
+                                <h4>Ready-to-insert LaTeX</h4>
+                                <p class="card-text">Equations use inline LaTeX with single <code>$</code> delimiters, ready to insert within your message.</p>
                             </div>
                         </div>
                     </div>
@@ -494,20 +496,19 @@
 
         <section id="demo" class="demo-section" style="padding: 60px 0 100px 0;">
             <h2 class="section-title">TRY IT LIVE</h2>
-            <div
-                style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px;">
-                <label for="demo-input"
-                    style="display: block; color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 12px;">Your
-                    Input Field (Type or paste math here)</label>
-                <textarea id="demo-input"
-                    style="width: 100%; height: 100px; background: var(--bg-main); border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-primary); padding: 16px; font-size: 1rem; margin-bottom: 24px; resize: vertical; font-family: inherit;"
-                    placeholder="Place cursor here, type text, and use the editor below to insert math..."></textarea>
-
-                <h3 style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 12px; font-weight: normal;">
-                    MathPaster Editor</h3>
-                <iframe id="mathpaster-frame" src="editor.html?demo=true"
-                    style="width: 100%; height: 620px; border: none; border-radius: 12px; background: transparent;"
-                    title="MathPaster Editor Demo"></iframe>
+            <p class="exercise-intro">Some things are easier to write than explain. Try these five, then take MathPaster into your next conversation.</p>
+            <div class="exercise-topline"><span id="exercise-progress" aria-live="polite">0 of 5 completed</span><span>No install needed · all processing stays in your browser</span></div>
+            <nav id="exercise-nav" aria-label="Choose an exercise"></nav>
+            <div class="exercise-card">
+              <div class="exercise-brief">
+                <div><span class="exercise-eyebrow" id="exercise-number"></span><h3 id="exercise-title"></h3><p id="exercise-instruction"></p><div id="exercise-target" aria-label="Target equation"></div></div>
+                <div class="exercise-words"><span class="exercise-eyebrow">THE SAME THING IN WORDS</span><p id="exercise-description"></p><p id="exercise-comparison"></p></div>
+              </div>
+              <details class="exercise-hint"><summary>Need a hint?</summary><p id="exercise-hint"></p></details>
+              <div class="exercise-response"><label for="demo-input">Your inserted equation</label><div class="exercise-answer-row"><textarea id="demo-input" rows="2" placeholder="Build the equation in the editor below, then press Insert."></textarea><button id="exercise-check" type="button">Check answer</button></div></div>
+              <div class="exercise-result-row"><p id="exercise-status" role="status">Build the target equation, then press Insert.</p><button id="exercise-next" type="button" hidden>Next exercise →</button></div>
+              <iframe id="mathpaster-frame" src="editor.html?demo=true" title="MathPaster Editor Demo" style="width:100%;height:600px;border:0;background:transparent;"></iframe>
+              <div id="exercise-complete" hidden><strong>Five ideas, clearly expressed.</strong><p>You’re ready to write math directly into your conversations.</p><a href="https://chromewebstore.google.com/detail/mathpaster/gpfikddlkclmegpdjoaflmbndcnddleg">Get the free extension →</a></div>
             </div>
         </section>
     </main>
@@ -523,25 +524,6 @@
     </footer>
     <script>
         const demoInput = document.getElementById('demo-input');
-
-        // Listen for messages from the MathPaster iframe editor
-        window.addEventListener('message', (event) => {
-            if (event.data && event.data.mathpaster === 'insert') {
-                const latex = event.data.latex;
-
-                // Insert at cursor position
-                const startPos = demoInput.selectionStart;
-                const endPos = demoInput.selectionEnd;
-                const text = demoInput.value;
-
-                demoInput.value = text.substring(0, startPos) + latex + text.substring(endPos, text.length);
-                demoInput.focus();
-                demoInput.selectionStart = startPos + latex.length;
-                demoInput.selectionEnd = startPos + latex.length;
-            } else if (event.data && event.data.mathpaster === 'toast') {
-                alert(event.data.text);
-            }
-        });
 
         // Smooth scroll for the demo button
         document.querySelector('a[href="#demo"]').addEventListener('click', function (e) {
@@ -575,6 +557,8 @@
             });
         });
     </script>
+    <script src="lib/mathlive.min.js"></script>
+    <script type="module" src="demo-exercises.js"></script>
     <!-- Official checkout overlay exposes a confirmed-success event for purchase measurement. -->
     <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
     <!-- Reddit events are sent only for attributed visits, and only after opt-in. -->

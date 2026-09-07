@@ -149,21 +149,16 @@ window.addEventListener("message", e => {
       
       if (e.data.initialMath) {
         draft = e.data.initialMath.text;
-        state.insertMode = e.data.initialMath.mode;
+        state.insertMode = "inline";
         // Also update local storage so it persists if they reload or toggle again without inserting
         localStorage.setItem("mathpaster_draft", draft);
         localStorage.setItem("mathpaster_mode", state.insertMode);
       } else {
         draft = localStorage.getItem("mathpaster_draft") || "";
-        state.insertMode = localStorage.getItem("mathpaster_mode") || "inline";
+        state.insertMode = "inline";
       }
 
       mf.value = draft;
-      
-      document.getElementById("mode-switch").checked = (state.insertMode === "block");
-      document.querySelectorAll(".mode-label").forEach(l => {
-        l.classList.toggle("active", l.dataset.mode === state.insertMode);
-      });
       
       updatePreview();
       setTimeout(() => {

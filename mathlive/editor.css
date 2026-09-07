@@ -1970,3 +1970,8 @@ body[data-style] math-field::part(virtual-keyboard-toggle), body[data-style] mat
 
 body.demo-mode #editor-window { max-height: none; }
 body[data-style] .symbol-section-title { color: var(--highlight); }
+
+body[data-style] .reset-tools { display: flex; flex-direction: column; gap: 10px; }
+body[data-style] .reset-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+body[data-style] #reset-everything-confirm { padding: 12px; border: 1px solid var(--line); border-radius: 8px; }
+body[data-style] #reset-everything-confirm[hidden] { display: none; }

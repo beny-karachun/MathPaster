@@ -70,14 +70,6 @@
             <span class="slider"></span>
           </label>
         </div>
-        <div id="mode-selector" style="display: flex; align-items: center; gap: 10px;">
-          <span class="mode-label active" data-mode="inline">Inline</span>
-          <label class="switch">
-            <input type="checkbox" id="mode-switch" aria-label="Use block equation delimiters">
-            <span class="slider"></span>
-          </label>
-          <span class="mode-label" data-mode="block">Block</span>
-        </div>
         <div id="latex-bar-selector" style="display: flex; align-items: center; gap: 10px;">
           <span class="mode-label active" id="label-showLatexBar" style="font-weight: 500;">LaTeX Bar</span>
           <label class="switch">
@@ -263,7 +255,16 @@
         <a href="https://chromewebstore.google.com/detail/mathpaster/gpfikddlkclmegpdjoaflmbndcnddleg" target="_blank" rel="noopener noreferrer" class="rate-btn" id="rate-us-btn" title="Rate MathPaster on Chrome Web Store">
           Leave a review ↗
         </a>
-        <button class="btn secondary" id="reset-settings-btn" style="margin-top:10px;">Reset to Defaults</button>
+        <div class="reset-tools">
+          <button class="btn secondary" id="reset-sizes-btn">Reset sizes to default</button>
+          <p class="settings-note">Restores window, keyboard, button and font sizes. Keeps your style and saved equations.</p>
+          <button class="btn secondary" id="reset-settings-btn">Reset everything to default</button>
+          <div id="reset-everything-confirm" hidden>
+            <p class="settings-note">This clears editor settings, custom tabs, snippets, history and your draft. Your Pro license stays active.</p>
+            <div class="reset-actions"><button class="btn secondary" id="reset-everything-cancel">Cancel</button><button class="btn primary" id="reset-everything-yes">Reset everything</button></div>
+          </div>
+          <p id="reset-feedback" role="status" class="settings-note"></p>
+        </div>
       </div>
     </div>
   </div>

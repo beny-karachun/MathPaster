@@ -1,0 +1,45 @@
+.exercise-intro { max-width: 700px; color: var(--text-secondary); line-height: 1.7; margin: 0 0 24px; }
+.exercise-topline { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; color: var(--text-secondary); font-size: 12px; margin-bottom: 16px; }
+#exercise-progress { color: #72debc; font-weight: 600; }
+#exercise-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
+.exercise-step, #exercise-check, #exercise-next { font: inherit; font-size: 13px; cursor: pointer; border: 1px solid #33453f; color: #dbe9e4; background: #15221f; padding: 11px 16px; border-radius: 8px; min-height: 42px; transition: background-color .15s, border-color .15s; }
+.exercise-step:hover, #exercise-next:hover { background: #243c32; }
+.exercise-step.active { background: #a5e6cd; color: #12271e; border-color: #a5e6cd; }
+.exercise-step.completed:not(.active) { color: #87dcbc; }
+.exercise-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 28px; }
+.exercise-brief { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+.exercise-eyebrow { font-size: 10px; letter-spacing: 1.5px; color: #83cdb1; }
+#exercise-title { font-size: 24px; margin: 10px 0; color: #eef8f3; }
+#exercise-instruction { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+#exercise-target { font-size: 28px; color: #f2f9f5; padding: 22px 0 12px; overflow-x: auto; }
+.exercise-words { padding: 18px 20px; border-left: 2px solid #38544a; background: #0d151a; border-radius: 0 8px 8px 0; }
+#exercise-description { line-height: 1.8; color: #b5c0c6; font-size: 14px; margin: 12px 0; }
+#exercise-comparison { font-size: 12px; line-height: 1.7; color: #83cdb1; }
+.exercise-hint { margin: 12px 0 22px; font-size: 13px; color: #b8c7ce; }
+.exercise-hint summary { cursor: pointer; padding: 10px 0; }
+#exercise-hint { padding: 8px 0; line-height: 1.7; max-width: 760px; }
+.exercise-response label { display: block; color: #b8c7ce; font-size: 12px; margin-bottom: 8px; }
+.exercise-answer-row { display: flex; gap: 10px; align-items: stretch; }
+#demo-input { flex: 1; min-width: 0; width: 100%; min-height: 66px; padding: 12px; resize: vertical; border: 1px solid #36434e; border-radius: 8px; color: #dcece5; background: #0b1118; font: 13px/1.6 ui-monospace,monospace; }
+#exercise-check { align-self: center; white-space: nowrap; }
+.exercise-result-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; min-height: 54px; }
+#exercise-status { color: #adbac4; font-size: 13px; line-height: 1.6; }
+#exercise-status[data-state="success"] { color: #87e2bc; }
+#exercise-status[data-state="retry"] { color: #efd192; }
+#exercise-next[hidden], #exercise-complete[hidden] { display: none; }
+#exercise-complete { padding: 22px; border: 1px solid #36644d; border-radius: 10px; background: #142d22; color: #d4f3e4; line-height: 1.8; }
+#exercise-complete a { color: #a5e6cd; }
+.exercise-card :is(button,textarea,summary):focus-visible, .exercise-step:focus-visible { outline: 2px solid #a5e6cd; outline-offset: 3px; }
+@media(max-width: 720px) { .exercise-brief { grid-template-columns: 1fr; gap: 16px; } .exercise-card { padding: 16px; } .exercise-answer-row { flex-direction: column; } #exercise-check { align-self: flex-start; } .exercise-result-row { flex-wrap: wrap; padding: 12px 0; } }
+@media(prefers-reduced-motion:reduce) { .exercise-step, #exercise-check, #exercise-next { transition: none; } }
+@media(min-width: 1050px) {
+  .exercise-card { display: grid; grid-template-columns: minmax(280px, .85fr) minmax(0, 1.7fr); column-gap: 20px; align-items: start; }
+  .exercise-brief { grid-column: 1; grid-row: 1; grid-template-columns: 1fr; gap: 14px; }
+  .exercise-hint { grid-column: 1; grid-row: 2; margin-bottom: 10px; }
+  .exercise-response { grid-column: 1; grid-row: 3; }
+  .exercise-answer-row { flex-direction: column; }
+  #exercise-check { align-self: flex-start; }
+  .exercise-result-row { grid-column: 1; grid-row: 4; flex-wrap: wrap; padding-top: 12px; }
+  #mathpaster-frame { grid-column: 2; grid-row: 1 / span 4; align-self: start; }
+  #exercise-complete { grid-column: 1 / -1; grid-row: 5; margin-top: 20px; }
+}
