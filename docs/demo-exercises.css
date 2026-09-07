@@ -43,3 +43,7 @@
   #mathpaster-frame { grid-column: 2; grid-row: 1 / span 4; align-self: start; }
   #exercise-complete { grid-column: 1 / -1; grid-row: 5; margin-top: 20px; }
 }
+
+#exercise-effort { color: #e0ece6; font-size: 14px; line-height: 1.7; border-top: 1px solid #2d4038; padding-top: 14px; }
+#matrix-guide-status { color: #87e2bc; font-weight: 600; line-height: 1.7; }
+#matrix-guide-status:empty { display: none; }

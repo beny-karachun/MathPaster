@@ -1,3 +1,4 @@
+import { startMatrixGuide } from './demo-matrix-guide.js';
 import { exercises, matchesExercise } from './demo-exercise-data.js';
 
 const $ = id => document.getElementById(id);
@@ -7,6 +8,12 @@ const completed = new Set();
 const answers = new Map();
 let current = 0;
 let ready = false;
+let stopGuide = () => {};
+function refreshGuide() {
+  stopGuide();
+  $('matrix-guide-status').textContent = '';
+  if (ready && current === 0) stopGuide = startMatrixGuide(frame, text => { $('matrix-guide-status').textContent = text; });
+}
 
 function resetEditor() {
   if (ready) frame.contentWindow.postMessage({ mathpaster: 'reset', initialMath: { text: '', mode: 'inline' } }, location.origin);
@@ -30,16 +37,18 @@ function selectExercise(i) {
   $('exercise-instruction').textContent = exercise.instruction;
   $('exercise-target').innerHTML = window.MathLive.convertLatexToMarkup(exercise.latex);
   $('exercise-description').textContent = exercise.words;
+  $('exercise-effort').textContent = exercise.effort;
   const ratio = (exercise.words.length / exercise.latex.length).toFixed(1);
   $('exercise-comparison').textContent = `${exercise.words.length} characters in words · ${exercise.latex.length} characters of generated LaTeX. The wording is ${ratio}× as long.`;
   $('exercise-hint').textContent = exercise.hint;
-  document.querySelector('.exercise-hint').open = false;
+  document.querySelector('.exercise-hint').open = true;
   input.value = answers.get(i) || '';
   $('exercise-status').textContent = completed.has(i) ? '✓ Completed. You can try it again.' : 'Build the target equation, then press Insert.';
   $('exercise-status').dataset.state = completed.has(i) ? 'success' : 'idle';
   $('exercise-next').hidden = !completed.has(i) || completed.size === exercises.length;
   updateNavigation();
   resetEditor();
+  refreshGuide();
 }
 function checkAnswer() {
   const success = matchesExercise(input.value, exercises[current]);
@@ -69,7 +78,7 @@ $('exercise-next').addEventListener('click', () => {
 });
 window.addEventListener('message', event => {
   if (event.source !== frame.contentWindow || event.origin !== location.origin || !event.data) return;
-  if (event.data.mathpaster === 'ready') { ready = true; return; }
+  if (event.data.mathpaster === 'ready') { ready = true; refreshGuide(); return; }
   if (event.data.mathpaster === 'insert' && typeof event.data.latex === 'string') {
     input.value = event.data.latex;
     checkAnswer();
@@ -77,6 +86,6 @@ window.addEventListener('message', event => {
     $('exercise-status').textContent = String(event.data.text || '');
   }
 });
-frame.addEventListener('load', () => { ready = true; });
+frame.addEventListener('load', () => { ready = true; refreshGuide(); });
 ready = frame.contentDocument?.readyState === 'complete';
 selectExercise(0);
