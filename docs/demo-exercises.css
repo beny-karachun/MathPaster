@@ -40,7 +40,7 @@
   .exercise-answer-row { flex-direction: column; }
   #exercise-check { align-self: flex-start; }
   .exercise-result-row { grid-column: 1; grid-row: 4; flex-wrap: wrap; padding-top: 12px; }
-  #mathpaster-frame { grid-column: 2; grid-row: 1 / span 4; align-self: start; }
+  #mathpaster-frame { grid-column: 2; grid-row: 1 / span 4; align-self: center; }
   #exercise-complete { grid-column: 1 / -1; grid-row: 5; margin-top: 20px; }
 }
 

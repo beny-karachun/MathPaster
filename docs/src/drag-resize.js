@@ -14,8 +14,9 @@ let startBaseX, startBaseY;
 let startZoom;
 
 // Header drag setup
-header.style.cursor = "grab";
+header.style.cursor = document.body.classList.contains("demo-mode") ? "default" : "grab";
 header.addEventListener("mousedown", e => {
+  if (document.body.classList.contains("demo-mode")) return;
   if (e.target.closest(".header-btn") || e.target.tagName === "INPUT") return;
   isDragging = true;
   startX = e.clientX;
@@ -285,7 +286,7 @@ document.addEventListener("mousemove", e => {
 document.addEventListener("mouseup", () => {
   if (isDragging) {
     isDragging = false;
-    header.style.cursor = "grab";
+    header.style.cursor = document.body.classList.contains("demo-mode") ? "default" : "grab";
     state.baseX = state.currentX;
     state.baseY = state.currentY;
     localStorage.setItem("mathpaster_pos_x", state.baseX);

@@ -57,6 +57,10 @@
       padding-bottom: 0;
     }
 
+    /* The embedded tutorial has a fixed place in the page layout. Saved popup
+       drag offsets must not shift or clip it on a returning visitor's browser. */
+    body.demo-mode #editor-window { left: 0 !important; top: 0 !important; }
+
     /* ── Panel ── */
     #editor-window {
       pointer-events: auto;
