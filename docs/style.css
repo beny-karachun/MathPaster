@@ -220,9 +220,17 @@ nav {
     color: var(--text-secondary);
     font-family: var(--font-mono);
     font-size: 1.1rem;
-    margin-bottom: 40px;
+    margin-bottom: 24px;
     border-left: 2px solid var(--accent);
     padding-left: 16px;
+}
+
+.product-summary {
+    max-width: 720px;
+    margin: 0 0 28px;
+    color: var(--text-secondary);
+    font-size: 1.06rem;
+    line-height: 1.8;
 }
 
 .hero-actions {
@@ -1123,6 +1131,5 @@ textarea:focus-visible,
     }
 }
 
-/* Product description and linked, crawlable guides. */
-.product-summary{max-width:720px;margin:20px auto 28px;color:var(--text-secondary);font-size:1.06rem;line-height:1.8}
+/* Linked, crawlable guides. */
 .discovery-guides{padding:50px 0}.discovery-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:20px}.discovery-grid>a{display:block;padding:26px;border:1px solid var(--card-border);border-radius:14px;background:var(--card-bg);color:var(--text-primary);text-decoration:none}.discovery-grid>a:hover,.discovery-grid>a:focus-visible{border-color:var(--accent)}.discovery-grid h3{font-size:1.1rem;line-height:1.5;margin-bottom:12px}.discovery-grid p{color:var(--text-secondary);line-height:1.7}
