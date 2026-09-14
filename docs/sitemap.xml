@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://mathpaster.com/</loc></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+  <url>
+    <loc>https://mathpaster.com/</loc>
+    <video:video>
+      <video:thumbnail_loc>https://i.ytimg.com/vi/hTGLLpN5pjs/hqdefault.jpg</video:thumbnail_loc>
+      <video:title>MathPaster - Easy Math for AI Chatbots</video:title>
+      <video:description>A tour of MathPaster: typing equations, choosing symbols, building matrices, and using snippets, history and themes to insert math into ChatGPT, Claude and Gemini.</video:description>
+      <video:player_loc>https://www.youtube-nocookie.com/embed/hTGLLpN5pjs?rel=0</video:player_loc>
+    </video:video>
+  </url>
   <url><loc>https://mathpaster.com/type-math-in-ai/</loc></url>
   <url><loc>https://mathpaster.com/chrome-extension/</loc></url>
   <url><loc>https://mathpaster.com/privacy.html</loc></url>
