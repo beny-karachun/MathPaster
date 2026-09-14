@@ -1,70 +1,61 @@
 # Chrome Web Store Listing — MathPaster - Easy Math for AI Chatbots
 
-> Last Updated: 2026-06-12
+> Last Updated: 2026-09-14
 
 ## Store Listing
 
+Suggested metadata for the next Chrome Web Store listing update (not automatically published by GitHub Pages).
+
 **Extension Name**
-MathPaster - Easy Math for AI Chatbots
+MathPaster - Math Keyboard for AI
 
 **Short Description**
-Visually write math and insert flawless LaTeX into AI chatbots like ChatGPT, Claude, and Gemini with a beautiful WYSIWYG editor.
+Type equations into ChatGPT, Claude and Gemini with a visual math keyboard. Insert fractions, integrals and matrices as LaTeX.
 
-**Detailed Description** (matches the live listing, updated for v1.2.0)
+**Detailed Description**
+MathPaster is a free visual math keyboard and equation editor for Chrome. Build equations in a preview, then insert LaTeX into prompts in ChatGPT, Claude, Gemini and other webpage text inputs.
 
-Tired of struggling to type math formulas into ChatGPT, Claude, or Gemini?
+Write math without describing every bracket and matrix row in words. MathPaster helps you check the notation before you send your question.
 
-We've all been there—trying to write complex equations with basic keyboard characters like e^(-x^2) / sqrt(pi) only to end up with parenthesis errors and a confused AI that outputs the wrong steps. Why is it so hard to type math in AI? Because chatbot inputs are built for words, not mathematical syntax.
+GET STARTED
+1. Click your chatbot's prompt field.
+2. Open MathPaster with Ctrl+M on Windows/Linux or Cmd+M on Mac, or use the extension icon.
+3. Type an equation or choose symbols from the palette.
+4. Press Insert or Ctrl+Enter (Cmd+Enter on Mac) to place LaTeX into the prompt.
+5. Add your question and send it yourself.
 
-MathPaster solves this. It is a visual, WYSIWYG (What You See Is What You Get) math editor that overlays on any website, allowing you to easily write, preview, and input flawless math equations into any AI chatbot in seconds.
+KEYBOARD SHORTCUTS
+• Press / to create a fraction; use arrow keys to navigate its fields.
+• With Auto-Symbols enabled, type sqrt, int or sum to insert notation.
+• Type a backslash for LaTeX command autocomplete.
+• Build a matrix with Linear Algebra → [ ] → 2 × 2, then Tab between cells.
 
-🚀 HOW IT WORKS
--Click on the chatbot prompt box.
--Press Ctrl + M (or Cmd + M on Mac) to instantly pop up the MathPaster editor.
--Write your equation visually using our toolbar or quick backslash (\) autocomplete commands.
--Press Ctrl + Enter to insert the formatted LaTeX directly into your chat window!
--To edit $...$ code that you already input, highlight with your cursor from delimiter to delimiter ($ or $$), and press Ctrl+M, you'll see it in the editor!
+FREE FEATURES
+• Visual fractions, roots, integrals, sums, limits, matrices and Greek symbols.
+• Built-in symbol palettes and Auto-Symbols.
+• LaTeX copying, direct insertion and live code preview.
+• History of your last 20 inserted expressions.
+• Precision and Paper themes, editor sizing and layout controls.
 
-✨ KEY FEATURES
-Visual WYSIWYG Editor: Stop guessing if you missed a bracket. See a beautiful, real-time preview of your fractions, integrals, matrices, and symbols as you write them.
+OPTIONAL PRO
+Save named snippets in folders, create custom symbol tabs, and use Glass and Vaporwave themes. See current plans at https://mathpaster.com/#pricing. The core editor remains free.
 
-Smart Autocomplete Recommendations: Type \ followed by a command (like \frac, \sqrt, \alpha) to quickly select and commit math blocks entirely from your keyboard.
+COMPATIBILITY
+For desktop Chrome and compatible Chromium browsers, including Edge, Brave, Opera and Vivaldi. Browser-protected pages and some custom inputs restrict extensions. If direct insertion fails, use Copy LaTeX and paste manually. Not a Firefox, Safari or mobile extension.
 
-Custom Symbol Tabs (Pro): Build your own symbol palettes — name a tab, add any \command with autocomplete, and drag tabs into the order you like.
+PRIVACY
+Equation editing takes place in your browser. Optional Pro activation and license validation contact Lemon Squeezy. The chatbot's own policies apply when you send your prompt. See https://mathpaster.com/privacy.html.
 
-Instant Inline & Block Toggles: Choose between inline mode ($ formula $ for sentence integration) and block mode ($$ formula $$ for centered, prominent equations).
+MathPaster is an input tool, not a math solver. It does not guarantee correct AI answers and is not affiliated with OpenAI, Anthropic or Google.
 
-Keyboard-First Workflow: Control everything without touching your mouse using intuitive hotkeys.
-
-10 Curated Color Themes: Hand-tuned dark and light themes — Indigo Night, Anthropic, Emerald, Crimson, Daylight, and more — plus full control over editor size, spacing, and background blur. (Two themes are free; all ten come with Pro.)
-
-Local Drafting & Caching: Your equation drafts are saved in real-time. If you close the overlay or reload the page, your progress remains safe.
-
-💎 MATHPASTER PRO (OPTIONAL)
-The core editor is free, forever. Pro unlocks custom symbol tabs and all 10 color themes:
-$2.99/month · $11.99/year · or $19.99 once — yours forever.
-Checkout is handled securely by Lemon Squeezy. Your license key arrives by email and activates in the editor under Settings → MathPaster Pro.
-
-🤖 COMPATIBLE AI MODELS & PLATFORMS
-MathPaster generates clean, standard LaTeX math delimiters which are natively read and beautifully rendered by all leading LLMs: ChatGPT, Claude, Gemini, DeepSeek, Copilot, and Qwen — plus homework platforms, wikis, forums, and any other text input on the web.
-
-🌐 COMPATIBILITY & PRIVACY
-Universal Browser Support: Runs on Google Chrome, Brave, Opera, Microsoft Edge, Vivaldi, and any other desktop Chromium-based browser.
-Privacy-First: MathPaster runs completely locally in your browser. We never collect, store, or transmit your equations, chat history, or personal data. The only network request the extension can ever make is optional: verifying your license key with Lemon Squeezy when you choose to activate Pro.
-
-⌨️ QUICK HOTKEYS
-Toggle Editor Overlay: Ctrl + M (Windows/Linux) or Cmd + M (macOS)
-Insert Formula to Chat: Ctrl + Enter (or Cmd + Enter)
-Close Editor: Esc
-Commit Autocomplete Suggestion: Enter
-
-Make writing math to AI effortless. Install MathPaster today and stop copy-pasting equations!
+Try it without installing: https://mathpaster.com/#demo
+Step-by-step examples: https://mathpaster.com/type-math-in-ai/
 
 **Category**
-Developer Tools
+Education
 
 **Single Purpose**
-Visually write math equations and insert LaTeX format directly into active text inputs on web pages.
+Visually write mathematical expressions and insert their LaTeX into active webpage text inputs.
 
 **Primary Language**
 English

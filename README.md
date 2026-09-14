@@ -7,7 +7,9 @@ powered by [MathLive](https://cortexjs.io/mathlive/), and insert it straight
 into the active input box.
 
 [**Install from the Chrome Web Store**](https://chromewebstore.google.com/detail/mathpaster/gpfikddlkclmegpdjoaflmbndcnddleg)
-· [**Try the live demo**](https://mathpaster.com/)
+· [**Try the live demo**](https://mathpaster.com/#demo)
+· [**How to type math into AI**](https://mathpaster.com/type-math-in-ai/)
+· [**Math keyboard for Chrome**](https://mathpaster.com/chrome-extension/)
 
 ![MathPaster editor overlay](assets/promotional-1280x800.png)
 
@@ -19,7 +21,8 @@ into the active input box.
   rich contenteditable inputs (ChatGPT, Claude, Gemini, DeepSeek).
 - Select existing `$...$` / `$$...$$` text before opening to edit it in place.
 - Draggable, resizable window and virtual keyboard with persistent layout.
-- 100% local: no external APIs, no telemetry, no data collection.
+- Equation editing happens locally; optional Pro activation and license
+  validation contact Lemon Squeezy.
   ([Privacy policy](https://mathpaster.com/privacy.html))
 
 ## Project layout
