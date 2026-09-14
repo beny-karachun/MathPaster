@@ -36,7 +36,7 @@ function enableImeInlineShortcuts(mf) {
   let pending = '';           // literal characters typed since the last expansion / reset
   let waitTimer = null;       // pending-commit timer (a key that's also a prefix of a longer key)
   let cachedMap = null, cachedKeys = [];
-  const INLINE_TIMEOUT = 350; // pause after which an ambiguous key commits (e.g. "xi" vs "xin")
+  const INLINE_TIMEOUT = 150; // pause after which an ambiguous key commits (e.g. "xi" vs "xin")
 
   const getMap = () => (mf.getOption ? mf.getOption('inlineShortcuts') : mf.inlineShortcuts) || {};
   const keysFor = (map) => { if (map !== cachedMap) { cachedMap = map; cachedKeys = Object.keys(map); } return cachedKeys; };
@@ -91,7 +91,7 @@ function enableImeInlineShortcuts(mf) {
         } else {                                              // …but a longer key could still come;
           const k = pending;                                  // commit after a pause, like MathLive
           waitTimer = setTimeout(() => {
-            if (pending === k && !sawKeydown) { pending = ''; expandAt(k.length, map[k]); }
+            if (pending === k && !composing) { pending = ''; expandAt(k.length, map[k]); }
           }, INLINE_TIMEOUT);
         }
       }
