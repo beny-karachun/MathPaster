@@ -441,6 +441,7 @@
     .cat-tab.dragging { opacity: 0.45; cursor: grabbing; }
 
     .new-tab-chip {
+      order: -1;
       border-style: dashed;
       border-color: hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.5);
       color: hsl(var(--primary-hue, 250), var(--primary-sat, 80%), calc(var(--primary-light, 65%) + 15%));
@@ -524,6 +525,15 @@
       transition-timing-function: ease;
       user-select: none;
       -webkit-user-select: none;
+    }
+
+    .pal-btn-face {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      transform-origin: center;
     }
 
     /* MathLive/KaTeX markup inside a button forces its own text cursor and
@@ -1882,7 +1892,6 @@ body[data-style] .cat-tab { background: transparent !important; color: var(--mut
 body[data-style] .cat-tab.active { background: var(--selected) !important; color: var(--highlight) !important; box-shadow: none !important; font-weight: 600; }
 body[data-style] .cat-tab:hover { color: var(--ink) !important; background: var(--key) !important; }
 body[data-style] .cat-tab.active:hover { background: var(--selected) !important; }
-body[data-style] .new-tab-chip { order: 1; }
 body[data-style] .pal-btn { background: var(--key) !important; color: var(--ink) !important; border: 1px solid var(--line) !important; box-shadow: var(--key-shadow) !important; text-shadow: none; }
 body[data-style] .pal-btn:hover { border-color: var(--highlight) !important; background: var(--selected) !important; transform: translateY(-1px); }
 body[data-style] #footer { padding: 10px 24px; border-color: var(--line); }
