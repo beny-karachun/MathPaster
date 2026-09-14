@@ -1,3 +1,4 @@
+import { buildAutoSymbols } from './auto-symbols.js';
 import { state } from './state.js';
 import { mf, latexEl, loading } from './dom.js';
 
@@ -19,24 +20,9 @@ function enableNativeKeyboard() {
   if (sink && sink.getAttribute('inputmode') !== 'text') sink.setAttribute('inputmode', 'text');
 }
 
-/* Make auto-symbols work when characters arrive WITHOUT a keydown. MathLive only
- * expands inline shortcuts (and runs keybindings like "/"→fraction) from its keydown
- * handler, so any input that commits via the IME path — phone keyboards, and Chrome on
- * Linux/Wayland+IBus — leaves "alpha" / "*" / "/" literal. This bridges that gap.
- *
- * We track the recently-typed literal characters in a small `pending` buffer (fed from
- * each input event's committed data), and after every commit expand the longest inline
- * shortcut that is a suffix of it (letters like "alpha", AND symbols like "*", "->",
- * ">=", "+-"). Structural keybindings that aren't inline shortcuts — currently "/"
- * (fraction) — are replayed as a synthetic keydown so MathLive's own command runs.
- *
- * On a physical keyboard MathLive already does all this (a real keydown fired), so we
- * stay dormant — no double expansion, no regression. Reading the LIVE inlineShortcuts
- * option means this honours the Auto-Symbols toggle for free (it's {} when off).
- *
- * We mirror MathLive's own resolution: while the typed run is still a prefix of some
- * key we wait (so "th"→tanh doesn't steal "theta"→θ); when the next char can't extend
- * it we expand the pending shortcut first, then reprocess that char. */
+/* Use one prefix-aware matcher for alphabetic shortcuts on physical keyboards
+ * and IME/mobile input. Native MathLive still handles punctuation shortcuts,
+ * navigation, fractions, and explicit backslash command entry. */
 function enableImeInlineShortcuts(mf) {
   // Characters MathLive turns into structure via a keybinding (not an inline shortcut),
   // so they're never literal on a physical keyboard. On the keydown-less path they'd be
@@ -50,7 +36,7 @@ function enableImeInlineShortcuts(mf) {
   let pending = '';           // literal characters typed since the last expansion / reset
   let waitTimer = null;       // pending-commit timer (a key that's also a prefix of a longer key)
   let cachedMap = null, cachedKeys = [];
-  const INLINE_TIMEOUT = 200; // pause after which an ambiguous key commits (e.g. "xi" vs "xin")
+  const INLINE_TIMEOUT = 350; // pause after which an ambiguous key commits (e.g. "xi" vs "xin")
 
   const getMap = () => (mf.getOption ? mf.getOption('inlineShortcuts') : mf.inlineShortcuts) || {};
   const keysFor = (map) => { if (map !== cachedMap) { cachedMap = map; cachedKeys = Object.keys(map); } return cachedKeys; };
@@ -139,24 +125,38 @@ function enableImeInlineShortcuts(mf) {
     for (const ch of data) feedChar(ch);
   };
 
-  // Listen on `window` (capture), not on `mf`: MathLive stops propagation of the keydowns
-  // it handles before they reach the shadow host, so a host listener misses them.
+  const finishPending = () => {
+    const entry = getMap()[pending];
+    const count = pending.length;
+    reset();
+    if (entry) expandAt(count, entry);
+  };
+
+  // Match physical words through the same prefix-aware path as IME input.
+  // MathLive's immediate expansion can enter a template at "int" before the
+  // user finishes "intop", which makes the longer shortcut impossible to type.
   let kdTimer = null;
   window.addEventListener('keydown', (e) => {
-    if (internalKeydown) return;                              // our own synthetic keydown
-    // Ignore IME/composition keydowns — the keyCode-229 "IME is processing" sentinel
-    // (key "Unidentified") phones and Wayland/IBus fire per character. MathLive doesn't
-    // expand from those, so counting them as real would keep us dormant and nothing would
-    // convert on mobile. Only a genuine character keydown stands us down — and we hold the
-    // guard ~150ms past MathLive's async input echo so a physical burst can't wake us.
-    if (e.isComposing || e.keyCode === 229 || e.key === 'Unidentified') return;
+    if (internalKeydown || e.isComposing || e.keyCode === 229 || e.key === 'Unidentified') return;
+    const focused = document.activeElement === mf || e.composedPath().includes(mf);
+    if (!focused) return;
     sawKeydown = true;
-    reset();                                                  // physical typing / arrow nav moves the caret
     clearTimeout(kdTimer);
     kdTimer = setTimeout(() => { sawKeydown = false; }, 150);
+    if (!e.ctrlKey && !e.metaKey && !e.altKey && /^[a-zA-Z]$/.test(e.key)
+        && mf.mode === 'math' && Object.keys(getMap()).length) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      mf.insert(e.key, { format: 'latex' });
+      feedChar(e.key);
+      return;
+    }
+    if (e.key === 'Shift') return;
+    if (e.key === 'Backspace' || e.key === 'Delete' || e.ctrlKey || e.metaKey || e.altKey) reset();
+    else finishPending();
   }, true);
   // A tap can move the caret, so the pending buffer no longer mirrors the literal tail.
-  mf.addEventListener('pointerdown', reset);
+  mf.addEventListener('pointerdown', finishPending);
   mf.addEventListener('compositionstart', () => { composing = true; });
   // Defer past MathLive's own compositionend handler, which commits the composed text a
   // tick later, then feed the finalized string.
@@ -171,7 +171,7 @@ function enableImeInlineShortcuts(mf) {
     if ((mf.value || '') === selfEditValue) return;           // async echo of our own edit
     onCommit(e && e.data);
   });
-  mf.addEventListener('focusout', reset);
+  mf.addEventListener('focusout', finishPending);
 }
 
 /* ── Live preview & Caching ── */
@@ -223,7 +223,7 @@ export function initMathField() {
       // Prevent virtual keyboard from automatically popping up on focus
       mf.mathVirtualKeyboardPolicy = "sandboxed";
       
-      state.defaultShortcuts = mf.getOption ? mf.getOption("inlineShortcuts") : mf.inlineShortcuts;
+      state.defaultShortcuts = buildAutoSymbols(mf.getOption ? mf.getOption("inlineShortcuts") : mf.inlineShortcuts);
       
       const savedAuto = localStorage.getItem("mathpaster_autosymbols");
       if (savedAuto === "false") {
@@ -232,16 +232,15 @@ export function initMathField() {
         if (mf.setOptions) mf.setOptions({ inlineShortcuts: {}, mathModeSpace: "\\:" });
         else { mf.inlineShortcuts = {}; mf.mathModeSpace = "\\:"; }
       } else {
-        if (mf.setOptions) mf.setOptions({ mathModeSpace: "\\:" });
-        else mf.mathModeSpace = "\\:";
+        if (mf.setOptions) mf.setOptions({ inlineShortcuts: state.defaultShortcuts, mathModeSpace: "\\:" });
+        else { mf.inlineShortcuts = state.defaultShortcuts; mf.mathModeSpace = "\\:"; }
       }
 
       loading.classList.add("hidden");
       mf.style.display = "block";
       mf.addEventListener("input", updatePreview);
       mf.addEventListener("input", () => window.parent.postMessage({ mathpaster: "editing" }, "*"));
-      // Auto-symbols on keydown-less input paths (mobile OS keyboards, Chrome/Wayland+IBus).
-      // Always on — it self-disables on physical keyboards, so it's safe everywhere.
+      // Shared word shortcuts for physical keyboards and mobile/IME input.
       enableImeInlineShortcuts(mf);
       if (IS_TOUCH) {
         enableNativeKeyboard();
