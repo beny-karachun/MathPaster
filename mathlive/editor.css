@@ -581,6 +581,7 @@
     .cat-tab.dragging { opacity: 0.45; cursor: grabbing; }
 
     .new-tab-chip {
+      order: -1;
       border-style: dashed;
       border-color: hsla(var(--primary-hue, 250), var(--primary-sat, 80%), var(--primary-light, 65%), 0.5);
       color: hsl(var(--primary-hue, 250), var(--primary-sat, 80%), calc(var(--primary-light, 65%) + 15%));
@@ -662,6 +663,15 @@
       transition: all 0.1s ease;
       user-select: none;
       -webkit-user-select: none;
+    }
+
+    .pal-btn-face {
+      display: inline-flex;
+      flex: 0 0 auto;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      transform-origin: center;
     }
 
     /* MathLive/KaTeX markup inside a button forces its own text cursor and

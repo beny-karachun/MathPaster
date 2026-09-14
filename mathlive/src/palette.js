@@ -134,12 +134,37 @@ export function renderSymbolFace(latex) {
 /* ── Populate palette & tabs ── */
 const categoryTabs = document.getElementById("category-tabs");
 
+// Fit the preview, not the button: long labels and tall fractions must keep a
+// little breathing room even when the user changes symbol or window sizes.
+let faceFitFrame = 0;
+function scheduleFaceFit() {
+  cancelAnimationFrame(faceFitFrame);
+  faceFitFrame = requestAnimationFrame(() => {
+    for (const btn of palette.children) {
+      const face = btn.querySelector('.pal-btn-face');
+      if (!face || !btn.clientWidth || !face.offsetWidth || !face.offsetHeight) continue;
+      const scale = Math.min(1,
+        Math.max(1, btn.clientWidth - 12) / face.offsetWidth,
+        Math.max(1, btn.clientHeight - 10) / face.offsetHeight);
+      face.style.transform = `scale(${scale})`;
+    }
+  });
+}
+const faceResizeObserver = new ResizeObserver(scheduleFaceFit);
+if (document.fonts) document.fonts.ready.then(scheduleFaceFit);
+
 export function renderPalette(categoryName) {
+  faceResizeObserver.disconnect();
   palette.innerHTML = "";
   for (const item of getRenderItems(categoryName)) {
     const btn = document.createElement("button");
     btn.className = "pal-btn";
-    btn.innerHTML = item.faceHTML;
+    const face = document.createElement('span');
+    face.className = 'pal-btn-face';
+    face.innerHTML = item.faceHTML;
+    btn.appendChild(face);
+    faceResizeObserver.observe(btn);
+    faceResizeObserver.observe(face);
     btn.title = item.title;
     btn.addEventListener("mousedown", e => e.preventDefault()); // don't steal focus
     btn.addEventListener("click", e => {
@@ -155,6 +180,7 @@ export function renderPalette(categoryName) {
     });
     palette.appendChild(btn);
   }
+  scheduleFaceFit();
 }
 
 /* ── Tab ordering (drag-to-reorder, persisted) ── */
