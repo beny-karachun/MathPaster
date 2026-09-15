@@ -1,19 +1,19 @@
-# Chrome Web Store Listing — MathPaster - Easy Math for AI Chatbots
+# Chrome Web Store Listing — MathPaster - Math Keyboard for Any AI Chatbot
 
-> Last Updated: 2026-09-14
+> Last Updated: 2026-09-15
 
 ## Store Listing
 
 Suggested metadata for the next Chrome Web Store listing update (not automatically published by GitHub Pages).
 
 **Extension Name**
-MathPaster - Math Keyboard for AI
+MathPaster - Math Keyboard for Any AI Chatbot
 
 **Short Description**
-Type equations into ChatGPT, Claude and Gemini with a visual math keyboard. Insert fractions, integrals and matrices as LaTeX.
+Write equations visually and paste LaTeX into any AI chatbot, including ChatGPT, Claude, and Gemini.
 
 **Detailed Description**
-MathPaster is a free visual math keyboard and equation editor for Chrome. Build equations in a preview, then insert LaTeX into prompts in ChatGPT, Claude, Gemini and other webpage text inputs.
+MathPaster is a free visual math keyboard and equation editor for Chrome. Build equations visually, then insert or copy LaTeX into any AI chatbot, including ChatGPT, Claude, and Gemini.
 
 Write math without describing every bracket and matrix row in words. MathPaster helps you check the notation before you send your question.
 
